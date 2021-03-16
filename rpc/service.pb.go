@@ -507,14 +507,14 @@ func (m *IaCResult) GetResult() string {
 }
 
 func init() {
-	proto.RegisterType((*ArtifactInfo)(nil), "aqua.cache.v1.ArtifactInfo")
-	proto.RegisterType((*PutArtifactRequest)(nil), "aqua.cache.v1.PutArtifactRequest")
-	proto.RegisterType((*BlobInfo)(nil), "aqua.cache.v1.BlobInfo")
-	proto.RegisterType((*PutBlobRequest)(nil), "aqua.cache.v1.PutBlobRequest")
-	proto.RegisterType((*PutResponse)(nil), "aqua.cache.v1.PutResponse")
-	proto.RegisterType((*MissingBlobsRequest)(nil), "aqua.cache.v1.MissingBlobsRequest")
-	proto.RegisterType((*MissingBlobsResponse)(nil), "aqua.cache.v1.MissingBlobsResponse")
-	proto.RegisterType((*IaCResult)(nil), "aqua.cache.v1.IaCResult")
+	proto.RegisterType((*ArtifactInfo)(nil), "wave.cache.v1.ArtifactInfo")
+	proto.RegisterType((*PutArtifactRequest)(nil), "wave.cache.v1.PutArtifactRequest")
+	proto.RegisterType((*BlobInfo)(nil), "wave.cache.v1.BlobInfo")
+	proto.RegisterType((*PutBlobRequest)(nil), "wave.cache.v1.PutBlobRequest")
+	proto.RegisterType((*PutResponse)(nil), "wave.cache.v1.PutResponse")
+	proto.RegisterType((*MissingBlobsRequest)(nil), "wave.cache.v1.MissingBlobsRequest")
+	proto.RegisterType((*MissingBlobsResponse)(nil), "wave.cache.v1.MissingBlobsResponse")
+	proto.RegisterType((*IaCResult)(nil), "wave.cache.v1.IaCResult")
 }
 
 func init() { proto.RegisterFile("rpc/service.proto", fileDescriptor_ec64d44e618a02a6) }

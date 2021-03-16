@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/aquasecurity/trivy-plugin-aqua/internal"
+	"github.com/aquasecurity/trivy-plugin-wave/internal"
 	"github.com/aquasecurity/trivy/pkg/report"
 
 	"github.com/urfave/cli/v2"

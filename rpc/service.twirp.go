@@ -83,7 +83,7 @@ func NewCacheProtobufClient(addr string, client HTTPClient, opts ...twirp.Client
 }
 
 func (c *cacheProtobufClient) PutArtifact(ctx context.Context, in *PutArtifactRequest) (*google_protobuf1.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "aqua.cache.v1")
+	ctx = ctxsetters.WithPackageName(ctx, "wave.cache.v1")
 	ctx = ctxsetters.WithServiceName(ctx, "Cache")
 	ctx = ctxsetters.WithMethodName(ctx, "PutArtifact")
 	out := new(google_protobuf1.Empty)
@@ -103,7 +103,7 @@ func (c *cacheProtobufClient) PutArtifact(ctx context.Context, in *PutArtifactRe
 }
 
 func (c *cacheProtobufClient) PutBlob(ctx context.Context, in *PutBlobRequest) (*google_protobuf1.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "aqua.cache.v1")
+	ctx = ctxsetters.WithPackageName(ctx, "wave.cache.v1")
 	ctx = ctxsetters.WithServiceName(ctx, "Cache")
 	ctx = ctxsetters.WithMethodName(ctx, "PutBlob")
 	out := new(google_protobuf1.Empty)
@@ -123,7 +123,7 @@ func (c *cacheProtobufClient) PutBlob(ctx context.Context, in *PutBlobRequest) (
 }
 
 func (c *cacheProtobufClient) MissingBlobs(ctx context.Context, in *MissingBlobsRequest) (*MissingBlobsResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "aqua.cache.v1")
+	ctx = ctxsetters.WithPackageName(ctx, "wave.cache.v1")
 	ctx = ctxsetters.WithServiceName(ctx, "Cache")
 	ctx = ctxsetters.WithMethodName(ctx, "MissingBlobs")
 	out := new(MissingBlobsResponse)
@@ -179,7 +179,7 @@ func NewCacheJSONClient(addr string, client HTTPClient, opts ...twirp.ClientOpti
 }
 
 func (c *cacheJSONClient) PutArtifact(ctx context.Context, in *PutArtifactRequest) (*google_protobuf1.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "aqua.cache.v1")
+	ctx = ctxsetters.WithPackageName(ctx, "wave.cache.v1")
 	ctx = ctxsetters.WithServiceName(ctx, "Cache")
 	ctx = ctxsetters.WithMethodName(ctx, "PutArtifact")
 	out := new(google_protobuf1.Empty)
@@ -199,7 +199,7 @@ func (c *cacheJSONClient) PutArtifact(ctx context.Context, in *PutArtifactReques
 }
 
 func (c *cacheJSONClient) PutBlob(ctx context.Context, in *PutBlobRequest) (*google_protobuf1.Empty, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "aqua.cache.v1")
+	ctx = ctxsetters.WithPackageName(ctx, "wave.cache.v1")
 	ctx = ctxsetters.WithServiceName(ctx, "Cache")
 	ctx = ctxsetters.WithMethodName(ctx, "PutBlob")
 	out := new(google_protobuf1.Empty)
@@ -219,7 +219,7 @@ func (c *cacheJSONClient) PutBlob(ctx context.Context, in *PutBlobRequest) (*goo
 }
 
 func (c *cacheJSONClient) MissingBlobs(ctx context.Context, in *MissingBlobsRequest) (*MissingBlobsResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "aqua.cache.v1")
+	ctx = ctxsetters.WithPackageName(ctx, "wave.cache.v1")
 	ctx = ctxsetters.WithServiceName(ctx, "Cache")
 	ctx = ctxsetters.WithMethodName(ctx, "MissingBlobs")
 	out := new(MissingBlobsResponse)
@@ -263,11 +263,11 @@ func (s *cacheServer) writeError(ctx context.Context, resp http.ResponseWriter, 
 // CachePathPrefix is used for all URL paths on a twirp Cache server.
 // Requests are always: POST CachePathPrefix/method
 // It can be used in an HTTP mux to route twirp requests along with non-twirp requests on other routes.
-const CachePathPrefix = "/twirp/aqua.cache.v1.Cache/"
+const CachePathPrefix = "/twirp/wave.cache.v1.Cache/"
 
 func (s *cacheServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
-	ctx = ctxsetters.WithPackageName(ctx, "aqua.cache.v1")
+	ctx = ctxsetters.WithPackageName(ctx, "wave.cache.v1")
 	ctx = ctxsetters.WithServiceName(ctx, "Cache")
 	ctx = ctxsetters.WithResponseWriter(ctx, resp)
 
@@ -286,13 +286,13 @@ func (s *cacheServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	switch req.URL.Path {
-	case "/twirp/aqua.cache.v1.Cache/PutArtifact":
+	case "/twirp/wave.cache.v1.Cache/PutArtifact":
 		s.servePutArtifact(ctx, resp, req)
 		return
-	case "/twirp/aqua.cache.v1.Cache/PutBlob":
+	case "/twirp/wave.cache.v1.Cache/PutBlob":
 		s.servePutBlob(ctx, resp, req)
 		return
-	case "/twirp/aqua.cache.v1.Cache/MissingBlobs":
+	case "/twirp/wave.cache.v1.Cache/MissingBlobs":
 		s.serveMissingBlobs(ctx, resp, req)
 		return
 	default:

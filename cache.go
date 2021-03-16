@@ -9,13 +9,13 @@ import (
 
 	"github.com/aquasecurity/trivy/pkg/rpc"
 
-	cache "github.com/aquasecurity/trivy-plugin-aqua/rpc"
+	cache "github.com/aquasecurity/trivy-plugin-wave/rpc"
 
 	"github.com/aquasecurity/fanal/types"
 )
 
 const (
-	aquaAPI = "https://aqua.aquasec.com"
+	waveAPI = "https://wave.aquasec.com"
 )
 
 type WaveCache struct {
@@ -25,13 +25,13 @@ type WaveCache struct {
 
 func NewWaveCache(policyDirs []string) WaveCache {
 	return WaveCache{
-		rpcClient:  cache.NewCacheProtobufClient(aquaAPI, http.DefaultClient),
+		rpcClient:  cache.NewCacheProtobufClient(waveAPI, http.DefaultClient),
 		policyDirs: policyDirs,
 	}
 }
 
 func (w WaveCache) calculatePolicySignature() string {
-	// TODO(aqua): fix me
+	// TODO(wave): fix me
 	// Calculate the signature of policies
 	return "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 }
@@ -117,7 +117,7 @@ func (w WaveCache) PutBlob(blobID string, blobInfo types.BlobInfo) (err error) {
 		})
 	}
 
-	// TODO(aqua): fix me
+	// TODO(wave): fix me
 	_, err = w.rpcClient.PutBlob(context.Background(), &cache.PutBlobRequest{
 		DiffId: blobID,
 		BlobInfo: &cache.BlobInfo{
