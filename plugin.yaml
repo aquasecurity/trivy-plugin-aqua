@@ -1,13 +1,13 @@
 name: "aqua"
-repository: github.com/aquasecurity/trivy-plugin-wave
+repository: github.com/aquasecurity/trivy-plugin-aqua
 version: "0.1.0"
-usage: send iac scan results to aqua wave
+usage: send iac scan results to aqua aqua
 description: |-
   A Trivy plugin that uses Aqua Wave for IaC scanning.
-  Usage: trivy wave TYPE[.VERSION][.GROUP] NAME
+  Usage: trivy aqua TYPE[.VERSION][.GROUP] NAME
 platforms:
   - selector: # optional
       os: linux
       arch: amd64
-    uri: https://github.com/aquasecurity/trivy-plugin-wave/archive/0.1.0.zip 
-    bin: ./trivy-plugin-wave 
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/archive/0.1.0.zip 
+    bin: ./trivy-plugin-aqua 

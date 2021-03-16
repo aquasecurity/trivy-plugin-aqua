@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/aquasecurity/trivy-plugin-wave/internal"
+	"github.com/aquasecurity/trivy-plugin-aqua/internal"
 	"github.com/aquasecurity/trivy/pkg/report"
 
 	"github.com/urfave/cli/v2"
@@ -85,7 +85,6 @@ func run(ctx *cli.Context) error {
 		SecurityChecks: []types.SecurityCheck{types.SecurityCheckIaC},
 	}
 
-	fmt.Println("kaka1")
 	results, err := s.ScanArtifact(ctx.Context, option)
 	if err != nil {
 		return err

@@ -9,7 +9,7 @@ import (
 
 	"github.com/aquasecurity/trivy/pkg/rpc"
 
-	cache "github.com/aquasecurity/trivy-plugin-wave/rpc"
+	cache "github.com/aquasecurity/trivy-plugin-aqua/rpc"
 
 	"github.com/aquasecurity/fanal/types"
 )

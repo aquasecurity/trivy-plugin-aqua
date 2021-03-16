@@ -1,4 +1,4 @@
-module github.com/aquasecurity/trivy-plugin-wave
+module github.com/aquasecurity/trivy-plugin-aqua
 
 go 1.16
 
