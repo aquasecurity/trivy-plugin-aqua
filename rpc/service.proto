@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package aqua.cache.v1;
+option go_package = "cache";
+
+import "github.com/aquasecurity/trivy/rpc/common/service.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service Cache {
+  rpc PutArtifact(PutArtifactRequest) returns (google.protobuf.Empty);
+  rpc PutBlob(PutBlobRequest) returns (google.protobuf.Empty);
+  rpc MissingBlobs(MissingBlobsRequest) returns (MissingBlobsResponse);
+}
+
+message ArtifactInfo {
+  int32 schema_version = 1;
+  string architecture = 2;
+  google.protobuf.Timestamp created = 3;
+  string docker_version = 4;
+  string os = 5;
+  repeated trivy.common.Package history_packages = 6;
+}
+
+message PutArtifactRequest {
+  string artifact_id = 1;
+  ArtifactInfo artifact_info = 2;
+}
+
+message BlobInfo {
+  int32 schema_version = 1;
+  trivy.common.OS os = 2;
+  repeated trivy.common.PackageInfo package_infos = 3;
+  repeated trivy.common.Application applications = 4;
+  repeated string opaque_dirs = 5;
+  repeated string whiteout_files = 6;
+  string digest = 7;
+  string diff_id = 8;
+
+  // TODO: fix me
+  repeated IaCResult iac_results = 9;
+}
+
+message PutBlobRequest {
+  string diff_id = 1;
+  BlobInfo blob_info = 2;
+
+  // TODO: fix me
+  string policy_signature = 3;
+}
+
+message PutResponse {
+  trivy.common.OS os = 1;
+  bool eosl = 2;
+}
+
+message MissingBlobsRequest {
+  string artifact_id = 1;
+  repeated string blob_ids = 2;
+  string policy_signature = 3;
+}
+
+message MissingBlobsResponse {
+  bool missing_artifact = 1;
+  repeated string missing_blob_ids = 2;
+}
+
+// TODO: fix me
+message IaCResult {
+  string file_path = 1;
+  string result = 2;
+}
