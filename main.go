@@ -2,24 +2,31 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/aquasecurity/trivy-plugin-aqua/internal"
-	"github.com/aquasecurity/trivy/pkg/report"
-
 	"github.com/urfave/cli/v2"
 
+	"github.com/aquasecurity/fanal/analyzer"
+	"github.com/aquasecurity/fanal/analyzer/config"
 	fs "github.com/aquasecurity/fanal/artifact/local"
-	dbTypes "github.com/aquasecurity/trivy-db/pkg/types"
+	"github.com/aquasecurity/fanal/cache"
+	"github.com/aquasecurity/trivy-plugin-aqua/internal"
+	"github.com/aquasecurity/trivy/pkg/commands"
+	"github.com/aquasecurity/trivy/pkg/commands/artifact"
+	"github.com/aquasecurity/trivy/pkg/log"
 	"github.com/aquasecurity/trivy/pkg/rpc/client"
 	"github.com/aquasecurity/trivy/pkg/scanner"
-	"github.com/aquasecurity/trivy/pkg/types"
+)
+
+const (
+	// TODO: fix me
+	remoteAddr = "https://aquasec.com/xxx"
 )
 
 var (
@@ -42,69 +49,55 @@ func newApp(version string) *cli.App {
 	app.Usage = "Aqua plugin"
 	app.EnableBashCompletion = true
 
-	app.Commands = cli.Commands{
-		{
-			Name:   "iac",
-			Action: run,
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:     "key",
-					Usage:    "key",
-					Required: true,
-				},
-				&cli.StringFlag{
-					Name:     "secret",
-					Usage:    "secret",
-					Required: true,
-				},
-				&cli.StringSliceFlag{
-					Name:     "policy",
-					Usage:    "policy",
-					Required: true,
-					Value:    cli.NewStringSlice("policy"),
-				},
-			},
+	// TODO(teppei): fix me
+	app.Flags = nil
+
+	// Config scanning
+	configCommand := commands.NewConfigCommand()
+	configCommand.Flags = append(configCommand.Flags,
+		&cli.StringFlag{
+			Name:     "key",
+			Usage:    "key",
+			Required: true,
 		},
-	}
+		&cli.StringFlag{
+			Name:     "secret",
+			Usage:    "secret",
+			Required: true,
+		},
+	)
+	configCommand.Action = run
+
+	app.Commands = append(app.Commands, configCommand)
 
 	return app
 }
 
 func run(ctx *cli.Context) error {
+	opt, err := artifact.NewOption(ctx)
+	if err != nil {
+		return err
+	}
+
 	jwtToken, err := obtainJWT(ctx.String("key"), ctx.String("secret"))
 	if err != nil {
 		return err
 	}
 
 	headers := customHeaders(jwtToken)
+	policyDir, dataDir := downloadCustomPolicies(jwtToken)
 
-	policyDir := downloadCustomPolicies(jwtToken)
+	initializeScanner := initializeFilesystemScanner(ctx.Args().First(), policyDir, dataDir, headers)
 
-	s := initializeFilesystemScanner(ctx, policyDir, headers)
-	option := types.ScanOptions{
-		SecurityChecks: []types.SecurityCheck{types.SecurityCheckIaC},
-	}
-
-	results, err := s.ScanArtifact(ctx.Context, option)
-	if err != nil {
-		return err
-	}
-
-	// TODO: fix me
-	severities := []dbTypes.Severity{dbTypes.SeverityCritical, dbTypes.SeverityHigh}
-	err = report.WriteResults("table", os.Stdout, severities, results, "", false)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return artifact.Run(opt, initializeScanner, initAquaCache(headers))
 }
 
-func downloadCustomPolicies(jwtToken string) string {
+func downloadCustomPolicies(jwtToken string) (string, string) {
 	// TODO: fix me
 	// Not implemented yet
-	policyDir := "/tmp"
-	return policyDir
+	policyDir := "/tmp/policies"
+	dataDir := "/tmp/data"
+	return policyDir, dataDir
 }
 
 func obtainJWT(key, secret string) (string, error) {
@@ -145,26 +138,32 @@ func obtainJWT(key, secret string) (string, error) {
 	return Response.Data, nil
 }
 
-func customHeaders(jwtToken string) client.CustomHeaders {
+func customHeaders(jwtToken string) http.Header {
 	result := make(http.Header)
 
 	result.Set("Authorization", fmt.Sprintf("Bearer %s", jwtToken))
-	return client.CustomHeaders(result)
+	return result
 }
 
-func initializeFilesystemScanner(ctx *cli.Context, customPolicyDir string, customHeaders client.CustomHeaders) scanner.Scanner {
-	dir := ctx.Args().First()
+func initAquaCache(customHeaders http.Header) artifact.InitCache {
+	return func(c artifact.Option) (cache.Cache, error) {
+		return NewAquaCache(remoteAddr, customHeaders), nil
+	}
+}
 
-	// Merge customer's policies and local policies
-	policyDirs := ctx.StringSlice("policy")
-	policyDirs = append(policyDirs, customPolicyDir)
-	cache := NewWaveCache(policyDirs)
+func initializeFilesystemScanner(dir, customPolicyDir, customDataDir string, customHeaders http.Header) artifact.InitializeScanner {
+	return func(ctx context.Context, target string, artifactCache cache.ArtifactCache, localArtifactCache cache.LocalArtifactCache,
+		timeout time.Duration, disabledAnalyzers []analyzer.Type, configScannerOption config.ScannerOption) (
+		scanner.Scanner, func(), error) {
 
-	remoteAddr := ctx.String("remote")
-	protobufClient := client.NewProtobufClient(client.RemoteURL(remoteAddr))
+		// Merge customer's policies/data and local policies/data
+		configScannerOption.PolicyPaths = append(configScannerOption.PolicyPaths, customPolicyDir)
+		configScannerOption.DataPaths = append(configScannerOption.DataPaths, customDataDir)
 
-	remoteScanner := client.NewScanner(customHeaders, protobufClient)
+		protobufClient := client.NewProtobufClient(remoteAddr)
+		remoteScanner := client.NewScanner(client.CustomHeaders(customHeaders), protobufClient)
+		fsScanner := fs.NewArtifact(dir, artifactCache, nil, configScannerOption)
 
-	fsScanner := fs.NewArtifact(dir, cache, nil)
-	return scanner.NewScanner(remoteScanner, fsScanner)
+		return scanner.NewScanner(remoteScanner, fsScanner), func() {}, nil
+	}
 }
