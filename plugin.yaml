@@ -1,7 +1,7 @@
 name: "aqua"
 repository: github.com/aquasecurity/trivy-plugin-aqua
 version: "0.1.0"
-usage: send iac scan results to aqua aqua
+usage: send iac scan results to aqua. 
 description: |-
   A Trivy plugin that uses Aqua for IaC scanning.
   Usage: trivy aqua TYPE[.VERSION][.GROUP] NAME
