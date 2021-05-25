@@ -14,8 +14,8 @@ Options:
 
 Examples:
   # Scan an IaC file
-  trivy plugin run aqua iac --aqua-key <key> --aqua-secret <secret> <target>
-
+  export TRIVY_RUN_AS_PLUGIN=aqua
+  trivy iac --aqua-key <key> --aqua-secret <secret> <target>
 ```
 
 ## Usage
@@ -23,6 +23,6 @@ Trivy's options need to be passed after `--`.
 
 ```
 # Scan an IaC file
-trivy plugin run aqua iac --aqua-key <key> --aqua-secret <secret> <target>
+  export TRIVY_RUN_AS_PLUGIN=aqua
+  trivy iac --aqua-key <key> --aqua-secret <secret> <target>
 ```
-
