@@ -1,6 +1,6 @@
 name: "aqua"
 repository: github.com/aquasecurity/trivy-plugin-aqua
-version: "0.1.0"
+version: "0.1.1"
 usage: send iac scan results to aqua. 
 description: |-
   A Trivy plugin that uses Aqua for IaC scanning.
@@ -9,5 +9,5 @@ platforms:
   - selector: # optional
       os: linux
       arch: amd64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/0.1.0/0.1.0.tar.gz
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.1.1-prerelease/0.1.1.tar.gz
     bin: ./scannerclistatic
