@@ -10,4 +10,4 @@ platforms:
       os: linux
       arch: amd64
     uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.1.1-prerelease/0.1.1.tar.gz
-    bin: ./scannerclistatic
+    bin: ./bin/scannerclistatic
