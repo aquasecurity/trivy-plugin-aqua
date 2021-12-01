@@ -1,6 +1,6 @@
 name: "aqua"
 repository: github.com/aquasecurity/trivy-plugin-aqua
-version: "v0.2.0"
+version: "v0.3.0"
 usage: send trivy results to CSPM.
 description: |-
   A Trivy plugin that sends results to Aqua.
@@ -9,5 +9,5 @@ platforms:
   - selector: # optional
       os: linux
       arch: amd64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.2.0/v0.2.0.tar.gz
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.3.0/v0.3.0.tar.gz
     bin: ./aqua
