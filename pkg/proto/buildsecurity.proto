@@ -1,0 +1,90 @@
+syntax = "proto3";
+package buildsecurity;
+option go_package = "/buildsecurity";
+
+service BuildSecurity {
+  rpc LookupRepository(LookupRepositoryReq) returns (LookupRepositoryResp);
+  rpc CreateRepository(CreateRepositoryReq) returns (CreateRepositoryResp);
+  rpc GetPolicies(GetPoliciesReq) returns (GetPoliciesResp);
+  rpc CreateScan(CreateScanReq) returns (CreateScanResp);
+}
+
+message LookupRepositoryReq {
+  string SCMID = 1;
+}
+
+message LookupRepositoryResp {
+  string RepositoryID = 2;
+}
+
+message CreateRepositoryReq {
+  string SCMID = 1;
+  string Name = 2;
+}
+
+message CreateRepositoryResp {
+  string RepositoryID = 1;
+}
+
+message GetPoliciesReq {
+  string RepositoryID = 1;
+}
+
+message GetPoliciesResp {
+  repeated Policy Policies = 1;
+}
+
+message CreateScanReq {
+  string RepositoryID = 1;
+  string Branch = 2;
+  string User = 3;
+  string System = 4;
+  string Commit = 5;
+  repeated Result Results = 6;
+  map<string, string> Tags = 7;
+}
+
+message CreateScanResp {
+  string ScanID = 1;
+}
+
+message Policy {
+  string PolicyID = 1;
+  repeated PolicyControl Controls = 2;
+}
+
+message PolicyControl {
+  bool Global = 1;
+  string Provider = 2;
+  string Service = 3;
+  repeated string AVDIDs = 4;
+}
+
+message Result {
+  string AVDID = 1;
+  string Message = 2;
+  enum TypeEnum {
+    TYPE_UNKNOWN = 0 ;
+    TYPE_TERRAFORM = 1;
+    TYPE_CLOUDFORMATION = 2;
+    TYPE_DOCKERFILE = 3;
+    TYPE_KUBERNETES = 4;
+    TYPE_YAML = 5;
+    TYPE_HCL = 6;
+  }
+  TypeEnum Type = 4;
+  enum SeverityEnum {
+    SEVERITY_UNKNOWN = 0;
+    SEVERITY_LOW = 1;
+    SEVERITY_MEDIUM = 2;
+    SEVERITY_HIGH = 3;
+    SEVERITY_CRITICAL = 4;
+    SEVERITY_MAX = 5;
+  }
+  SeverityEnum Severity = 5;
+  string Title = 6;
+  string Filename = 7;
+  int32 StartLine = 8;
+  int32 EndLine = 9;
+  string Resource = 10;
+}

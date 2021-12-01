@@ -1,22 +1,6 @@
 # trivy-plugin-aqua
-A [Trivy](https://github.com/aquasecurity/trivy) plugin that scans infrastructure as code templates
 
-## Install
-
-```
-$ trivy plugin install github.com/aquasecurity/trivy-plugin-aqua
-$ trivy aqua -h
-Usage: trivy aqua [-h,--help] TYPE NAME [TRIVY OPTION]
- A Trivy plugin that scans infrastructure as code templates.
-
-Options:
-  -h, --help    Show usage.
-
-Examples:
-  # Scan an IaC file
-  export TRIVY_RUN_AS_PLUGIN=aqua
-  trivy iac --aqua-key <key> --aqua-secret <secret> <target>
-```
+Trivy plugin for integration with Aqua Security SaaS platform
 
 ## Usage
 Trivy's options need to be passed after `--`.
@@ -30,17 +14,46 @@ Set Aqua plugin as Trivy's current default plugin by exporting an environment va
 
 ### Scan an IaC target
 ```
-  trivy iac --aqua-key <key> --aqua-secret <secret> <target>
+  trivy  <target>
 ```
 
 ### Scan an IaC target and tag the scan
 ```
-  trivy iac --aqua-key <key> --aqua-secret <secret> --tags key1:value1 --tags key2:value2 <target>
+  trivy  <target>
 ```
 
 ### Scan an IaC target and report only specific severities
 ```
-  trivy iac --aqua-key <key> --aqua-secret <secret> --severities CRITICAL,HIGH <target>
+  trivy --severities CRITICAL,HIGH <target>
 ```
 
+## Environment Variables
+
+### Required
+The only explicitly required environment variables are 
+
+| Variable            | Purpose                                                                   |
+| :------------------- | :------------------------------------------------------------------------- |
+| AQUA_KEY | Generated through CSPM UI       |
+| AQUA_SECRET | Generated through CSPM UI |
+
+
+### Optional
+
+Trivy will attempt to resolve the following details from the available environment variables;
+
+- repository name
+- branch name
+- commit id
+- committing user
+- build system
+
+There are some special case env vars;
+
+| Variable            | Purpose                                                                   |
+| :------------------- |:-------------------------------------------------------------------------|
+| OVERRIDE_REPOSITORY | Use this env var to force the name of the repository used by Trivy        |
+| FALLBACK_REPOSITORY | Use this env var as a backup if no other repository env vars can be found |
+| OVERRIDE_BRANCH     | Use this env var to force the name of the branch used by Trivy            |
+| FALLBACK_BRANCH     | Use this env var as a backup if no other branch env vars can be found     |
 
