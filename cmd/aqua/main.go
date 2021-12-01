@@ -16,11 +16,13 @@ import (
 var (
 	severities string
 	debug      bool
+	tags       map[string]string
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&severities, "severities", "", strings.Join(scanner.AllSeverities, ","), "Minimum severity to display misconfigurations for")
-	rootCmd.PersistentFlags().BoolVarP(&debug, "debug", "", false, "Display debug output")
+	rootCmd.PersistentFlags().StringVar(&severities, "severities", strings.Join(scanner.AllSeverities, ","), "Minimum severity to display misconfigurations for")
+	rootCmd.PersistentFlags().BoolVarP(&debug, "debug", "v", false, "Display debug output")
+	rootCmd.PersistentFlags().StringToStringVarP(&tags, "tags", "t", nil, "Add arbitrary tags to the scan; --tags key1=val1,key2=val2")
 }
 
 func main() {
@@ -64,7 +66,7 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		if err := uploader.Upload(client, iacResults); err != nil {
+		if err := uploader.Upload(client, iacResults, tags); err != nil {
 			return err
 		}
 

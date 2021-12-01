@@ -11,8 +11,6 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 )
 
-
-
 // GetScmID extracts the git path from the config file
 func GetScmID(scanPath string) (string, error) {
 	gitConfig, err := ioutil.ReadFile(filepath.Join(scanPath, ".git", "config"))
