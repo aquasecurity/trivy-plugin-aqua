@@ -21,8 +21,7 @@ func GetScmID(scanPath string) (string, error) {
 			return scmID, nil
 		}
 	}
-	repo, _, err := GetRepositoryDetails(scanPath)
-	return repo, err
+	return filepath.Base(scanPath), err
 }
 
 func GetBuildSystem() string {
