@@ -34,7 +34,7 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]s
 		Branch:       branch,
 		Commit:       commitId,
 		System:       buildSystem,
-		Tags: tags,
+		Tags:         tags,
 	}
 
 	_, err = client.CreateScan(ctx, createScanReq)
