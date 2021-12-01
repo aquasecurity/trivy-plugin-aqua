@@ -1,0 +1,27 @@
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+builds:
+  - main: ./cmd/aqua
+    binary: aqua
+    goos:
+      - linux
+    goarch:
+      - amd64
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+archives:
+  - name_template: "{{ .Version }}"
+
+release:
+  prerelease: auto
+  github:
+    owner: aquasecurity
+    name: trivy-plugin-aqua
