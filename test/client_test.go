@@ -2,9 +2,7 @@ package test
 
 import "github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 
-type FakeClient struct{
-
-
+type FakeClient struct {
 }
 
 func (f FakeClient) Upload(results []*buildsecurity.Result, tags map[string]string) error {
