@@ -11,48 +11,7 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 )
 
-var possibleRepoEnvVars = []string{
-	"OVERRIDE_REPOSITORY",
-	"GITHUB_REPOSITORY",
-	"BITBUCKET_REPO_SLUG",
-	"CI_PROJECT_PATH",
-	"CODEBUILD_PROJECT",
-	"BUILD_REPOSITORY_NAME",
-	"FALLBACK_REPOSITORY",
-}
 
-var possibleBranchEnvVars = []string{
-	"OVERRIDE_OVERRIDE",
-	"GITHUB_REF_NAME",
-	"GIT_BRANCH",
-	"BITBUCKET_BRANCH",
-	"CI_COMMIT_REF_NAME",
-	"CODEBUILD_GIT_BRANCH",
-	"BUILD_SOURCEBRANCHNAME",
-	"FALLBACK_BRANCH",
-}
-
-var possibleCommitIdsEnvVars = []string{
-	"BITBUCKET_COMMIT",
-	"GITHUB_SHA",
-	"GIT_COMMIT",
-	"CI_COMMIT_SHA",
-	"CODEBUILD_GIT_COMMIT",
-}
-
-var possibleUserEnvVars = []string{
-	"GITHUB_ACTOR",
-	"CODEBUILD_GIT_AUTHOR",
-}
-
-var possibleBuildSystems = map[string]string{
-	"BITBUCKET_COMMIT":     "bitbucket",
-	"GITHUB_SHA":           "github",
-	"GIT_COMMIT":           "jenkins",
-	"CI_COMMIT_SHA":        "gitlab",
-	"CODEBUILD_GIT_COMMIT": "codebuild",
-	"BUILD_SOURCEBRANCH":   "azure",
-}
 
 // GetScmID extracts the git path from the config file
 func GetScmID(scanPath string) (string, error) {
@@ -75,7 +34,7 @@ func GetBuildSystem() string {
 		}
 	}
 
-	log.Logger.Debug("Could not infer the build system from the env varsm using 'other'")
+	log.Logger.Debug("Could not infer the build system from the env vars using 'other'")
 	return "other"
 }
 

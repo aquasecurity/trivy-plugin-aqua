@@ -62,11 +62,12 @@ func hasPolicyMatch(miscon types.DetectedMisconfiguration, policies []*buildsecu
 				return true
 			}
 
-			if control.Provider == miscon.IacMetadata.Provider && control.Service == "" {
+			if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) && control.Service == "" {
 				return true
 			}
 
-			if control.Provider == miscon.IacMetadata.Provider && control.Service == miscon.IacMetadata.Service {
+			if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) &&
+				strings.ToLower(control.Service) == strings.ToLower(miscon.IacMetadata.Service) {
 				return true
 			}
 
