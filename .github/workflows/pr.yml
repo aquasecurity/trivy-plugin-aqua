@@ -21,3 +21,10 @@ jobs:
 
       - name: Run tests
         run: make test
+
+      - name: Run integration tests
+        env:
+          AQUA_KEY: ${{ secrets.AQUA_KEY }}
+          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
+          TRIVY_RUN_AS_PLUGIN: aqua
+        run: make integration-test
