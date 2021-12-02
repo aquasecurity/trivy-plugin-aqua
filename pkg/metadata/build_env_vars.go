@@ -42,3 +42,5 @@ var possibleBuildSystems = map[string]string{
 	"BUILD_SOURCEBRANCH":   "azure",
 	"GITHUB_SHA":           "github",
 }
+
+const overrideBuildSystem = "OVERRIDE_BUILDSYSTEM"

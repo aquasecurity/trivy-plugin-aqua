@@ -25,6 +25,11 @@ func GetScmID(scanPath string) (string, error) {
 }
 
 func GetBuildSystem() string {
+	if v, ok := os.LookupEnv(overrideBuildSystem); ok {
+		log.Logger.Debugf("Build system overridden, setting to %s", v)
+		return v
+	}
+
 	for buildSystemEnv := range possibleBuildSystems {
 		if _, ok := os.LookupEnv(buildSystemEnv); ok {
 			return possibleBuildSystems[buildSystemEnv]
