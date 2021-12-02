@@ -44,9 +44,9 @@ Set Aqua plugin as Trivy's current default plugin by exporting an environment va
 
 The only explicitly required environment variables are
 
-| Variable            | Purpose                                                                   |
-| :------------------- | :------------------------------------------------------------------------- |
-| AQUA_KEY | Generated through CSPM UI       |
+| Variable    | Purpose                   |
+| :---------- | :-------------------------|
+| AQUA_KEY    | Generated through CSPM UI |
 | AQUA_SECRET | Generated through CSPM UI |
 
 ### Optional
@@ -61,10 +61,11 @@ Trivy will attempt to resolve the following details from the available environme
 
 There are some special case env vars;
 
-| Variable            | Purpose                                                                   |
-| :------------------- |:-------------------------------------------------------------------------|
-| OVERRIDE_REPOSITORY | Use this env var to force the name of the repository used by Trivy        |
-| FALLBACK_REPOSITORY | Use this env var as a backup if no other repository env vars can be found |
-| OVERRIDE_BRANCH     | Use this env var to force the name of the branch used by Trivy            |
-| FALLBACK_BRANCH     | Use this env var as a backup if no other branch env vars can be found     |
+| Variable             | Purpose                                                                   |
+| :------------------- |:------------------------------------------------------------------------- |
+| OVERRIDE_REPOSITORY  | Use this env var to force the name of the repository used by Trivy        |
+| FALLBACK_REPOSITORY  | Use this env var as a backup if no other repository env vars can be found |
+| OVERRIDE_BRANCH      | Use this env var to force the name of the branch used by Trivy            |
+| FALLBACK_BRANCH      | Use this env var as a backup if no other branch env vars can be found     |
+| OVERRIDE_BUILDSYSTEM | Use this environment variable to explicity specify the build system       |
 
