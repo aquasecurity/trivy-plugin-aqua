@@ -40,8 +40,9 @@ message CreateScanReq {
   string User = 3;
   string System = 4;
   string Commit = 5;
-  repeated Result Results = 6;
-  map<string, string> Tags = 7;
+  repeated PolicyFailure PolicyFailures = 6;
+  repeated Result Results = 7;
+  map<string, string> Tags = 8;
 }
 
 message CreateScanResp {
@@ -50,7 +51,8 @@ message CreateScanResp {
 
 message Policy {
   string PolicyID = 1;
-  repeated PolicyControl Controls = 2;
+  bool Enforced = 2;
+  repeated PolicyControl Controls = 3;
 }
 
 message PolicyControl {
@@ -58,6 +60,11 @@ message PolicyControl {
   string Provider = 2;
   string Service = 3;
   repeated string AVDIDs = 4;
+}
+
+message PolicyFailure {
+  string PolicyID = 1;
+  bool Enforced = 2;
 }
 
 message Result {

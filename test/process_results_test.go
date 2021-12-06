@@ -14,9 +14,9 @@ func Test_process_results_with_no_results(t *testing.T) {
 
 	client := FakeClient{}
 
-	results, breakBuild := processor.ProcessResults(client, nil)
+	results, policyFailures := processor.ProcessResults(client, nil)
 	assert.Nil(t, results)
-	assert.False(t, breakBuild)
+	assert.Nil(t, policyFailures)
 
 }
 
@@ -44,10 +44,10 @@ func Test_process_results_with_results_but_not_matching_policies(t *testing.T) {
 		},
 	}
 
-	submitResults, breakBuild := processor.ProcessResults(client, results)
+	submitResults, policyFailures := processor.ProcessResults(client, results)
 
 	assert.Len(t, submitResults, 1)
-	assert.False(t, breakBuild)
+	assert.Nil(t, policyFailures)
 }
 
 func Test_process_results_with_results_with_matching_policies(t *testing.T) {
@@ -74,8 +74,8 @@ func Test_process_results_with_results_with_matching_policies(t *testing.T) {
 		},
 	}
 
-	submitResults, breakBuild := processor.ProcessResults(client, results)
+	submitResults, policyFailures := processor.ProcessResults(client, results)
 
 	assert.Len(t, submitResults, 1)
-	assert.True(t, breakBuild)
+	assert.NotNil(t, policyFailures)
 }
