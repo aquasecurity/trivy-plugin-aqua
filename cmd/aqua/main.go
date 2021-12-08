@@ -61,17 +61,21 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		iacResults, breakBuild := processor.ProcessResults(client, results)
+		iacResults, policyFailures := processor.ProcessResults(client, results)
 		if err != nil {
 			return err
 		}
 
-		if err := uploader.Upload(client, iacResults, tags); err != nil {
+		if err := uploader.Upload(client, iacResults, policyFailures, tags); err != nil {
 			return err
 		}
 
-		if breakBuild {
-			return fmt.Errorf("build failed to satisfy all policies")
+		if len(policyFailures) > 0 {
+			for _, failure := range policyFailures {
+				if failure.Enforced {
+					return fmt.Errorf("build failed to satisfy all policies")
+				}
+			}
 		}
 
 		return nil

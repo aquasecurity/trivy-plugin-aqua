@@ -14,9 +14,9 @@ func Test_process_results_with_no_results(t *testing.T) {
 
 	client := FakeClient{}
 
-	results, breakBuild := processor.ProcessResults(client, nil)
+	results, policyFailures := processor.ProcessResults(client, nil)
 	assert.Nil(t, results)
-	assert.False(t, breakBuild)
+	assert.Nil(t, policyFailures)
 
 }
 
@@ -31,7 +31,7 @@ func Test_process_results_with_results_but_not_matching_policies(t *testing.T) {
 				{
 					Type:     "terraform",
 					ID:       "AVD-AWS-0001",
-					Severity: "HIGH",
+					Severity: "MEDIUM",
 					Status:   "FAIL",
 					Layer:    ftypes.Layer{},
 					IacMetadata: ftypes.IacMetadata{
@@ -44,10 +44,10 @@ func Test_process_results_with_results_but_not_matching_policies(t *testing.T) {
 		},
 	}
 
-	submitResults, breakBuild := processor.ProcessResults(client, results)
+	submitResults, policyFailures := processor.ProcessResults(client, results)
 
 	assert.Len(t, submitResults, 1)
-	assert.False(t, breakBuild)
+	assert.Nil(t, policyFailures)
 }
 
 func Test_process_results_with_results_with_matching_policies(t *testing.T) {
@@ -74,8 +74,98 @@ func Test_process_results_with_results_with_matching_policies(t *testing.T) {
 		},
 	}
 
-	submitResults, breakBuild := processor.ProcessResults(client, results)
+	submitResults, policyFailures := processor.ProcessResults(client, results)
 
 	assert.Len(t, submitResults, 1)
-	assert.True(t, breakBuild)
+	assert.NotNil(t, policyFailures)
+}
+
+func Test_process_results_with_results_with_no_matching_policies_severity_level(t *testing.T) {
+
+	client := FakeClient{}
+
+	results := report.Results{
+		{
+			Target: "main.tf",
+			Misconfigurations: []types.DetectedMisconfiguration{
+				{
+					Type:     "terraform",
+					ID:       "AVD-AWS-0001",
+					Severity: "LOW",
+					Status:   "FAIL",
+					Layer:    ftypes.Layer{},
+					IacMetadata: ftypes.IacMetadata{
+						Resource: "aws_instance",
+						Provider: "AWS",
+						Service:  "ec2",
+					},
+				},
+			},
+		},
+	}
+
+	submitResults, policyFailures := processor.ProcessResults(client, results)
+
+	assert.Len(t, submitResults, 1)
+	assert.Nil(t, policyFailures)
+}
+
+func Test_process_results_with_results_with_matching_policies_severity_level(t *testing.T) {
+
+	client := FakeClient{}
+
+	results := report.Results{
+		{
+			Target: "main.tf",
+			Misconfigurations: []types.DetectedMisconfiguration{
+				{
+					Type:     "terraform",
+					ID:       "AVD-AWS-0001",
+					Severity: "HIGH",
+					Status:   "FAIL",
+					Layer:    ftypes.Layer{},
+					IacMetadata: ftypes.IacMetadata{
+						Resource: "aws_instance",
+						Provider: "AWS",
+						Service:  "ec2",
+					},
+				},
+			},
+		},
+	}
+
+	submitResults, policyFailures := processor.ProcessResults(client, results)
+
+	assert.Len(t, submitResults, 1)
+	assert.NotNil(t, policyFailures)
+}
+
+func Test_process_results_with_results_with_matching_policies_severity_level_greater_than_specified(t *testing.T) {
+
+	client := FakeClient{}
+
+	results := report.Results{
+		{
+			Target: "main.tf",
+			Misconfigurations: []types.DetectedMisconfiguration{
+				{
+					Type:     "terraform",
+					ID:       "AVD-AWS-0001",
+					Severity: "CRITICAL",
+					Status:   "FAIL",
+					Layer:    ftypes.Layer{},
+					IacMetadata: ftypes.IacMetadata{
+						Resource: "aws_instance",
+						Provider: "AWS",
+						Service:  "ec2",
+					},
+				},
+			},
+		},
+	}
+
+	submitResults, policyFailures := processor.ProcessResults(client, results)
+
+	assert.Len(t, submitResults, 1)
+	assert.NotNil(t, policyFailures)
 }

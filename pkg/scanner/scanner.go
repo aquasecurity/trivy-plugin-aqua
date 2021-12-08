@@ -114,10 +114,10 @@ func createScanOptions(severities string, debug bool) (artifact.Option, error) {
 	return opt, nil
 }
 
-func MatchResultSeverity(severity string) buildsecurity.Result_SeverityEnum {
+func MatchResultSeverity(severity string) buildsecurity.SeverityEnum {
 	severity = fmt.Sprintf("SEVERITY_%s", severity)
-	index := buildsecurity.Result_SeverityEnum_value[severity]
-	return buildsecurity.Result_SeverityEnum(index)
+	index := buildsecurity.SeverityEnum_value[severity]
+	return buildsecurity.SeverityEnum(index)
 }
 
 func MatchResultType(resultType string) buildsecurity.Result_TypeEnum {

@@ -13,7 +13,7 @@ import (
 )
 
 type Client interface {
-	Upload([]*buildsecurity.Result, map[string]string) error
+	Upload([]*buildsecurity.Result, []*buildsecurity.PolicyFailure, map[string]string) error
 	GetPoliciesForRepository() ([]*buildsecurity.Policy, error)
 	GetOrCreateRepository() (string, error)
 }

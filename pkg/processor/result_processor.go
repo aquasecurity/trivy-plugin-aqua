@@ -14,7 +14,7 @@ import (
 
 // ProcessResults downloads the latest policies for the repository the process the results
 // while evaluating them against the policies
-func ProcessResults(client buildClient.Client, report report.Results) (results []*buildsecurity.Result, buildBreaker bool) {
+func ProcessResults(client buildClient.Client, report report.Results) (results []*buildsecurity.Result, failedPolicies []*buildsecurity.PolicyFailure) {
 	downloadedPolicies, err := client.GetPoliciesForRepository()
 	if err != nil {
 		log.Logger.Errorf("Could not download the repository policies. %w", err)
@@ -25,17 +25,19 @@ func ProcessResults(client buildClient.Client, report report.Results) (results [
 	for _, rep := range report {
 		for _, miscon := range rep.Misconfigurations {
 
-			if hasPolicies && hasPolicyMatch(miscon, downloadedPolicies) {
-				buildBreaker = true
-			}
-
 			var r buildsecurity.Result
 			resource := fmt.Sprintf("%s Resource", strings.Title(rep.Type))
 			if miscon.IacMetadata.Resource != "" {
 				resource = miscon.IacMetadata.Resource
 			}
 
-			if miscon.Status == "FAIL" {
+			if miscon.Status == types.StatusFailure {
+				if hasPolicies {
+					if failedPolicy := checkAgainstPolicies(miscon, downloadedPolicies); failedPolicy != nil {
+						failedPolicies = append(failedPolicies, failedPolicy...)
+					}
+				}
+
 				r.AVDID = miscon.ID
 				r.Title = miscon.Title
 				r.Message = miscon.Message
@@ -50,33 +52,45 @@ func ProcessResults(client buildClient.Client, report report.Results) (results [
 			}
 		}
 	}
-	return results, buildBreaker
+	return results, failedPolicies
 }
 
-func hasPolicyMatch(miscon types.DetectedMisconfiguration, policies []*buildsecurity.Policy) bool {
+func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*buildsecurity.Policy) (policyFailures []*buildsecurity.PolicyFailure) {
 	for _, policy := range policies {
+		var failed bool
 		controls := policy.GetControls()
 		for _, control := range controls {
 
-			if control.Global {
-				return true
+			if scanner.MatchResultSeverity(miscon.Severity) >= control.Severity && control.Severity != buildsecurity.SeverityEnum_SEVERITY_UNKNOWN {
+				failed = true
 			}
 
 			if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) && control.Service == "" {
-				return true
+				failed = true
+				break
 			}
 
 			if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) &&
 				strings.ToLower(control.Service) == strings.ToLower(miscon.IacMetadata.Service) {
-				return true
+				failed = true
+				break
 			}
 
-			for _, avdiD := range control.AVDIDs {
-				if avdiD == miscon.ID {
-					return true
+			for _, avdID := range control.AVDIDs {
+				if avdID == miscon.ID {
+					failed = true
+					break
 				}
 			}
 		}
+
+		if failed {
+			policyFailures = append(policyFailures, &buildsecurity.PolicyFailure{
+				PolicyID: policy.PolicyID,
+				Enforced: policy.Enforced,
+			})
+		}
+
 	}
-	return false
+	return policyFailures
 }

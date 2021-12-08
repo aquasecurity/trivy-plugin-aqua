@@ -5,7 +5,7 @@ import "github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 type FakeClient struct {
 }
 
-func (f FakeClient) Upload(results []*buildsecurity.Result, tags map[string]string) error {
+func (f FakeClient) Upload(results []*buildsecurity.Result, policyFailures []*buildsecurity.PolicyFailure, tags map[string]string) error {
 	return nil
 }
 
@@ -16,7 +16,7 @@ func (f FakeClient) GetPoliciesForRepository() ([]*buildsecurity.Policy, error) 
 			PolicyID: "f8de392c-55c3-4307-b2e8-18fae11257db",
 			Controls: []*buildsecurity.PolicyControl{
 				{
-					Global:   false,
+					Severity: buildsecurity.SeverityEnum_SEVERITY_HIGH,
 					Provider: "AWS",
 					Service:  "s3",
 					AVDIDs:   nil,
