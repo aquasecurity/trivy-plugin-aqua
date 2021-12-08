@@ -56,10 +56,10 @@ message Policy {
 }
 
 message PolicyControl {
-  bool Global = 1;
-  string Provider = 2;
-  string Service = 3;
-  repeated string AVDIDs = 4;
+  string Provider = 1;
+  string Service = 2;
+  repeated string AVDIDs = 3;
+  SeverityEnum Severity = 4;
 }
 
 message PolicyFailure {
@@ -80,18 +80,19 @@ message Result {
     TYPE_HCL = 6;
   }
   TypeEnum Type = 4;
-  enum SeverityEnum {
-    SEVERITY_UNKNOWN = 0;
-    SEVERITY_LOW = 1;
-    SEVERITY_MEDIUM = 2;
-    SEVERITY_HIGH = 3;
-    SEVERITY_CRITICAL = 4;
-    SEVERITY_MAX = 5;
-  }
   SeverityEnum Severity = 5;
   string Title = 6;
   string Filename = 7;
   int32 StartLine = 8;
   int32 EndLine = 9;
   string Resource = 10;
+}
+
+enum SeverityEnum {
+  SEVERITY_UNKNOWN = 0;
+  SEVERITY_LOW = 1;
+  SEVERITY_MEDIUM = 2;
+  SEVERITY_HIGH = 3;
+  SEVERITY_CRITICAL = 4;
+  SEVERITY_MAX = 5;
 }

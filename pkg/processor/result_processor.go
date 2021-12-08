@@ -31,7 +31,7 @@ func ProcessResults(client buildClient.Client, report report.Results) (results [
 				resource = miscon.IacMetadata.Resource
 			}
 
-			if miscon.Status == "FAIL" {
+			if miscon.Status == types.StatusFailure {
 				if hasPolicies {
 					if failedPolicy := checkAgainstPolicies(miscon, downloadedPolicies); failedPolicy != nil {
 						failedPolicies = append(failedPolicies, failedPolicy...)
@@ -61,9 +61,8 @@ func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*bui
 		controls := policy.GetControls()
 		for _, control := range controls {
 
-			if control.Global {
+			if scanner.MatchResultSeverity(miscon.Severity) >= control.Severity && control.Severity != buildsecurity.SeverityEnum_SEVERITY_UNKNOWN {
 				failed = true
-				break
 			}
 
 			if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) && control.Service == "" {
@@ -77,8 +76,8 @@ func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*bui
 				break
 			}
 
-			for _, avdiD := range control.AVDIDs {
-				if avdiD == miscon.ID {
+			for _, avdID := range control.AVDIDs {
+				if avdID == miscon.ID {
 					failed = true
 					break
 				}

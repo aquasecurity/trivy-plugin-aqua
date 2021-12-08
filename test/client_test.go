@@ -16,7 +16,7 @@ func (f FakeClient) GetPoliciesForRepository() ([]*buildsecurity.Policy, error) 
 			PolicyID: "f8de392c-55c3-4307-b2e8-18fae11257db",
 			Controls: []*buildsecurity.PolicyControl{
 				{
-					Global:   false,
+					Severity: buildsecurity.SeverityEnum_SEVERITY_HIGH,
 					Provider: "AWS",
 					Service:  "s3",
 					AVDIDs:   nil,

@@ -76,7 +76,6 @@ var rootCmd = &cobra.Command{
 					return fmt.Errorf("build failed to satisfy all policies")
 				}
 			}
-
 		}
 
 		return nil
