@@ -1,6 +1,6 @@
 name: "aqua"
 repository: github.com/aquasecurity/trivy-plugin-aqua
-version: "v0.6.3"
+version: "v0.7.0"
 usage: send trivy results to CSPM.
 description: |-
   A Trivy plugin that sends results to Aqua.
@@ -9,25 +9,25 @@ platforms:
   - selector: # optional
       os: linux
       arch: amd64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.6.3/linux_amd64_v0.6.3.tar.gz
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.7.0/linux_amd64_v0.7.0.tar.gz
     bin: ./aqua
   - selector:
       os: linux
       arch: arm64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.6.3/linux_arm64_v0.6.3.tar.gz
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.7.0/linux_arm64_v0.7.0.tar.gz
     bin: ./aqua
   - selector:
       os: darwin
       arch: arm64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.6.3/darwin_amd64_v0.6.3.tar.gz
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.7.0/darwin_amd64_v0.7.0.tar.gz
     bin: ./aqua
   - selector:
       os: darwin
       arch: arm64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.6.3/darwin_arm64_v0.6.3.tar.gz
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.7.0/darwin_arm64_v0.7.0.tar.gz
     bin: ./aqua
   - selector:
       os: windows
       arch: amd64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.6.3/windows_amd64_v0.6.3.zip
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.7.0/windows_amd64_v0.7.0.zip
     bin: aqua.exe
