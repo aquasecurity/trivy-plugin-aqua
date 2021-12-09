@@ -16,3 +16,6 @@ integration-test:
 .PHONY: update-plugin
 update-plugin:
 	@./scripts/update_plugin.sh
+
+proto:
+	pushd pkg/proto && protoc --twirp_out=. --go_out=. ./buildsecurity.proto

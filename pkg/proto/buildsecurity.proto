@@ -28,6 +28,7 @@ message CreateRepositoryResp {
 
 message GetPoliciesReq {
   string RepositoryID = 1;
+  string Branch = 2;
 }
 
 message GetPoliciesResp {
