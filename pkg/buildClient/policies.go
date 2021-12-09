@@ -2,6 +2,7 @@ package buildClient
 
 import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
 
@@ -17,9 +18,15 @@ func (bc *TwirpClient) GetPoliciesForRepository() ([]*buildsecurity.Policy, erro
 		return nil, err
 	}
 
+	_, branch, err := metadata.GetRepositoryDetails(bc.scanPath)
+	if err != nil {
+		return nil, err
+	}
+
 	log.Logger.Debugf("Getting policies for this repository")
 	policyResponse, err := bc.client.GetPolicies(ctx, &buildsecurity.GetPoliciesReq{
 		RepositoryID: repoId,
+		Branch:       branch,
 	})
 
 	if err != nil {
