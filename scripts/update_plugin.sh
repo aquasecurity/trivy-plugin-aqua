@@ -5,6 +5,7 @@ set -e
 
 git checkout master
 git fetch --tags --all
+git pull
 
 LATEST_TAG=`git describe --tags --abbrev=0`
 read -p "The last tag was: ${LATEST_TAG}, what tag should I create? " TAG;
