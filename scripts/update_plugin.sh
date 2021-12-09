@@ -1,15 +1,25 @@
 #!/usr/bin/env bash
 
-echo "update plugin.yaml"
+set -ex
+
+function log() {
+  message=$1
+
+  echo `date +"%T"` $message
+}
+
+log "Switching to master branch"
+git checkout master
+
+log "Getting latest tags"
+git fetch --tags
+LATEST_TAG=`git describe --tag`
 
 sed  -e "s/PLACEHOLDERVERSION/${GITHUB_REF##*/}/g" .github/plugin_template.yaml > plugin.yaml
 
-git fetch --all
-git checkout master
-git pull
-git config --global user.name "GitHub Actions Build"
-git config --global user.email github-action@aquasec.com
+git checkout -b "plugin-update-${LATEST_TAG}"
+
 git add plugin.yaml
-git commit -m "GitHub Actions Build: Update plugin version" || true
-git push --set-upstream origin HEAD:master || true
+git commit -m "Updateing plugin to latest tag ${LATEST_TAG}" || true
+git push --set-upstream origin "plugin-update-${LATEST_TAG}" || true
 
