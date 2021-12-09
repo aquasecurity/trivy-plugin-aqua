@@ -1,25 +1,30 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e
 
-function log() {
-  message=$1
 
-  echo `date +"%T"` $message
-}
-
-log "Switching to master branch"
 git checkout master
+git fetch --tags --all
 
-log "Getting latest tags"
-git fetch --tags
-LATEST_TAG=`git describe --tag`
+LATEST_TAG=`git describe --tags --abbrev=0`
+read -p "The last tag was: ${LATEST_TAG}, what tag should I create? " TAG;
 
-sed  -e "s/PLACEHOLDERVERSION/${GITHUB_REF##*/}/g" .github/plugin_template.yaml > plugin.yaml
+if [[ -z $TAG ]]; then
+  echo "you need to specify a new tag"
+  exit 1
+fi
 
-git checkout -b "plugin-update-${LATEST_TAG}"
+git tag -a ${TAG} -m ${TAG}
+git push --tag
+
+
+BRANCH_NAME="plugin-update-${TAG}"
+
+sed  -e "s/PLACEHOLDERVERSION/${TAG}/g" .github/plugin_template.yaml > plugin.yaml
+git checkout -b $BRANCH_NAME
 
 git add plugin.yaml
-git commit -m "Updateing plugin to latest tag ${LATEST_TAG}" || true
-git push --set-upstream origin "plugin-update-${LATEST_TAG}" || true
+git commit -m "Updating plugin to latest tag ${TAG}" || true
+git push --set-upstream origin $BRANCH_NAME || true
 
+xdg-open "https://github.com/aquasecurity/trivy-plugin-aqua/compare/${BRANCH_NAME}"
