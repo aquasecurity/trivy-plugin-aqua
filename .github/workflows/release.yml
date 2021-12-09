@@ -41,4 +41,4 @@ jobs:
       - name: Updating plugin
         run: scripts/update_plugin.sh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ORG_GITHUB_TOKEN }}
