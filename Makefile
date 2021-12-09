@@ -12,3 +12,7 @@ integration-test:
 	go build -o /home/runner/.trivy/plugins/aqua/aqua cmd/aqua/main.go
 	cp plugin.yaml /home/runner/.trivy/plugins/aqua/
 	trivy . --debug
+
+.PHONY: update-plugin
+update-plugin:
+	@./scripts/update_plugin.sh

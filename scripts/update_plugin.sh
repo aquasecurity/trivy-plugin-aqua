@@ -1,15 +1,30 @@
 #!/usr/bin/env bash
 
-echo "update plugin.yaml"
+set -e
 
-sed  -e "s/PLACEHOLDERVERSION/${GITHUB_REF##*/}/g" .github/plugin_template.yaml > plugin.yaml
 
-git fetch --all
 git checkout master
-git pull
-git config --global user.name "GitHub Actions Build"
-git config --global user.email github-action@aquasec.com
-git add plugin.yaml
-git commit -m "GitHub Actions Build: Update plugin version" || true
-git push --set-upstream origin HEAD:master || true
+git fetch --tags --all
 
+LATEST_TAG=`git describe --tags --abbrev=0`
+read -p "The last tag was: ${LATEST_TAG}, what tag should I create? " TAG;
+
+if [[ -z $TAG ]]; then
+  echo "you need to specify a new tag"
+  exit 1
+fi
+
+git tag -a ${TAG} -m ${TAG}
+git push --tag
+
+
+BRANCH_NAME="plugin-update-${TAG}"
+
+sed  -e "s/PLACEHOLDERVERSION/${TAG}/g" .github/plugin_template.yaml > plugin.yaml
+git checkout -b $BRANCH_NAME
+
+git add plugin.yaml
+git commit -m "Updating plugin to latest tag ${TAG}" || true
+git push --set-upstream origin $BRANCH_NAME || true
+
+xdg-open "https://github.com/aquasecurity/trivy-plugin-aqua/compare/${BRANCH_NAME}"

@@ -69,3 +69,10 @@ There are some special case env vars;
 | FALLBACK_BRANCH      | Use this environment variable as a backup if no other branch env vars can be found      |
 | OVERRIDE_BUILDSYSTEM | Use this environment variable to explicitly specify the build system                    |
 
+# Deployment of a new version
+
+To deploy a new version, create a new tag from master
+
+```bash
+make update-plugin
+```
