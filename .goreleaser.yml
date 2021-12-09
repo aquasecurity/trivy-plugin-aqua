@@ -5,10 +5,13 @@ before:
 builds:
   - main: ./cmd/aqua
     binary: aqua
-    goos:
-      - linux
-    goarch:
-      - amd64
+
+    targets:
+      - linux_amd64
+      - linux_arm64
+      - darwin_amd64
+      - darwin_arm64
+      - windows_arm64
 
 changelog:
   sort: asc
@@ -18,7 +21,10 @@ changelog:
       - '^test:'
 
 archives:
-  - name_template: "v{{ .Version }}"
+  - name_template: "{{ .Os }}_{{ .Arch }}_v{{ .Version }}"
+    format_overrides:
+      - goos: windows
+        format: zip
 
 release:
   prerelease: auto

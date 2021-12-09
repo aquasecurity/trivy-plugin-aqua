@@ -9,5 +9,25 @@ platforms:
   - selector: # optional
       os: linux
       arch: amd64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/PLACEHOLDERVERSION/PLACEHOLDERVERSION.tar.gz
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/PLACEHOLDERVERSION/linux_amd64_PLACEHOLDERVERSION.tar.gz
     bin: ./aqua
+  - selector:
+      os: linux
+      arch: arm64
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/PLACEHOLDERVERSION/linux_arm64_PLACEHOLDERVERSION.tar.gz
+    bin: ./aqua
+  - selector:
+      os: darwin
+      arch: arm64
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/PLACEHOLDERVERSION/darwin_amd64_PLACEHOLDERVERSION.tar.gz
+    bin: ./aqua
+  - selector:
+      os: darwin
+      arch: arm64
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/PLACEHOLDERVERSION/darwin_arm64_PLACEHOLDERVERSION.tar.gz
+    bin: ./aqua
+  - selector:
+      os: windows
+      arch: amd64
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/PLACEHOLDERVERSION/windows_amd64_PLACEHOLDERVERSION.zip
+    bin: aqua.exe
