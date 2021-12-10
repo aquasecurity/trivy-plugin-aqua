@@ -1,10 +1,8 @@
 name: "aqua"
 repository: github.com/aquasecurity/trivy-plugin-aqua
 version: "PLACEHOLDERVERSION"
-usage: send trivy results to CSPM.
-description: |-
-  A Trivy plugin that sends results to Aqua.
-  Usage: trivy aqua <srcPath>
+usage: trivy aqua <srcPath>
+description: A Trivy plugin that sends results to Aqua.
 platforms:
   - selector: # optional
       os: linux
