@@ -63,20 +63,18 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		iacResults, policyFailures := processor.ProcessResults(client, results)
+		iacResults, policyScanSummaries := processor.ProcessResults(client, results)
 		if err != nil {
 			return err
 		}
 
-		if err := uploader.Upload(client, iacResults, policyFailures, tags); err != nil {
+		if err := uploader.Upload(client, iacResults, policyScanSummaries, tags); err != nil {
 			return err
 		}
 
-		if len(policyFailures) > 0 {
-			for _, failure := range policyFailures {
-				if failure.Enforced {
-					policyFailure(policyFailures)
-				}
+		for _, detail := range policyScanSummaries {
+			if detail.Failed && detail.Enforced {
+				failWithErrors(policyScanSummaries)
 			}
 		}
 
@@ -99,19 +97,27 @@ func verifySeverities() error {
 	return nil
 }
 
-func policyFailure(failures []*buildsecurity.PolicyFailure) {
+func failWithErrors(policyDetails []*buildsecurity.PolicyScanSummary) {
 	uniqCount := 0
 	uniq := make(map[string]bool)
 
-	for _, failure := range failures {
-		if _, ok := uniq[failure.PolicyID]; !ok {
-			uniq[failure.PolicyID] = true
+	for _, detail := range policyDetails {
+		if !detail.Failed {
+			continue
+		}
+
+		if _, ok := uniq[detail.Reason]; !ok && detail.Failed {
+			uniq[detail.Reason] = true
 			uniqCount += 1
-			log.Logger.Debugf("Policy failed on %s", failure.PolicyID)
+			if detail.Enforced {
+				log.Logger.Errorf("%s", detail.Reason)
+			} else {
+				log.Logger.Warnf("%s", detail.Reason)
+			}
 		}
 	}
 
-	fmt.Printf("\n%d enforced policy failure(s)\n", uniqCount)
+	fmt.Printf("\n%d enforced policy failure(s). See output for specific details.\n", uniqCount)
 
 	os.Exit(1)
 }

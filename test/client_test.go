@@ -5,7 +5,7 @@ import "github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 type FakeClient struct {
 }
 
-func (f FakeClient) Upload(results []*buildsecurity.Result, policyFailures []*buildsecurity.PolicyFailure, tags map[string]string) error {
+func (f FakeClient) Upload(results []*buildsecurity.Result, policyFailures []*buildsecurity.PolicyScanSummary, tags map[string]string) error {
 	return nil
 }
 
