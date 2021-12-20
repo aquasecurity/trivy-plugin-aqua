@@ -17,7 +17,7 @@ import (
 func ProcessResults(client buildClient.Client, report report.Results) (results []*buildsecurity.Result, failedPolicies []*buildsecurity.PolicyFailure) {
 	downloadedPolicies, err := client.GetPoliciesForRepository()
 	if err != nil {
-		log.Logger.Errorf("Could not download the repository policies. %w", err)
+		log.Logger.Errorf("Could not download the repository policies. %#v", err)
 	}
 
 	hasPolicies := len(downloadedPolicies) > 0

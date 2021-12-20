@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
+
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/buildClient"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/processor"
@@ -73,7 +75,7 @@ var rootCmd = &cobra.Command{
 		if len(policyFailures) > 0 {
 			for _, failure := range policyFailures {
 				if failure.Enforced {
-					return fmt.Errorf("build failed to satisfy all policies")
+					policyFailure(policyFailures)
 				}
 			}
 		}
@@ -95,4 +97,21 @@ func verifySeverities() error {
 		}
 	}
 	return nil
+}
+
+func policyFailure(failures []*buildsecurity.PolicyFailure) {
+	uniqCount := 0
+	uniq := make(map[string]bool)
+
+	for _, failure := range failures {
+		if _, ok := uniq[failure.PolicyID]; !ok {
+			uniq[failure.PolicyID] = true
+			uniqCount += 1
+			log.Logger.Debugf("Policy failed on %s", failure.PolicyID)
+		}
+	}
+
+	fmt.Printf("\n%d enforced policy failure(s)\n", uniqCount)
+
+	os.Exit(1)
 }

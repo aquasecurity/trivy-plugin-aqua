@@ -23,7 +23,7 @@ func (bc *TwirpClient) GetPoliciesForRepository() ([]*buildsecurity.Policy, erro
 		return nil, err
 	}
 
-	log.Logger.Debugf("Getting policies for this repository")
+	log.Logger.Debugf("Getting policies for repository %s", repoId)
 	policyResponse, err := bc.client.GetPolicies(ctx, &buildsecurity.GetPoliciesReq{
 		RepositoryID: repoId,
 		Branch:       branch,
