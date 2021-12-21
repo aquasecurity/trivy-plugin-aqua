@@ -34,9 +34,10 @@ func main() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:    "aqua <scanPath>",
-	Short:  "Scan a filesystem location for vulnerabilities and config misconfiguration",
-	Hidden: true,
+	Use:          "aqua <scanPath>",
+	Short:        "Scan a filesystem location for vulnerabilities and config misconfiguration",
+	Hidden:       true,
+	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if err := log.InitLogger(debug, false); err != nil {
 			return err
@@ -72,8 +73,7 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		checkPolicyResults(processedResults)
-		return nil
+		return checkPolicyResults(processedResults)
 	},
 	Args: cobra.ExactArgs(1),
 }
@@ -92,7 +92,7 @@ func verifySeverities() error {
 	return nil
 }
 
-func checkPolicyResults(results []*buildsecurity.Result) {
+func checkPolicyResults(results []*buildsecurity.Result) error {
 	uniqCount := 0
 	uniq := make(map[string]bool)
 
@@ -109,10 +109,14 @@ func checkPolicyResults(results []*buildsecurity.Result) {
 				} else {
 					log.Logger.Warnf("Unenforced policy failure: %s", policyResult.Reason)
 				}
+				uniq[policyResult.GetPolicyID()] = true
 			}
 		}
 	}
 
-	fmt.Printf("\n%d enforced policy failure(s). See output for specific details.\n", uniqCount)
-	os.Exit(1)
+	if uniqCount == 0 {
+		return nil
+	}
+
+	return fmt.Errorf("\n%d enforced policy failure(s). See output for specific details.\n", uniqCount)
 }

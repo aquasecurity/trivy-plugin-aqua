@@ -49,7 +49,7 @@ func ProcessResults(client buildClient.Client, report report.Results) (results [
 }
 
 func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*buildsecurity.Policy) (
-	policyScanSummaries []*buildsecurity.PolicyResult) {
+	results []*buildsecurity.PolicyResult) {
 	for _, policy := range policies {
 		controls := policy.GetControls()
 		var failed bool
@@ -84,7 +84,7 @@ func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*bui
 			}
 
 		}
-		policyScanSummaries = append(policyScanSummaries, &buildsecurity.PolicyResult{
+		results = append(results, &buildsecurity.PolicyResult{
 			PolicyID: policy.PolicyID,
 			Failed:   failed,
 			Enforced: policy.Enforced,
@@ -92,5 +92,5 @@ func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*bui
 		})
 
 	}
-	return policyScanSummaries
+	return results
 }
