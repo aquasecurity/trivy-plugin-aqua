@@ -14,14 +14,11 @@ import (
 
 // ProcessResults downloads the latest policies for the repository the process the results
 // while evaluating them against the policies
-func ProcessResults(client buildClient.Client, report report.Results) (results []*buildsecurity.Result,
-	policyScanSummaries []*buildsecurity.PolicyScanSummary) {
+func ProcessResults(client buildClient.Client, report report.Results) (results []*buildsecurity.Result) {
 	downloadedPolicies, err := client.GetPoliciesForRepository()
 	if err != nil {
 		log.Logger.Errorf("Could not download the repository policies. %#v", err)
 	}
-
-	hasPolicies := len(downloadedPolicies) > 0
 
 	for _, rep := range report {
 		for _, miscon := range rep.Misconfigurations {
@@ -33,12 +30,7 @@ func ProcessResults(client buildClient.Client, report report.Results) (results [
 			}
 
 			if miscon.Status == types.StatusFailure {
-				if hasPolicies {
-					if failedPolicy := checkAgainstPolicies(miscon, downloadedPolicies); failedPolicy != nil {
-						policyScanSummaries = append(policyScanSummaries, failedPolicy...)
-					}
-				}
-
+				r.PolicyResults = checkAgainstPolicies(miscon, downloadedPolicies)
 				r.AVDID = miscon.ID
 				r.Title = miscon.Title
 				r.Message = miscon.Message
@@ -53,14 +45,14 @@ func ProcessResults(client buildClient.Client, report report.Results) (results [
 			}
 		}
 	}
-	return results, policyScanSummaries
+	return results
 }
 
 func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*buildsecurity.Policy) (
-	policyScanSummaries []*buildsecurity.PolicyScanSummary) {
+	policyScanSummaries []*buildsecurity.PolicyResult) {
 	for _, policy := range policies {
-		var failed bool
 		controls := policy.GetControls()
+		var failed bool
 		var reason string
 		for _, control := range controls {
 
@@ -90,13 +82,15 @@ func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*bui
 					break
 				}
 			}
-		}
 
-		policyScanSummaries = append(policyScanSummaries, &buildsecurity.PolicyScanSummary{
+		}
+		policyScanSummaries = append(policyScanSummaries, &buildsecurity.PolicyResult{
+			PolicyID: policy.PolicyID,
 			Failed:   failed,
 			Enforced: policy.Enforced,
 			Reason:   reason,
 		})
+
 	}
 	return policyScanSummaries
 }

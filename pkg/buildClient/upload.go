@@ -9,8 +9,7 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
 
-func (bc *TwirpClient) Upload(results []*buildsecurity.Result, policyScanSummaries []*buildsecurity.PolicyScanSummary,
-	tags map[string]string) error {
+func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]string) error {
 	client := buildsecurity.NewBuildSecurityProtobufClient(bc.aquaUrl, &http.Client{})
 	ctx := context.Background()
 
@@ -29,14 +28,13 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, policyScanSummari
 	buildSystem := metadata.GetBuildSystem()
 
 	createScanReq := &buildsecurity.CreateScanReq{
-		RepositoryID:        bc.repoId,
-		Results:             results,
-		PolicyScanSummaries: policyScanSummaries,
-		User:                gitUser,
-		Branch:              branch,
-		Commit:              commitId,
-		System:              buildSystem,
-		Tags:                tags,
+		RepositoryID: bc.repoId,
+		Results:      results,
+		User:         gitUser,
+		Branch:       branch,
+		Commit:       commitId,
+		System:       buildSystem,
+		Tags:         tags,
 	}
 
 	_, err = client.CreateScan(ctx, createScanReq)
