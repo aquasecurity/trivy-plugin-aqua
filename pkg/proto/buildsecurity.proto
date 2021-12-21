@@ -41,7 +41,7 @@ message CreateScanReq {
   string User = 3;
   string System = 4;
   string Commit = 5;
-  repeated PolicyFailure PolicyFailures = 6;
+  repeated PolicyScanSummary PolicyScanSummaries = 6;
   repeated Result Results = 7;
   map<string, string> Tags = 8;
 }
@@ -63,9 +63,10 @@ message PolicyControl {
   SeverityEnum Severity = 4;
 }
 
-message PolicyFailure {
-  string PolicyID = 1;
-  bool Enforced = 2;
+message PolicyScanSummary {
+  string Reason   = 1;
+  bool Enforced   = 2;
+  bool Failed     = 3;
 }
 
 message Result {

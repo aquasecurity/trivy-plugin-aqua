@@ -44,10 +44,10 @@ func Test_process_results_with_results_but_not_matching_policies(t *testing.T) {
 		},
 	}
 
-	submitResults, policyFailures := processor.ProcessResults(client, results)
+	submitResults, summaries := processor.ProcessResults(client, results)
 
 	assert.Len(t, submitResults, 1)
-	assert.Nil(t, policyFailures)
+	assert.Len(t, summaries, 1)
 }
 
 func Test_process_results_with_results_with_matching_policies(t *testing.T) {
@@ -74,10 +74,10 @@ func Test_process_results_with_results_with_matching_policies(t *testing.T) {
 		},
 	}
 
-	submitResults, policyFailures := processor.ProcessResults(client, results)
+	submitResults, summaries := processor.ProcessResults(client, results)
 
 	assert.Len(t, submitResults, 1)
-	assert.NotNil(t, policyFailures)
+	assert.NotNil(t, summaries)
 }
 
 func Test_process_results_with_results_with_no_matching_policies_severity_level(t *testing.T) {
@@ -104,10 +104,10 @@ func Test_process_results_with_results_with_no_matching_policies_severity_level(
 		},
 	}
 
-	submitResults, policyFailures := processor.ProcessResults(client, results)
+	submitResults, summaries := processor.ProcessResults(client, results)
 
 	assert.Len(t, submitResults, 1)
-	assert.Nil(t, policyFailures)
+	assert.Len(t, summaries, 1)
 }
 
 func Test_process_results_with_results_with_matching_policies_severity_level(t *testing.T) {

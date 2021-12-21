@@ -14,7 +14,8 @@ import (
 
 // ProcessResults downloads the latest policies for the repository the process the results
 // while evaluating them against the policies
-func ProcessResults(client buildClient.Client, report report.Results) (results []*buildsecurity.Result, failedPolicies []*buildsecurity.PolicyFailure) {
+func ProcessResults(client buildClient.Client, report report.Results) (results []*buildsecurity.Result,
+	policyScanSummaries []*buildsecurity.PolicyScanSummary) {
 	downloadedPolicies, err := client.GetPoliciesForRepository()
 	if err != nil {
 		log.Logger.Errorf("Could not download the repository policies. %#v", err)
@@ -34,7 +35,7 @@ func ProcessResults(client buildClient.Client, report report.Results) (results [
 			if miscon.Status == types.StatusFailure {
 				if hasPolicies {
 					if failedPolicy := checkAgainstPolicies(miscon, downloadedPolicies); failedPolicy != nil {
-						failedPolicies = append(failedPolicies, failedPolicy...)
+						policyScanSummaries = append(policyScanSummaries, failedPolicy...)
 					}
 				}
 
@@ -52,45 +53,50 @@ func ProcessResults(client buildClient.Client, report report.Results) (results [
 			}
 		}
 	}
-	return results, failedPolicies
+	return results, policyScanSummaries
 }
 
-func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*buildsecurity.Policy) (policyFailures []*buildsecurity.PolicyFailure) {
+func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*buildsecurity.Policy) (
+	policyScanSummaries []*buildsecurity.PolicyScanSummary) {
 	for _, policy := range policies {
 		var failed bool
 		controls := policy.GetControls()
+		var reason string
 		for _, control := range controls {
 
 			if scanner.MatchResultSeverity(miscon.Severity) >= control.Severity && control.Severity != buildsecurity.SeverityEnum_SEVERITY_UNKNOWN {
 				failed = true
+				reason = fmt.Sprintf("Identified issue with a severity greater than %s", control.Severity)
+				break
 			}
 
 			if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) && control.Service == "" {
 				failed = true
+				reason = fmt.Sprintf("Identified a provider specific issue %s:%s", control.Provider, miscon.ID)
 				break
 			}
 
 			if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) &&
 				strings.ToLower(control.Service) == strings.ToLower(miscon.IacMetadata.Service) {
 				failed = true
+				reason = fmt.Sprintf("Identified a service specific issue %s:%s:%s", control.Provider, control.Service, miscon.ID)
 				break
 			}
 
 			for _, avdID := range control.AVDIDs {
 				if avdID == miscon.ID {
 					failed = true
+					reason = fmt.Sprintf("Identified issue %s", miscon.ID)
 					break
 				}
 			}
 		}
 
-		if failed {
-			policyFailures = append(policyFailures, &buildsecurity.PolicyFailure{
-				PolicyID: policy.PolicyID,
-				Enforced: policy.Enforced,
-			})
-		}
-
+		policyScanSummaries = append(policyScanSummaries, &buildsecurity.PolicyScanSummary{
+			Failed:   failed,
+			Enforced: policy.Enforced,
+			Reason:   reason,
+		})
 	}
-	return policyFailures
+	return policyScanSummaries
 }
