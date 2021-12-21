@@ -14,9 +14,8 @@ func Test_process_results_with_no_results(t *testing.T) {
 
 	client := FakeClient{}
 
-	results, policyFailures := processor.ProcessResults(client, nil)
+	results := processor.ProcessResults(client, nil)
 	assert.Nil(t, results)
-	assert.Nil(t, policyFailures)
 
 }
 
@@ -44,10 +43,9 @@ func Test_process_results_with_results_but_not_matching_policies(t *testing.T) {
 		},
 	}
 
-	submitResults, summaries := processor.ProcessResults(client, results)
+	submitResults := processor.ProcessResults(client, results)
 
 	assert.Len(t, submitResults, 1)
-	assert.Len(t, summaries, 1)
 }
 
 func Test_process_results_with_results_with_matching_policies(t *testing.T) {
@@ -74,10 +72,9 @@ func Test_process_results_with_results_with_matching_policies(t *testing.T) {
 		},
 	}
 
-	submitResults, summaries := processor.ProcessResults(client, results)
+	submitResults := processor.ProcessResults(client, results)
 
 	assert.Len(t, submitResults, 1)
-	assert.NotNil(t, summaries)
 }
 
 func Test_process_results_with_results_with_no_matching_policies_severity_level(t *testing.T) {
@@ -104,10 +101,9 @@ func Test_process_results_with_results_with_no_matching_policies_severity_level(
 		},
 	}
 
-	submitResults, summaries := processor.ProcessResults(client, results)
+	submitResults := processor.ProcessResults(client, results)
 
 	assert.Len(t, submitResults, 1)
-	assert.Len(t, summaries, 1)
 }
 
 func Test_process_results_with_results_with_matching_policies_severity_level(t *testing.T) {
@@ -134,10 +130,9 @@ func Test_process_results_with_results_with_matching_policies_severity_level(t *
 		},
 	}
 
-	submitResults, policyFailures := processor.ProcessResults(client, results)
+	submitResults := processor.ProcessResults(client, results)
 
 	assert.Len(t, submitResults, 1)
-	assert.NotNil(t, policyFailures)
 }
 
 func Test_process_results_with_results_with_matching_policies_severity_level_greater_than_specified(t *testing.T) {
@@ -164,8 +159,7 @@ func Test_process_results_with_results_with_matching_policies_severity_level_gre
 		},
 	}
 
-	submitResults, policyFailures := processor.ProcessResults(client, results)
+	submitResults := processor.ProcessResults(client, results)
 
 	assert.Len(t, submitResults, 1)
-	assert.NotNil(t, policyFailures)
 }
