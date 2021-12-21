@@ -7,7 +7,7 @@ import (
 )
 
 // Upload forwards the results to the configured client
-func Upload(client buildClient.Client, results []*buildsecurity.Result, policyScanSummaries []*buildsecurity.PolicyScanSummary, tags map[string]string) error {
+func Upload(client buildClient.Client, results []*buildsecurity.Result, tags map[string]string) error {
 	log.Logger.Debugf("Uploading scan with tags. %v", tags)
-	return client.Upload(results, policyScanSummaries, tags)
+	return client.Upload(results, tags)
 }

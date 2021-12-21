@@ -34,9 +34,10 @@ func main() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:    "aqua <scanPath>",
-	Short:  "Scan a filesystem location for vulnerabilities and config misconfiguration",
-	Hidden: true,
+	Use:          "aqua <scanPath>",
+	Short:        "Scan a filesystem location for vulnerabilities and config misconfiguration",
+	Hidden:       true,
+	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if err := log.InitLogger(debug, false); err != nil {
 			return err
@@ -63,22 +64,16 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		iacResults, policyScanSummaries := processor.ProcessResults(client, results)
+		processedResults := processor.ProcessResults(client, results)
 		if err != nil {
 			return err
 		}
 
-		if err := uploader.Upload(client, iacResults, policyScanSummaries, tags); err != nil {
+		if err := uploader.Upload(client, processedResults, tags); err != nil {
 			return err
 		}
 
-		for _, detail := range policyScanSummaries {
-			if detail.Failed && detail.Enforced {
-				failWithErrors(policyScanSummaries)
-			}
-		}
-
-		return nil
+		return checkPolicyResults(processedResults)
 	},
 	Args: cobra.ExactArgs(1),
 }
@@ -97,27 +92,31 @@ func verifySeverities() error {
 	return nil
 }
 
-func failWithErrors(policyDetails []*buildsecurity.PolicyScanSummary) {
+func checkPolicyResults(results []*buildsecurity.Result) error {
 	uniqCount := 0
 	uniq := make(map[string]bool)
 
-	for _, detail := range policyDetails {
-		if !detail.Failed {
-			continue
-		}
+	for _, result := range results {
+		for _, policyResult := range result.PolicyResults {
+			if !policyResult.Failed {
+				continue
+			}
 
-		if _, ok := uniq[detail.Reason]; !ok && detail.Failed {
-			uniq[detail.Reason] = true
-			uniqCount += 1
-			if detail.Enforced {
-				log.Logger.Errorf("%s", detail.Reason)
-			} else {
-				log.Logger.Warnf("%s", detail.Reason)
+			if _, ok := uniq[policyResult.GetPolicyID()]; !ok && policyResult.Failed {
+				if policyResult.Enforced {
+					uniqCount += 1
+					log.Logger.Errorf("Enforced policy failure: %s", policyResult.Reason)
+				} else {
+					log.Logger.Warnf("Unenforced policy failure: %s", policyResult.Reason)
+				}
+				uniq[policyResult.GetPolicyID()] = true
 			}
 		}
 	}
 
-	fmt.Printf("\n%d enforced policy failure(s). See output for specific details.\n", uniqCount)
+	if uniqCount == 0 {
+		return nil
+	}
 
-	os.Exit(1)
+	return fmt.Errorf("\n%d enforced policy failure(s). See output for specific details.\n", uniqCount)
 }
