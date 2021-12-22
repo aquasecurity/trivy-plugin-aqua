@@ -118,5 +118,5 @@ func checkPolicyResults(results []*buildsecurity.Result) error {
 		return nil
 	}
 
-	return fmt.Errorf("\n%d enforced policy failure(s). See output for specific details.\n", uniqCount)
+	return fmt.Errorf("\n%d enforced policy failure(s). See output for specific details.\n\n", uniqCount)
 }
