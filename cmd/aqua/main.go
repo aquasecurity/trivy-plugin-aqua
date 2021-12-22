@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
+
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
@@ -105,7 +107,9 @@ func verifySeverities() error {
 
 func checkPolicyResults(results []*buildsecurity.Result) error {
 	uniqCount := 0
-	uniq := make(map[string]bool)
+
+	var warns []string
+	var failures []string
 
 	for _, result := range results {
 		for _, policyResult := range result.PolicyResults {
@@ -113,21 +117,46 @@ func checkPolicyResults(results []*buildsecurity.Result) error {
 				continue
 			}
 
-			if _, ok := uniq[policyResult.GetPolicyID()]; !ok && policyResult.Failed {
-				if policyResult.Enforced {
+			if policyResult.Enforced {
+				for _, reason := range strings.Split(policyResult.Reason, "\n") {
+					if reason == "" {
+						continue
+					}
 					uniqCount += 1
-					log.Logger.Errorf("Enforced policy failure: %s", policyResult.Reason)
-				} else {
-					log.Logger.Warnf("Unenforced policy failure: %s", policyResult.Reason)
+					failures = append(failures, reason)
 				}
-				uniq[policyResult.GetPolicyID()] = true
+			} else {
+				for _, reason := range strings.Split(policyResult.Reason, "\n") {
+					if reason == "" {
+						continue
+					}
+					warns = append(warns, reason)
+				}
 			}
 		}
+	}
+
+	if len(warns) > 0 {
+		sort.Strings(warns)
+		_, _ = fmt.Fprintf(os.Stderr, "\n\x1b[33mThe following policy warnings were found:\n\n\x1b[0m")
+		for _, warn := range warns {
+			_, _ = fmt.Fprintf(os.Stderr, "\t- %s\n", warn)
+		}
+		_, _ = fmt.Fprintf(os.Stderr, "\n")
+	}
+
+	if len(failures) > 0 {
+		sort.Strings(failures)
+		_, _ = fmt.Fprintf(os.Stderr, "\n\x1b[31mThe following policy enforcements were found:\n\n\x1b[0m")
+		for _, failure := range failures {
+			_, _ = fmt.Fprintf(os.Stderr, "\t- %s\n", failure)
+		}
+		_, _ = fmt.Fprintf(os.Stderr, "\n")
 	}
 
 	if uniqCount == 0 {
 		return nil
 	}
 
-	return fmt.Errorf("\n%d enforced policy failure(s). See output for specific details.\n\n", uniqCount)
+	return fmt.Errorf("\x1b[31m%d enforced policy control failure(s).\n\n\x1b[0m", len(failures))
 }
