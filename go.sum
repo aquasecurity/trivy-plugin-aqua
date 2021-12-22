@@ -223,6 +223,8 @@ github.com/aquasecurity/tfsec v0.63.1 h1:KH63HTcUoab7d3PKtqFO6T8K5AY7bzLw7Kiu+EY
 github.com/aquasecurity/tfsec v0.63.1/go.mod h1:g5ZWmsfqW1FsCaPb9ux8Pzjcyss/WUB2XuRd5slqvnc=
 github.com/aquasecurity/trivy v0.21.4-0.20211222140013-cba350fe1e4b h1:y389wzEVVuOy/EgesauvbJDdnf1Rnf+y6WHE/AZR5Fs=
 github.com/aquasecurity/trivy v0.21.4-0.20211222140013-cba350fe1e4b/go.mod h1:TGgmM3KkYUgp3NCoEZoG0YZ5e+Q+YryecPdvfqDYi1I=
+github.com/aquasecurity/trivy v0.21.4-0.20211222150625-7f859afacb86 h1:isf+zHlHviyLoeHuluuo10/P/6q+5r3BPUSMittilkI=
+github.com/aquasecurity/trivy v0.21.4-0.20211222150625-7f859afacb86/go.mod h1:TGgmM3KkYUgp3NCoEZoG0YZ5e+Q+YryecPdvfqDYi1I=
 github.com/aquasecurity/trivy-db v0.0.0-20210916043317-726b7b72a47b h1:RaS93vlHzgreZk3CYqcNgoqukwbsBEYhAiE6qmhLwB0=
 github.com/aquasecurity/trivy-db v0.0.0-20210916043317-726b7b72a47b/go.mod h1:5h8GV7Qxp/SMJ4awWHs0KRxwVkKzcwOnRkORWOnCXRU=
 github.com/aquasecurity/vuln-list-update v0.0.0-20191016075347-3d158c2bf9a2/go.mod h1:6NhOP0CjZJL27bZZcaHECtzWdwDDm2g6yCY0QgXEGQQ=
