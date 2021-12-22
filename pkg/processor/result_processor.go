@@ -58,21 +58,23 @@ func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*bui
 
 			if scanner.MatchResultSeverity(miscon.Severity) >= control.Severity && control.Severity != buildsecurity.SeverityEnum_SEVERITY_UNKNOWN {
 				failed = true
-				reason = fmt.Sprintf("Identified issue with a severity greater than %s", control.Severity)
+				reason = fmt.Sprintf("Identified issue with a severity of %s or higher", control.Severity)
 				break
 			}
 
-			if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) && control.Service == "" {
-				failed = true
-				reason = fmt.Sprintf("Identified a provider specific issue %s:%s", control.Provider, miscon.ID)
-				break
-			}
+			if miscon.IacMetadata.Provider != "" || miscon.IacMetadata.Service != "" {
+				if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) && control.Service == "" {
+					failed = true
+					reason = fmt.Sprintf("Identified a provider specific issue %s:%s", control.Provider, miscon.ID)
+					break
+				}
 
-			if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) &&
-				strings.ToLower(control.Service) == strings.ToLower(miscon.IacMetadata.Service) {
-				failed = true
-				reason = fmt.Sprintf("Identified a service specific issue %s:%s:%s", control.Provider, control.Service, miscon.ID)
-				break
+				if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) &&
+					strings.ToLower(control.Service) == strings.ToLower(miscon.IacMetadata.Service) {
+					failed = true
+					reason = fmt.Sprintf("Identified a service specific issue %s:%s:%s", control.Provider, control.Service, miscon.ID)
+					break
+				}
 			}
 
 			for _, avdID := range control.AVDIDs {
