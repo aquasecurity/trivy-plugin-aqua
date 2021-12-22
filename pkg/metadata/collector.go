@@ -2,6 +2,7 @@ package metadata
 
 import (
 	"fmt"
+
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -13,7 +14,8 @@ import (
 
 // GetScmID extracts the git path from the config file
 func GetScmID(scanPath string) (string, error) {
-	gitConfig, err := ioutil.ReadFile(filepath.Join(scanPath, ".git", "config"))
+	gitConfigFile := filepath.Join(scanPath, ".git", "config")
+	gitConfig, err := ioutil.ReadFile(gitConfigFile)
 	if err == nil {
 		re := regexp.MustCompile(`(?m)^\s*url\s?=\s*(.*)\s*$`)
 		if re.Match(gitConfig) {
