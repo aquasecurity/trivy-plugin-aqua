@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"sort"
 
 	"strings"
@@ -56,16 +55,6 @@ var rootCmd = &cobra.Command{
 			scanPath = args[0]
 		}
 		log.Logger.Debugf("Using scanPath %s", scanPath)
-
-		gitConfigFile := filepath.Join(scanPath, ".git", "config")
-
-		if _, err := os.Stat(gitConfigFile); err != nil {
-			if os.IsNotExist(err) {
-				log.Logger.Errorf("no git config found at %s, did you forget to do a git init?", gitConfigFile)
-				return nil
-			}
-			return err
-		}
 
 		client, err := buildClient.Get(scanPath)
 		if err != nil {

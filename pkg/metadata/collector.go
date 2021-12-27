@@ -23,7 +23,8 @@ func GetScmID(scanPath string) (string, error) {
 			return scmID, nil
 		}
 	}
-	return filepath.Base(scanPath), err
+
+	return filepath.Base(scanPath), nil
 }
 
 func GetBuildSystem() string {
