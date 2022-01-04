@@ -18,13 +18,15 @@ import (
 )
 
 var (
-	severities string
-	debug      bool
-	tags       map[string]string
+	severities       string
+	debug            bool
+	skipResultUpload bool
+	tags             map[string]string
 )
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(&severities, "severities", strings.Join(scanner.AllSeverities, ","), "Minimum severity to display misconfigurations for")
+	rootCmd.PersistentFlags().BoolVarP(&skipResultUpload, "skip-result-upload", "s", false, "Add this flag if you want test failed policy locally before sending PR")
 	rootCmd.PersistentFlags().BoolVarP(&debug, "debug", "v", false, "Display debug output")
 	rootCmd.PersistentFlags().StringToStringVarP(&tags, "tags", "t", nil, "Add arbitrary tags to the scan; --tags key1=val1,key2=val2")
 }
@@ -71,8 +73,10 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		if err := uploader.Upload(client, processedResults, tags); err != nil {
-			return err
+		if !skipResultUpload {
+			if err := uploader.Upload(client, processedResults, tags); err != nil {
+				return err
+			}
 		}
 
 		return checkPolicyResults(processedResults)
