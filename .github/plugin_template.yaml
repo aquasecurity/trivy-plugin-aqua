@@ -16,7 +16,7 @@ platforms:
     bin: ./aqua
   - selector:
       os: darwin
-      arch: arm64
+      arch: amd64
     uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/PLACEHOLDERVERSION/darwin_amd64_PLACEHOLDERVERSION.tar.gz
     bin: ./aqua
   - selector:
