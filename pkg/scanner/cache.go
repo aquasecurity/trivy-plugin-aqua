@@ -43,7 +43,7 @@ func (c AquaCache) Clear() (err error) {
 }
 
 func initAquaCache() artifact.InitCache {
-	return func(c artifact.Option) (cache.Cache, error) {
+	return func(_ artifact.Option) (cache.Cache, error) {
 		cacheClient, err := cache.NewFSCache(utils.CacheDir())
 		if err != nil {
 			return cacheClient, fmt.Errorf("failed to create cache client with error: %w", err)
