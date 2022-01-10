@@ -33,7 +33,7 @@ func main() {
 	app.EnableBashCompletion = true
 
 	configCmd := commands.NewConfigCommand()
-	configCmd.Action = runConfigScan
+	configCmd.Action = runScan
 	configCmd.Flags = append(configCmd.Flags,
 		&cli.StringFlag{
 			Name:    "skip-result-upload",
@@ -52,10 +52,22 @@ func main() {
 			Value:   types.SecurityCheckConfig,
 			Usage:   "comma-separated list of what security issues to detect (vuln,config)",
 			EnvVars: []string{"TRIVY_SECURITY_CHECKS"},
+			Hidden:  true,
+		},
+	)
+
+	fsCmd := commands.NewFilesystemCommand()
+	fsCmd.Action = runScan
+	fsCmd.Flags = append(fsCmd.Flags,
+		&cli.StringFlag{
+			Name:    "skip-result-upload",
+			Usage:   "Add this flag if you want test failed policy locally before sending PR",
+			EnvVars: []string{"TRIVY_SKIP_RESULT_UPLOAD"},
 		},
 	)
 
 	app.Commands = []*cli.Command{
+		fsCmd,
 		configCmd,
 	}
 	if err := app.Run(os.Args); err != nil {
@@ -63,7 +75,7 @@ func main() {
 	}
 }
 
-func runConfigScan(c *cli.Context) error {
+func runScan(c *cli.Context) error {
 
 	debug := c.Bool("debug")
 
