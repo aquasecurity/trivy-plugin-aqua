@@ -66,6 +66,9 @@ func main() {
 		},
 	)
 
+	app.Action = runScan
+	app.Flags = fsCmd.Flags
+
 	app.Commands = []*cli.Command{
 		fsCmd,
 		configCmd,
@@ -76,6 +79,14 @@ func main() {
 }
 
 func runScan(c *cli.Context) error {
+	if c.Command.Name == "" {
+		if err := c.Set("security-checks", "config"); err != nil {
+			return err
+		}
+		if err := c.Set("vuln-type", "os,library"); err != nil {
+			return err
+		}
+	}
 
 	debug := c.Bool("debug")
 
