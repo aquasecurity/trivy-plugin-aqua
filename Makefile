@@ -11,7 +11,7 @@ integration-test:
 	mkdir -p /home/runner/.trivy/plugins/aqua/
 	go build -o /home/runner/.trivy/plugins/aqua/aqua cmd/aqua/main.go
 	cp plugin.yaml /home/runner/.trivy/plugins/aqua/
-	trivy . --debug
+	trivy --debug .
 
 .PHONY: update-plugin
 update-plugin:
