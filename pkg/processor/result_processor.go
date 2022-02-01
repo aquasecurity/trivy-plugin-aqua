@@ -21,28 +21,34 @@ func ProcessResults(client buildClient.Client, report report.Results) (results [
 	}
 
 	for _, rep := range report {
-		for _, miscon := range rep.Misconfigurations {
+		reportResults := addMisconfigurationResults(rep, downloadedPolicies)
+		results = append(results, reportResults...)
+	}
+	return results
+}
 
-			var r buildsecurity.Result
-			resource := fmt.Sprintf("%s Resource", strings.Title(rep.Type))
-			if miscon.IacMetadata.Resource != "" {
-				resource = miscon.IacMetadata.Resource
-			}
+func addMisconfigurationResults(rep report.Result, downloadedPolicies []*buildsecurity.Policy) (results []*buildsecurity.Result) {
+	for _, miscon := range rep.Misconfigurations {
 
-			if miscon.Status == types.StatusFailure {
-				r.PolicyResults = checkAgainstPolicies(miscon, downloadedPolicies, rep.Target)
-				r.AVDID = miscon.ID
-				r.Title = miscon.Title
-				r.Message = miscon.Message
-				r.Resource = resource
-				r.Severity = scanner.MatchResultSeverity(miscon.Severity)
-				r.StartLine = int32(miscon.IacMetadata.StartLine)
-				r.EndLine = int32(miscon.IacMetadata.EndLine)
-				r.Filename = rep.Target
-				r.Type = scanner.MatchResultType(rep.Type)
+		var r buildsecurity.Result
+		resource := fmt.Sprintf("%s Resource", strings.Title(rep.Type))
+		if miscon.IacMetadata.Resource != "" {
+			resource = miscon.IacMetadata.Resource
+		}
 
-				results = append(results, &r)
-			}
+		if miscon.Status == types.StatusFailure {
+			r.PolicyResults = checkAgainstPolicies(miscon, downloadedPolicies, rep.Target)
+			r.AVDID = miscon.ID
+			r.Title = miscon.Title
+			r.Message = miscon.Message
+			r.Resource = resource
+			r.Severity = scanner.MatchResultSeverity(miscon.Severity)
+			r.StartLine = int32(miscon.IacMetadata.StartLine)
+			r.EndLine = int32(miscon.IacMetadata.EndLine)
+			r.Filename = rep.Target
+			r.Type = scanner.MatchResultType(rep.Type)
+
+			results = append(results, &r)
 		}
 	}
 	return results

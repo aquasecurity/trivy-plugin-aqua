@@ -4,12 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"os"
 	"strings"
-	"time"
 
 	fanalconfig "github.com/aquasecurity/fanal/analyzer/config"
 	fanalartifact "github.com/aquasecurity/fanal/artifact"
@@ -29,16 +27,16 @@ const (
 	resultsFile = "results.json"
 )
 
-func Scan(path, severities string, debug bool) (report.Results, error) {
+func Scan(c *cli.Context, path string) (report.Results, error) {
 
 	initializeScanner := initializeFilesystemScanner(path, policyDir, dataDir)
 
-	opt, err := createScanOptions(severities, debug)
+	opt, err := createScanOptions(c)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed creating scan options")
 	}
 
-	err = artifact.Run(context.Background(), opt, initializeScanner, initAquaCache())
+	err = artifact.Run(c.Context, opt, initializeScanner, initAquaCache())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed running scan")
 	}
@@ -71,7 +69,9 @@ func Scan(path, severities string, debug bool) (report.Results, error) {
 }
 
 func initializeFilesystemScanner(dir, _, _ string) artifact.InitializeScanner {
-	return func(ctx context.Context, target string, artifactCache cache.ArtifactCache, localArtifactCache cache.LocalArtifactCache, timeout time.Duration, option fanalartifact.Option, configScannerOption fanalconfig.ScannerOption) (scanner.Scanner, func(), error) {
+
+	return func(_ context.Context, _ string, artifactCache cache.ArtifactCache, localArtifactCache cache.LocalArtifactCache, _ bool,
+		option fanalartifact.Option, configScannerOption fanalconfig.ScannerOption) (scanner.Scanner, func(), error) {
 
 		fs, err := local.NewArtifact(dir, artifactCache, option, configScannerOption)
 		if err != nil {
@@ -84,27 +84,12 @@ func initializeFilesystemScanner(dir, _, _ string) artifact.InitializeScanner {
 	}
 }
 
-func createScanOptions(severities string, debug bool) (artifact.Option, error) {
-	app := cli.NewApp()
-	set := flag.NewFlagSet("test", 0)
-	set.Bool("quiet", false, "")
-	set.Bool("debug", debug, "")
-	set.String("severity", severities, "")
-	set.String("vuln-type", "os,library", "")
-	set.String("security-checks", "config", "")
-	set.String("format", "table", "")
-	set.Bool("skip-update", false, "")
-	set.String("timeout", "5m0s", "")
-	set.String("input", "input", "")
+func createScanOptions(c *cli.Context) (artifact.Option, error) {
 
-	ctx := cli.NewContext(app, set, nil)
-
-	opt, err := artifact.NewOption(ctx)
+	opt, err := artifact.NewOption(c)
 	if err != nil {
 		return opt, err
 	}
-	opt.CacheOption.CacheBackend = "fs"
-	opt.VulnType = nil
 
 	// initialize options
 	if err = opt.Init(); err != nil {

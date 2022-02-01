@@ -7,11 +7,11 @@ test:
 
 .PHONY: integration-test
 integration-test:
-	curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.21.1
+	curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.23.0
 	mkdir -p /home/runner/.trivy/plugins/aqua/
 	go build -o /home/runner/.trivy/plugins/aqua/aqua cmd/aqua/main.go
 	cp plugin.yaml /home/runner/.trivy/plugins/aqua/
-	trivy . --debug
+	trivy --debug .
 
 .PHONY: update-plugin
 update-plugin:
