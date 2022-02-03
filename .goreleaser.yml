@@ -3,16 +3,15 @@ before:
     - go mod tidy
     - go mod download
 builds:
-  - env:
-      - CGO_ENABLED=0
   - main: ./cmd/aqua
     binary: aqua
-
-  - goos:
+    env:
+      - CGO_ENABLED=0
+    goos:
       - linux
       - windows
       - darwin
-  - goarch:
+    goarch:
       - amd64
       - arm64
 
