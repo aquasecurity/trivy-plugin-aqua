@@ -64,6 +64,11 @@ func main() {
 			Usage:   "Add this flag if you want test failed policy locally before sending PR",
 			EnvVars: []string{"TRIVY_SKIP_RESULT_UPLOAD"},
 		},
+		&cli.BoolFlag{
+			Name:    "debug",
+			Usage:   "Add this flag if you want run in debug mode",
+			EnvVars: []string{"DEBUG"},
+		},
 	)
 
 	app.Action = runScan
@@ -116,6 +121,7 @@ func runScan(c *cli.Context) error {
 		return err
 	}
 
+	log.Logger.Debugf("%v", processedResults)
 	if !skipResultUpload {
 		if err := uploader.Upload(client, processedResults, tags); err != nil {
 			return err

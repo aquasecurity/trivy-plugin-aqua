@@ -14,16 +14,47 @@ import (
 
 // ProcessResults downloads the latest policies for the repository the process the results
 // while evaluating them against the policies
-func ProcessResults(client buildClient.Client, report report.Results) (results []*buildsecurity.Result) {
+func ProcessResults(client buildClient.Client, reports report.Results) (results []*buildsecurity.Result) {
 	downloadedPolicies, err := client.GetPoliciesForRepository()
 	if err != nil {
 		log.Logger.Errorf("Could not download the repository policies. %#v", err)
 	}
 
-	for _, rep := range report {
-		reportResults := addMisconfigurationResults(rep, downloadedPolicies)
-		results = append(results, reportResults...)
+	for _, rep := range reports {
+		if rep.Class == report.ClassConfig {
+			reportResults := addMisconfigurationResults(rep, downloadedPolicies)
+			results = append(results, reportResults...)
+		}
+		if rep.Class == report.ClassLangPkg {
+			reportResults := addVulnerabilitiesResults(rep)
+			results = append(results, reportResults...)
+		}
 	}
+
+	return results
+}
+
+func addVulnerabilitiesResults(rep report.Result) (results []*buildsecurity.Result) {
+	for _, vuln := range rep.Vulnerabilities {
+
+		var r buildsecurity.Result
+
+		r.Type = scanner.MatchResultType("VULNERABILITIES")
+		r.Title = vuln.Title // TODO check why empty
+		r.Filename = rep.Target
+		r.Severity = scanner.MatchResultSeverity(vuln.Vulnerability.Severity) //TODO check why empty
+		r.Filename = vuln.PkgPath                                             // TODO check why empty
+		r.AVDID = vuln.VulnerabilityID
+		r.PkgName = vuln.PkgName
+		r.InstalledVersion = vuln.InstalledVersion
+		r.FixedVersion = vuln.FixedVersion
+		r.DataSource = vuln.DataSource.Name
+
+		log.Logger.Debugf("%v", vuln.CVSS) // TODO check why empty
+
+		results = append(results, &r)
+	}
+
 	return results
 }
 

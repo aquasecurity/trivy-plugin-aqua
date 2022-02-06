@@ -80,6 +80,7 @@ message Result {
     TYPE_KUBERNETES = 4;
     TYPE_YAML = 5;
     TYPE_HCL = 6;
+    TYPE_VULNERABILITIES = 7;
   }
   TypeEnum Type = 4;
   SeverityEnum Severity = 5;
@@ -89,6 +90,10 @@ message Result {
   int32 EndLine = 9;
   string Resource = 10;
   repeated PolicyResult PolicyResults = 11;
+  string PkgName = 12;
+  string InstalledVersion = 13;
+  string FixedVersion = 14;
+  string DataSource = 15;
 }
 
 enum SeverityEnum {
