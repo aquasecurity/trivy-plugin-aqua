@@ -40,17 +40,25 @@ func addVulnerabilitiesResults(rep report.Result) (results []*buildsecurity.Resu
 		var r buildsecurity.Result
 
 		r.Type = scanner.MatchResultType("VULNERABILITIES")
-		r.Title = vuln.Title // TODO check why empty
+		r.Title = vuln.Title
+		r.Message = vuln.Description
+		r.Severity = scanner.MatchResultSeverity(vuln.Vulnerability.Severity)
 		r.Filename = rep.Target
-		r.Severity = scanner.MatchResultSeverity(vuln.Vulnerability.Severity) //TODO check why empty
-		r.Filename = vuln.PkgPath                                             // TODO check why empty
 		r.AVDID = vuln.VulnerabilityID
 		r.PkgName = vuln.PkgName
 		r.InstalledVersion = vuln.InstalledVersion
 		r.FixedVersion = vuln.FixedVersion
 		r.DataSource = vuln.DataSource.Name
 
-		log.Logger.Debugf("%v", vuln.CVSS) // TODO check why empty
+		for vendor, cvssVal := range vuln.Vulnerability.CVSS {
+			r.VendorScoring = append(r.VendorScoring, &buildsecurity.VendorScoring{
+				V2Score:    float32(cvssVal.V2Score),
+				V2Vector:   cvssVal.V2Vector,
+				V3Score:    float32(cvssVal.V3Score),
+				V3Vector:   cvssVal.V3Vector,
+				VendorName: string(vendor),
+			})
+		}
 
 		results = append(results, &r)
 	}

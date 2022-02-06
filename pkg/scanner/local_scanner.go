@@ -2,6 +2,8 @@ package scanner
 
 import (
 	"encoding/json"
+	"github.com/aquasecurity/trivy-db/pkg/db"
+	"github.com/aquasecurity/trivy/pkg/result"
 	"io/ioutil"
 
 	"github.com/aquasecurity/fanal/applier"
@@ -15,7 +17,8 @@ import (
 )
 
 type aquaScanner struct {
-	driver scanner.Driver
+	driver       scanner.Driver
+	resultClient result.Client
 }
 
 func newAquaScanner(localArtifactCache cache.LocalArtifactCache) aquaScanner {
@@ -23,13 +26,17 @@ func newAquaScanner(localArtifactCache cache.LocalArtifactCache) aquaScanner {
 	detector := ospkg.Detector{}
 	lscanner := localscanner.NewScanner(applierApplier, detector)
 
-	return aquaScanner{driver: lscanner}
+	return aquaScanner{driver: lscanner, resultClient: result.NewClient(db.Config{})}
 }
 
 func (s aquaScanner) Scan(target, imageID string, layerIDs []string, options types.ScanOptions) (report.Results, *ftypes.OS, error) {
+
 	results, osFound, err := s.driver.Scan(target, imageID, layerIDs, options)
 	if err != nil {
 		return nil, osFound, err
+	}
+	for i, _ := range results {
+		s.resultClient.FillVulnerabilityInfo(results[i].Vulnerabilities, results[i].Type)
 	}
 
 	file, err := json.MarshalIndent(results, "", " ")

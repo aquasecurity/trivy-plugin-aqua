@@ -94,6 +94,7 @@ message Result {
   string InstalledVersion = 13;
   string FixedVersion = 14;
   string DataSource = 15;
+  repeated VendorScoring VendorScoring =16;
 }
 
 enum SeverityEnum {
@@ -103,4 +104,13 @@ enum SeverityEnum {
   SEVERITY_HIGH = 3;
   SEVERITY_CRITICAL = 4;
   SEVERITY_MAX = 5;
+}
+
+
+message VendorScoring {
+string vendorName = 1;
+float V2Score = 2;
+string V2Vector = 3;
+float V3Score = 4;
+string V3Vector =5;
 }

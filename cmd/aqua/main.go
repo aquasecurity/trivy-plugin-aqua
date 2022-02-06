@@ -121,7 +121,6 @@ func runScan(c *cli.Context) error {
 		return err
 	}
 
-	log.Logger.Debugf("%v", processedResults)
 	if !skipResultUpload {
 		if err := uploader.Upload(client, processedResults, tags); err != nil {
 			return err
