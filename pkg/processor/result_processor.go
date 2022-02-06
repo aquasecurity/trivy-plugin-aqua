@@ -14,16 +14,55 @@ import (
 
 // ProcessResults downloads the latest policies for the repository the process the results
 // while evaluating them against the policies
-func ProcessResults(client buildClient.Client, report report.Results) (results []*buildsecurity.Result) {
+func ProcessResults(client buildClient.Client, reports report.Results) (results []*buildsecurity.Result) {
 	downloadedPolicies, err := client.GetPoliciesForRepository()
 	if err != nil {
 		log.Logger.Errorf("Could not download the repository policies. %#v", err)
 	}
 
-	for _, rep := range report {
-		reportResults := addMisconfigurationResults(rep, downloadedPolicies)
-		results = append(results, reportResults...)
+	for _, rep := range reports {
+		switch rep.Class {
+		case report.ClassLangPkg:
+			reportResults := addVulnerabilitiesResults(rep)
+			results = append(results, reportResults...)
+		case report.ClassConfig:
+			reportResults := addMisconfigurationResults(rep, downloadedPolicies)
+			results = append(results, reportResults...)
+		}
 	}
+
+	return results
+}
+
+func addVulnerabilitiesResults(rep report.Result) (results []*buildsecurity.Result) {
+	for _, vuln := range rep.Vulnerabilities {
+
+		var r buildsecurity.Result
+
+		r.Type = scanner.MatchResultType("VULNERABILITIES")
+		r.Title = vuln.Title
+		r.Message = vuln.Description
+		r.Severity = scanner.MatchResultSeverity(vuln.Vulnerability.Severity)
+		r.Filename = rep.Target
+		r.AVDID = vuln.VulnerabilityID
+		r.PkgName = vuln.PkgName
+		r.InstalledVersion = vuln.InstalledVersion
+		r.FixedVersion = vuln.FixedVersion
+		r.DataSource = vuln.DataSource.Name
+
+		for vendor, cvssVal := range vuln.Vulnerability.CVSS {
+			r.VendorScoring = append(r.VendorScoring, &buildsecurity.VendorScoring{
+				V2Score:    float32(cvssVal.V2Score),
+				V2Vector:   cvssVal.V2Vector,
+				V3Score:    float32(cvssVal.V3Score),
+				V3Vector:   cvssVal.V3Vector,
+				VendorName: string(vendor),
+			})
+		}
+
+		results = append(results, &r)
+	}
+
 	return results
 }
 

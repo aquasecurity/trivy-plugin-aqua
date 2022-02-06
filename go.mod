@@ -7,6 +7,7 @@ require (
 	github.com/aquasecurity/go-dep-parser v0.0.0-20211224170007-df43bca6b6ff
 	github.com/aquasecurity/tfsec v0.63.2-0.20220111145126-862b1744f789 // indirect
 	github.com/aquasecurity/trivy v0.23.0
+	github.com/aquasecurity/trivy-db v0.0.0-20220130223604-df65ebde46f4
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
 	github.com/twitchtv/twirp v8.1.1+incompatible
