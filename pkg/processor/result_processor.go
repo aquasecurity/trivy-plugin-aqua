@@ -21,12 +21,12 @@ func ProcessResults(client buildClient.Client, reports report.Results) (results 
 	}
 
 	for _, rep := range reports {
-		if rep.Class == report.ClassConfig {
-			reportResults := addMisconfigurationResults(rep, downloadedPolicies)
-			results = append(results, reportResults...)
-		}
-		if rep.Class == report.ClassLangPkg {
+		switch rep.Class {
+		case report.ClassLangPkg:
 			reportResults := addVulnerabilitiesResults(rep)
+			results = append(results, reportResults...)
+		case report.ClassConfig:
+			reportResults := addMisconfigurationResults(rep, downloadedPolicies)
 			results = append(results, reportResults...)
 		}
 	}
