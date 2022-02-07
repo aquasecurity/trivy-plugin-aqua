@@ -46,7 +46,7 @@ func (s aquaScanner) Scan(target, imageID string, layerIDs []string, options typ
 		return nil, osFound, err
 	}
 
-	err = ioutil.WriteFile(resultsFile, file, 0644)
+	err = ioutil.WriteFile(resultsFile, file, 0600)
 	if err != nil {
 		return nil, osFound, err
 	}
