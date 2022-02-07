@@ -2,9 +2,10 @@ package scanner
 
 import (
 	"encoding/json"
+	"io/ioutil"
+
 	"github.com/aquasecurity/trivy-db/pkg/db"
 	"github.com/aquasecurity/trivy/pkg/result"
-	"io/ioutil"
 
 	"github.com/aquasecurity/fanal/applier"
 	"github.com/aquasecurity/fanal/cache"
@@ -29,13 +30,14 @@ func newAquaScanner(localArtifactCache cache.LocalArtifactCache) aquaScanner {
 	return aquaScanner{driver: lscanner, resultClient: result.NewClient(db.Config{})}
 }
 
-func (s aquaScanner) Scan(target, imageID string, layerIDs []string, options types.ScanOptions) (report.Results, *ftypes.OS, error) {
+func (s aquaScanner) Scan(target, imageID string, layerIDs []string, options types.ScanOptions) (
+	report.Results, *ftypes.OS, error) {
 
 	results, osFound, err := s.driver.Scan(target, imageID, layerIDs, options)
 	if err != nil {
 		return nil, osFound, err
 	}
-	for i, _ := range results {
+	for i := range results {
 		s.resultClient.FillVulnerabilityInfo(results[i].Vulnerabilities, results[i].Type)
 	}
 
@@ -44,7 +46,7 @@ func (s aquaScanner) Scan(target, imageID string, layerIDs []string, options typ
 		return nil, osFound, err
 	}
 
-	err = ioutil.WriteFile(resultsFile, file, 0644)
+	err = ioutil.WriteFile(resultsFile, file, 0600)
 	if err != nil {
 		return nil, osFound, err
 	}

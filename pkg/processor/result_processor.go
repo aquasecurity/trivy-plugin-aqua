@@ -66,7 +66,8 @@ func addVulnerabilitiesResults(rep report.Result) (results []*buildsecurity.Resu
 	return results
 }
 
-func addMisconfigurationResults(rep report.Result, downloadedPolicies []*buildsecurity.Policy) (results []*buildsecurity.Result) {
+func addMisconfigurationResults(rep report.Result, downloadedPolicies []*buildsecurity.Policy) (
+	results []*buildsecurity.Result) {
 	for _, miscon := range rep.Misconfigurations {
 
 		var r buildsecurity.Result
@@ -93,7 +94,10 @@ func addMisconfigurationResults(rep report.Result, downloadedPolicies []*buildse
 	return results
 }
 
-func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*buildsecurity.Policy, filename string) (
+func checkAgainstPolicies(
+	miscon types.DetectedMisconfiguration,
+	policies []*buildsecurity.Policy,
+	filename string) (
 	results []*buildsecurity.PolicyResult) {
 
 	location := fmt.Sprintf("%s#L%d-%d", filename, miscon.IacMetadata.StartLine, miscon.IacMetadata.EndLine)
@@ -104,27 +108,40 @@ func checkAgainstPolicies(miscon types.DetectedMisconfiguration, policies []*bui
 		var reasons []string
 		for _, control := range controls {
 
-			if scanner.MatchResultSeverity(miscon.Severity) >= control.Severity && control.Severity != buildsecurity.SeverityEnum_SEVERITY_UNKNOWN {
+			if scanner.MatchResultSeverity(miscon.Severity) >= control.Severity &&
+				control.Severity != buildsecurity.SeverityEnum_SEVERITY_UNKNOWN {
 				failed = true
 				reasons = append(reasons, fmt.Sprintf("[%s] Severity level control breach [%s]", miscon.ID, location))
 			}
 
 			if len(control.AVDIDs) == 0 && (miscon.IacMetadata.Provider != "" || miscon.IacMetadata.Service != "") {
-				if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) && control.Service == "" {
+
+				if strings.EqualFold(control.Provider, miscon.IacMetadata.Provider) &&
+					control.Service == "" {
 					failed = true
-					reasons = append(reasons, fmt.Sprintf("[%s] Provider specific control breach %s [%s]", miscon.ID, control.Provider, location))
+					reasons = append(
+						reasons,
+						fmt.Sprintf("[%s] Provider specific control breach %s [%s]", miscon.ID, control.Provider, location))
 				}
 
-				if strings.ToLower(control.Provider) == strings.ToLower(miscon.IacMetadata.Provider) &&
-					strings.ToLower(control.Service) == strings.ToLower(miscon.IacMetadata.Service) {
+				if strings.EqualFold(control.Provider, miscon.IacMetadata.Provider) &&
+					strings.EqualFold(control.Service, miscon.IacMetadata.Service) {
 					failed = true
-					reasons = append(reasons, fmt.Sprintf("[%s] Service specific control breach %s:%s [%s]", miscon.ID, control.Provider, control.Service, location))
+					reasons = append(
+						reasons,
+						fmt.Sprintf("[%s] Service specific control breach %s:%s [%s]",
+							miscon.ID,
+							control.Provider,
+							control.Service,
+							location))
 				}
 			} else {
 				for _, avdID := range control.AVDIDs {
 					if avdID == miscon.ID {
 						failed = true
-						reasons = append(reasons, fmt.Sprintf("[%s] Specific ID control breach [%s]", miscon.ID, location))
+						reasons = append(
+							reasons,
+							fmt.Sprintf("[%s] Specific ID control breach [%s]", miscon.ID, location))
 					}
 				}
 			}

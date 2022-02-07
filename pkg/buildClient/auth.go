@@ -29,7 +29,10 @@ func obtainJWT(key, secret, cspmUrl string) (string, error) {
 
 	timestampString := strconv.Itoa(int(time.Now().Unix()))
 	someString := timestampString + "POST/v2/tokens" + body
-	signature := ComputeHmac256(someString, secret)
+	signature, err := ComputeHmac256(someString, secret)
+	if err != nil {
+		return "", err
+	}
 
 	req.Header.Add("x-signature", signature)
 	req.Header.Add("x-timestamp", timestampString)
@@ -60,9 +63,12 @@ func obtainJWT(key, secret, cspmUrl string) (string, error) {
 	return response.Data, nil
 }
 
-func ComputeHmac256(message string, secret string) string {
+func ComputeHmac256(message string, secret string) (string, error) {
 	key := []byte(secret)
 	h := hmac.New(sha256.New, key)
-	h.Write([]byte(message))
-	return hex.EncodeToString(h.Sum(nil))
+	_, err := h.Write([]byte(message))
+	if err != nil {
+		return "", fmt.Errorf("failed compute hmac: %w", err)
+	}
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
