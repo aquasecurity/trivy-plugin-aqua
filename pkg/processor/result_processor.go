@@ -19,7 +19,7 @@ func ProcessResults(client buildClient.Client, reports report.Results) (results 
 	if err != nil {
 		log.Logger.Errorf("Could not download the repository policies. %#v", err)
 	}
-	policies, suppressedIds := getSuppressedIds(downloadedPolicies)
+	policies, suppressedIds := distinguishPolicies(downloadedPolicies)
 	log.Logger.Debugf("%d IDs are suppressed", len(suppressedIds))
 
 	for _, rep := range reports {
@@ -36,16 +36,19 @@ func ProcessResults(client buildClient.Client, reports report.Results) (results 
 	return results
 }
 
-func getSuppressedIds(
+func distinguishPolicies(
 	downloadedPolicies []*buildsecurity.Policy) (
 	policies []*buildsecurity.Policy,
 	suppressedIds []string) {
 	for _, policy := range downloadedPolicies {
-		if policy.PolicyType == buildsecurity.PolicyTypeEnum_POLICY_TYPE_SUPPRESSION {
+		switch policy.PolicyType {
+		case buildsecurity.PolicyTypeEnum_POLICY_TYPE_SUPPRESSION:
 			for _, control := range policy.GetControls() {
 				suppressedIds = append(suppressedIds, control.AVDIDs...)
 			}
-		} else {
+		case buildsecurity.PolicyTypeEnum_POLICY_TYPE_POLICY:
+			policies = append(policies, policy)
+		default:
 			policies = append(policies, policy)
 		}
 	}
@@ -102,7 +105,11 @@ func addMisconfigurationResults(rep report.Result, downloadedPolicies []*buildse
 			resource = miscon.IacMetadata.Resource
 		}
 
-		if miscon.Status == types.StatusFailure && !contains(suppressedIds, miscon.ID) {
+		suppressedId := contains(suppressedIds, miscon.ID)
+		if suppressedId {
+			log.Logger.Debugf("Skipping suppressed id: %s", miscon.ID)
+		}
+		if miscon.Status == types.StatusFailure && !suppressedId {
 			r.PolicyResults = checkAgainstPolicies(miscon, downloadedPolicies, rep.Target)
 			r.AVDID = miscon.ID
 			r.Title = miscon.Title
