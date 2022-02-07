@@ -1,9 +1,10 @@
 package processor
 
 import (
-	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"reflect"
 	"testing"
+
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
 
 func Test_contains(t *testing.T) {

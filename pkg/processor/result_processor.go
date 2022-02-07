@@ -96,7 +96,9 @@ func contains(slice []string, value string) bool {
 	return false
 }
 
-func addMisconfigurationResults(rep report.Result, downloadedPolicies []*buildsecurity.Policy, suppressedIds []string) (results []*buildsecurity.Result) {
+func addMisconfigurationResults(rep report.Result,
+	downloadedPolicies []*buildsecurity.Policy,
+	suppressedIds []string) (results []*buildsecurity.Result) {
 	for _, miscon := range rep.Misconfigurations {
 
 		var r buildsecurity.Result
