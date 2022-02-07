@@ -55,7 +55,7 @@ func Test_process_results_with_results_but_not_matching_policies(t *testing.T) {
 					FixedVersion:     "3.4.5",
 					Vulnerability: dbTypes.Vulnerability{
 						Title:       `gcc: POWER9 "DARN" RNG intrinsic produces repeated output`,
-						Description: `curl version curl \X 7.20.0 to and including curl 7.59.0 contains a CWE-126: Buffer Over-read vulnerability in denial of service that can result in curl can be tricked into reading data beyond the end of a heap based buffer used to store downloaded RTSP content.. This vulnerability appears to have been fixed in curl < 7.20.0 and curl >= 7.60.0.`,
+						Description: `curl version.`,
 						Severity:    "HIGH",
 					},
 				},

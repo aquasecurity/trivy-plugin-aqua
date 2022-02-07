@@ -70,7 +70,8 @@ func Scan(c *cli.Context, path string) (report.Results, error) {
 
 func initializeFilesystemScanner(dir, _, _ string) artifact.InitializeScanner {
 
-	return func(_ context.Context, _ string, artifactCache cache.ArtifactCache, localArtifactCache cache.LocalArtifactCache, _ bool,
+	return func(_ context.Context, _ string, artifactCache cache.ArtifactCache,
+		localArtifactCache cache.LocalArtifactCache, _ bool,
 		option fanalartifact.Option, configScannerOption fanalconfig.ScannerOption) (scanner.Scanner, func(), error) {
 		fs, err := local.NewArtifact(dir, artifactCache, option, configScannerOption)
 		if err != nil {

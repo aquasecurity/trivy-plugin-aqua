@@ -164,7 +164,8 @@ func checkPolicyResults(results []*buildsecurity.Result) error {
 
 	if len(warns) > 0 {
 		sort.Strings(warns)
-		_, _ = fmt.Fprintf(os.Stderr, "\n\x1b[33mAqua Assurance Policy warnings were triggered by the following checks failing:\n\n\x1b[0m")
+		_, _ = fmt.Fprintf(os.Stderr, "\n\x1b[33mAqua Assurance Policy warnings were"+
+			" triggered by the following checks failing:\n\n\x1b[0m")
 		for _, warn := range warns {
 			_, _ = fmt.Fprintf(os.Stderr, "\t- %s\n", warn)
 		}
@@ -173,7 +174,8 @@ func checkPolicyResults(results []*buildsecurity.Result) error {
 
 	if len(failures) > 0 {
 		sort.Strings(failures)
-		_, _ = fmt.Fprintf(os.Stderr, "\n\x1b[31mAqua Assurance Policy build failed with the following checks failing:\n\n\x1b[0m")
+		_, _ = fmt.Fprintf(os.Stderr, "\n\x1b[31mAqua Assurance Policy build "+
+			"failed with the following checks failing:\n\n\x1b[0m")
 		for _, failure := range failures {
 			_, _ = fmt.Fprintf(os.Stderr, "\t- %s\n", failure)
 		}

@@ -1,7 +1,6 @@
 package buildClient
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
@@ -11,7 +10,6 @@ import (
 
 func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]string) error {
 	client := buildsecurity.NewBuildSecurityProtobufClient(bc.aquaUrl, &http.Client{})
-	ctx := context.Background()
 
 	ctx, err := bc.createContext()
 	if err != nil {
