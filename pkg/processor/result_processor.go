@@ -19,6 +19,8 @@ func ProcessResults(client buildClient.Client, reports report.Results) (results 
 	if err != nil {
 		log.Logger.Errorf("Could not download the repository policies. %#v", err)
 	}
+	policies, suppressedIds := getSuppressedIds(downloadedPolicies)
+	log.Logger.Debugf("%d IDs are suppressed", len(suppressedIds))
 
 	for _, rep := range reports {
 		switch rep.Class {
@@ -26,12 +28,28 @@ func ProcessResults(client buildClient.Client, reports report.Results) (results 
 			reportResults := addVulnerabilitiesResults(rep)
 			results = append(results, reportResults...)
 		case report.ClassConfig:
-			reportResults := addMisconfigurationResults(rep, downloadedPolicies)
+			reportResults := addMisconfigurationResults(rep, policies, suppressedIds)
 			results = append(results, reportResults...)
 		}
 	}
 
 	return results
+}
+
+func getSuppressedIds(
+	downloadedPolicies []*buildsecurity.Policy) (
+	policies []*buildsecurity.Policy,
+	suppressedIds []string) {
+	for _, policy := range downloadedPolicies {
+		if policy.PolicyType == buildsecurity.PolicyTypeEnum_POLICY_TYPE_SUPPRESSION {
+			for _, control := range policy.GetControls() {
+				suppressedIds = append(suppressedIds, control.AVDIDs...)
+			}
+		} else {
+			policies = append(policies, policy)
+		}
+	}
+	return policies, suppressedIds
 }
 
 func addVulnerabilitiesResults(rep report.Result) (results []*buildsecurity.Result) {
@@ -66,7 +84,16 @@ func addVulnerabilitiesResults(rep report.Result) (results []*buildsecurity.Resu
 	return results
 }
 
-func addMisconfigurationResults(rep report.Result, downloadedPolicies []*buildsecurity.Policy) (results []*buildsecurity.Result) {
+func contains(slice []string, value string) bool {
+	for _, s := range slice {
+		if s == value {
+			return true
+		}
+	}
+	return false
+}
+
+func addMisconfigurationResults(rep report.Result, downloadedPolicies []*buildsecurity.Policy, suppressedIds []string) (results []*buildsecurity.Result) {
 	for _, miscon := range rep.Misconfigurations {
 
 		var r buildsecurity.Result
@@ -75,7 +102,7 @@ func addMisconfigurationResults(rep report.Result, downloadedPolicies []*buildse
 			resource = miscon.IacMetadata.Resource
 		}
 
-		if miscon.Status == types.StatusFailure {
+		if miscon.Status == types.StatusFailure && !contains(suppressedIds, miscon.ID) {
 			r.PolicyResults = checkAgainstPolicies(miscon, downloadedPolicies, rep.Target)
 			r.AVDID = miscon.ID
 			r.Title = miscon.Title

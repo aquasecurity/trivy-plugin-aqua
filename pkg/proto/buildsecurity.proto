@@ -53,6 +53,7 @@ message Policy {
   string PolicyID = 1;
   bool Enforced = 2;
   repeated PolicyControl Controls = 3;
+  PolicyTypeEnum PolicyType = 4;
 }
 
 message PolicyControl {
@@ -113,4 +114,9 @@ float V2Score = 2;
 string V2Vector = 3;
 float V3Score = 4;
 string V3Vector =5;
+}
+
+enum PolicyTypeEnum {
+  POLICY_TYPE_POLICY = 0;
+  POLICY_TYPE_SUPPRESSION = 1;
 }
