@@ -79,7 +79,8 @@ func main() {
 		configCmd,
 	}
 	if err := app.Run(os.Args); err != nil {
-		panic(err)
+		log.Logger.Error(err)
+		os.Exit(1)
 	}
 }
 
