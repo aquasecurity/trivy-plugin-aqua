@@ -16,15 +16,25 @@ import (
 func GetScmID(scanPath string) (string, error) {
 	gitConfigFile := filepath.Join(scanPath, ".git", "config")
 	gitConfig, err := ioutil.ReadFile(gitConfigFile)
+	system := GetBuildSystem()
 	if err == nil {
 		re := regexp.MustCompile(`(?m)^\s*url\s?=\s*(.*)\s*$`)
 		if re.Match(gitConfig) {
 			scmID := re.FindStringSubmatch(string(gitConfig))[1]
+			scmID = sanitiseScmId(system, scmID)
+
 			return scmID, nil
 		}
 	}
 
 	return filepath.Base(scanPath), nil
+}
+
+func sanitiseScmId(system string, scmID string) string {
+	if system == "gitlab" {
+		scmID = strings.Split(scmID, "@")[1]
+	}
+	return scmID
 }
 
 func GetBuildSystem() string {
