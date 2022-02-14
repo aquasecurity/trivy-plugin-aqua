@@ -29,7 +29,7 @@ func main() {
 	app.Name = "aqua"
 	app.Version = "0.0.1"
 	app.ArgsUsage = "target"
-	app.Usage = "Scan a filesystem location for vulnerabilities and config misconfiguration"
+	app.Usage = "A simple and comprehensive vulnerability scanner for containers"
 	app.EnableBashCompletion = true
 
 	configCmd := commands.NewConfigCommand()
@@ -77,6 +77,12 @@ func main() {
 	app.Commands = []*cli.Command{
 		fsCmd,
 		configCmd,
+		commands.NewPluginCommand(),
+		commands.NewClientCommand(),
+		commands.NewImageCommand(),
+		commands.NewRepositoryCommand(),
+		commands.NewRootfsCommand(),
+		commands.NewServerCommand(),
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Logger.Error(err)
@@ -85,6 +91,7 @@ func main() {
 }
 
 func runScan(c *cli.Context) error {
+
 	if c.Command.Name == "" {
 		if err := c.Set("security-checks", "config"); err != nil {
 			return err
