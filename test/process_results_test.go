@@ -2,6 +2,7 @@ package test
 
 import (
 	"testing"
+	"time"
 
 	ftypes "github.com/aquasecurity/fanal/types"
 	dbTypes "github.com/aquasecurity/trivy-db/pkg/types"
@@ -54,9 +55,11 @@ func Test_process_results_with_results_but_not_matching_policies(t *testing.T) {
 					InstalledVersion: "1.2.3",
 					FixedVersion:     "3.4.5",
 					Vulnerability: dbTypes.Vulnerability{
-						Title:       `gcc: POWER9 "DARN" RNG intrinsic produces repeated output`,
-						Description: `curl version.`,
-						Severity:    "HIGH",
+						Title:            `gcc: POWER9 "DARN" RNG intrinsic produces repeated output`,
+						Description:      `curl version.`,
+						Severity:         "HIGH",
+						LastModifiedDate: &time.Time{},
+						PublishedDate:    &time.Time{},
 					},
 				},
 			},
