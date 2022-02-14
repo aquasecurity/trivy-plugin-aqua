@@ -70,6 +70,8 @@ func addVulnerabilitiesResults(rep report.Result) (results []*buildsecurity.Resu
 		r.InstalledVersion = vuln.InstalledVersion
 		r.FixedVersion = vuln.FixedVersion
 		r.DataSource = vuln.DataSource.Name
+		r.PublishedDate = vuln.PublishedDate.Unix()
+		r.LastModified = vuln.LastModifiedDate.Unix()
 
 		for vendor, cvssVal := range vuln.Vulnerability.CVSS {
 			r.VendorScoring = append(r.VendorScoring, &buildsecurity.VendorScoring{
