@@ -2,14 +2,13 @@ package processor
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/buildClient"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
 	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/types"
+	"strings"
 )
 
 // ProcessResults downloads the latest policies for the repository the process the results
@@ -70,6 +69,8 @@ func addVulnerabilitiesResults(rep report.Result) (results []*buildsecurity.Resu
 		r.InstalledVersion = vuln.InstalledVersion
 		r.FixedVersion = vuln.FixedVersion
 		r.DataSource = vuln.DataSource.Name
+		r.PublishedDate = vuln.PublishedDate.Unix()
+		r.LastModified = vuln.LastModifiedDate.Unix()
 
 		for vendor, cvssVal := range vuln.Vulnerability.CVSS {
 			r.VendorScoring = append(r.VendorScoring, &buildsecurity.VendorScoring{
