@@ -95,7 +95,7 @@ message Result {
   string InstalledVersion = 13;
   string FixedVersion = 14;
   string DataSource = 15;
-  repeated VendorScoring VendorScoring =16;
+  repeated VendorScoring VendorScoring = 16;
 }
 
 enum SeverityEnum {
