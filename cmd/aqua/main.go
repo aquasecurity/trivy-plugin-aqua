@@ -165,6 +165,9 @@ func createIgnoreFile(c *cli.Context, checkSupIDMap map[string]string, fileName 
 	writer := bufio.NewWriter(file)
 	for avdId := range checkSupIDMap {
 		_, err = writer.WriteString(avdId + "\n")
+		if err != nil {
+			return err
+		}
 	}
 	err = writer.Flush()
 	if err != nil {
