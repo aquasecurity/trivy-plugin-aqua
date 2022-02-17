@@ -124,10 +124,11 @@ func runScan(c *cli.Context) error {
 	downloadedPolicies, err := client.GetPoliciesForRepository()
 	if err != nil {
 		log.Logger.Errorf("Could not download the repository policies. %#v", err)
+		return err
 	}
 	policies, checkSupIDMap := processor.DistinguishPolicies(downloadedPolicies)
 	if len(checkSupIDMap) > 0 {
-		fileName := "ignoreIds_" + time.Now().Format("20060102150405")
+		fileName := fmt.Sprintf("ignoreIds_%s", time.Now().Format("20060102150405"))
 		err = createIgnoreFile(c, checkSupIDMap, fileName)
 		defer os.Remove(fileName)
 		if err != nil {
@@ -143,6 +144,8 @@ func runScan(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
+	log.Logger.Debugf("processedResults, %s", processedResults)
 
 	if !skipResultUpload {
 		if err := uploader.Upload(client, processedResults, tags); err != nil {
@@ -161,10 +164,17 @@ func createIgnoreFile(c *cli.Context, checkSupIDMap map[string]string, fileName 
 	}
 	writer := bufio.NewWriter(file)
 	for avdId := range checkSupIDMap {
-		_, _ = writer.WriteString(avdId + "\n")
+		_, err = writer.WriteString(avdId + "\n")
 	}
-	writer.Flush()
-	file.Close()
+	err = writer.Flush()
+	if err != nil {
+		return err
+	}
+	err = file.Close()
+	if err != nil {
+		return err
+	}
+
 	if err := c.Set("ignorefile", fileName); err != nil {
 		return err
 	}
