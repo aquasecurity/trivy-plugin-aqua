@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aquasecurity/trivy-plugin-aqua/pkg/buildClient"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
@@ -14,13 +13,10 @@ import (
 
 // ProcessResults downloads the latest policies for the repository the process the results
 // while evaluating them against the policies
-func ProcessResults(client buildClient.Client, reports report.Results) (results []*buildsecurity.Result) {
-	downloadedPolicies, err := client.GetPoliciesForRepository()
-	if err != nil {
-		log.Logger.Errorf("Could not download the repository policies. %#v", err)
-	}
-	policies, suppressedIds := distinguishPolicies(downloadedPolicies)
-	log.Logger.Debugf("%d IDs are suppressed", len(suppressedIds))
+func ProcessResults(reports report.Results,
+	policies []*buildsecurity.Policy,
+	checkSupIDMap map[string]string) (
+	results []*buildsecurity.Result) {
 
 	for _, rep := range reports {
 		switch rep.Class {
@@ -28,7 +24,7 @@ func ProcessResults(client buildClient.Client, reports report.Results) (results 
 			reportResults := addVulnerabilitiesResults(rep)
 			results = append(results, reportResults...)
 		case report.ClassConfig:
-			reportResults := addMisconfigurationResults(rep, policies, suppressedIds)
+			reportResults := addMisconfigurationResults(rep, policies, checkSupIDMap)
 			results = append(results, reportResults...)
 		}
 	}
@@ -36,15 +32,20 @@ func ProcessResults(client buildClient.Client, reports report.Results) (results 
 	return results
 }
 
-func distinguishPolicies(
+func DistinguishPolicies(
 	downloadedPolicies []*buildsecurity.Policy) (
-	policies []*buildsecurity.Policy,
-	suppressedIds []string) {
+	[]*buildsecurity.Policy,
+	map[string]string) {
+
+	var policies []*buildsecurity.Policy
+	checkSupIDMap := make(map[string]string, len(downloadedPolicies))
 	for _, policy := range downloadedPolicies {
 		switch policy.PolicyType {
 		case buildsecurity.PolicyTypeEnum_POLICY_TYPE_SUPPRESSION:
 			for _, control := range policy.GetControls() {
-				suppressedIds = append(suppressedIds, control.AVDIDs...)
+				for _, avd := range control.AVDIDs {
+					checkSupIDMap[avd] = policy.PolicyID
+				}
 			}
 		case buildsecurity.PolicyTypeEnum_POLICY_TYPE_POLICY:
 			policies = append(policies, policy)
@@ -52,7 +53,7 @@ func distinguishPolicies(
 			policies = append(policies, policy)
 		}
 	}
-	return policies, suppressedIds
+	return policies, checkSupIDMap
 }
 
 func addVulnerabilitiesResults(rep report.Result) (results []*buildsecurity.Result) {
@@ -70,8 +71,12 @@ func addVulnerabilitiesResults(rep report.Result) (results []*buildsecurity.Resu
 		r.InstalledVersion = vuln.InstalledVersion
 		r.FixedVersion = vuln.FixedVersion
 		r.DataSource = vuln.DataSource.Name
-		r.PublishedDate = vuln.PublishedDate.Unix()
-		r.LastModified = vuln.LastModifiedDate.Unix()
+		if vuln.PublishedDate != nil {
+			r.PublishedDate = vuln.PublishedDate.Unix()
+		}
+		if vuln.LastModifiedDate != nil {
+			r.LastModified = vuln.LastModifiedDate.Unix()
+		}
 
 		for vendor, cvssVal := range vuln.Vulnerability.CVSS {
 			r.VendorScoring = append(r.VendorScoring, &buildsecurity.VendorScoring{
@@ -100,7 +105,7 @@ func contains(slice []string, value string) bool {
 
 func addMisconfigurationResults(rep report.Result,
 	downloadedPolicies []*buildsecurity.Policy,
-	suppressedIds []string) (results []*buildsecurity.Result) {
+	checkSupIDMap map[string]string) (results []*buildsecurity.Result) {
 	for _, miscon := range rep.Misconfigurations {
 
 		var r buildsecurity.Result
@@ -109,12 +114,15 @@ func addMisconfigurationResults(rep report.Result,
 			resource = miscon.IacMetadata.Resource
 		}
 
-		suppressedId := contains(suppressedIds, miscon.ID)
-		if suppressedId {
-			log.Logger.Debugf("Skipping suppressed id: %s", miscon.ID)
-		}
-		if miscon.Status == types.StatusFailure && !suppressedId {
-			r.PolicyResults = checkAgainstPolicies(miscon, downloadedPolicies, rep.Target)
+		policyId, suppressedId := checkSupIDMap[miscon.ID]
+
+		if miscon.Status == types.StatusFailure {
+			if suppressedId {
+				log.Logger.Debugf("Skipping suppressed id: %s, due to Suppression ID: %s", miscon.ID, policyId)
+				r.SuppressionID = policyId
+			} else {
+				r.PolicyResults = checkAgainstPolicies(miscon, downloadedPolicies, rep.Target)
+			}
 			r.AVDID = miscon.ID
 			r.Title = miscon.Title
 			r.Message = miscon.Message

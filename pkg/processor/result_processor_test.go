@@ -54,13 +54,14 @@ func Test_distinguishPolicies(t *testing.T) {
 		name              string
 		args              args
 		wantPolicies      []*buildsecurity.Policy
-		wantSuppressedIds []string
+		wantSuppressedIds map[string]string
 	}{
 		{
 			name: "happy path - separate policies and suppressed ids",
 			args: args{downloadedPolicies: []*buildsecurity.Policy{
 				{
 					PolicyType: buildsecurity.PolicyTypeEnum_POLICY_TYPE_SUPPRESSION,
+					PolicyID:   "id1",
 					Controls: []*buildsecurity.PolicyControl{
 						{
 							AVDIDs: []string{"123"},
@@ -69,6 +70,7 @@ func Test_distinguishPolicies(t *testing.T) {
 				},
 				{
 					PolicyType: buildsecurity.PolicyTypeEnum_POLICY_TYPE_SUPPRESSION,
+					PolicyID:   "id2",
 					Controls: []*buildsecurity.PolicyControl{
 						{
 							AVDIDs: []string{"456"},
@@ -94,14 +96,14 @@ func Test_distinguishPolicies(t *testing.T) {
 					},
 				},
 			},
-			wantSuppressedIds: []string{"123", "456"},
+			wantSuppressedIds: map[string]string{"123": "id1", "456": "id2"},
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			gotPolicies, gotSuppressedIds := distinguishPolicies(tt.args.downloadedPolicies)
+			gotPolicies, gotSuppressedIds := DistinguishPolicies(tt.args.downloadedPolicies)
 			if !reflect.DeepEqual(gotPolicies, tt.wantPolicies) {
 				t.Errorf("distinguishPolicies() gotPolicies = %v, want %v", gotPolicies, tt.wantPolicies)
 			}

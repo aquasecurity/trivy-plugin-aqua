@@ -22,6 +22,17 @@ func (f FakeClient) GetPoliciesForRepository() ([]*buildsecurity.Policy, error) 
 					AVDIDs:   nil,
 				},
 			},
+			PolicyType: buildsecurity.PolicyTypeEnum_POLICY_TYPE_POLICY,
+		},
+		{
+			PolicyID: "f8de392c-55c3-4307-b2e8-18fae11257dc",
+			Controls: []*buildsecurity.PolicyControl{
+				{
+
+					AVDIDs: []string{"AVD-123"},
+				},
+			},
+			PolicyType: buildsecurity.PolicyTypeEnum_POLICY_TYPE_SUPPRESSION,
 		},
 	}, nil
 
