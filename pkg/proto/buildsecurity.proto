@@ -96,9 +96,9 @@ message Result {
   string FixedVersion = 14;
   string DataSource = 15;
   repeated VendorScoring VendorScoring = 16;
-  int64 PublishedDate = 17;
-  int64 LastModified = 18;
-  string suppressionID = 19;
+  string suppressionID = 17;
+  int64 PublishedDate = 18;
+  int64 LastModified = 19;
 }
 
 enum SeverityEnum {
