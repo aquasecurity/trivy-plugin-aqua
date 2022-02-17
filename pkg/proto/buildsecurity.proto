@@ -98,6 +98,7 @@ message Result {
   repeated VendorScoring VendorScoring = 16;
   int64 PublishedDate = 17;
   int64 LastModified = 18;
+  string suppressionID = 19;
 }
 
 enum SeverityEnum {

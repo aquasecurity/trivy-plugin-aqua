@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"sort"
+	"time"
 
 	"strings"
 
@@ -119,12 +121,25 @@ func runScan(c *cli.Context) error {
 		return err
 	}
 
+	downloadedPolicies, err := client.GetPoliciesForRepository()
+	if err != nil {
+		log.Logger.Errorf("Could not download the repository policies. %#v", err)
+	}
+	policies, checkSupIDMap := processor.DistinguishPolicies(downloadedPolicies)
+	if len(checkSupIDMap) > 0 {
+		fileName := "ignoreIds_" + time.Now().Format("20060102150405")
+		err = createIgnoreFile(c, checkSupIDMap, fileName)
+		defer os.Remove(fileName)
+		if err != nil {
+			return err
+		}
+	}
 	results, err := scanner.Scan(c, scanPath)
 	if err != nil {
 		return err
 	}
 
-	processedResults := processor.ProcessResults(client, results)
+	processedResults := processor.ProcessResults(results, policies, checkSupIDMap)
 	if err != nil {
 		return err
 	}
@@ -136,6 +151,24 @@ func runScan(c *cli.Context) error {
 	}
 
 	return checkPolicyResults(processedResults)
+}
+
+func createIgnoreFile(c *cli.Context, checkSupIDMap map[string]string, fileName string) error {
+	log.Logger.Debugf("%d IDs are suppressed", len(checkSupIDMap))
+	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	writer := bufio.NewWriter(file)
+	for avdId := range checkSupIDMap {
+		_, _ = writer.WriteString(avdId + "\n")
+	}
+	writer.Flush()
+	file.Close()
+	if err := c.Set("ignorefile", fileName); err != nil {
+		return err
+	}
+	return nil
 }
 
 func checkPolicyResults(results []*buildsecurity.Result) error {

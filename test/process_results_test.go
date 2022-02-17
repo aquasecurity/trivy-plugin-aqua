@@ -7,6 +7,7 @@ import (
 	ftypes "github.com/aquasecurity/fanal/types"
 	dbTypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/processor"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/types"
 	"github.com/stretchr/testify/assert"
@@ -15,8 +16,9 @@ import (
 func Test_process_results_with_no_results(t *testing.T) {
 
 	client := FakeClient{}
+	policies, _ := client.GetPoliciesForRepository()
 
-	results := processor.ProcessResults(client, nil)
+	results := processor.ProcessResults(nil, policies, nil)
 	assert.Nil(t, results)
 
 }
@@ -66,12 +68,13 @@ func Test_process_results_with_results_but_not_matching_policies(t *testing.T) {
 		},
 	}
 
-	submitResults := processor.ProcessResults(client, results)
+	policies, _ := client.GetPoliciesForRepository()
+	submitResults := processor.ProcessResults(results, policies, nil)
 
 	assert.Len(t, submitResults, 2)
 }
 
-func Test_process_results_with_results_with_matching_policies(t *testing.T) {
+func Test_process_results_with_results_with_matching_policies_and_suppressions(t *testing.T) {
 
 	client := FakeClient{}
 
@@ -94,11 +97,46 @@ func Test_process_results_with_results_with_matching_policies(t *testing.T) {
 				},
 			},
 		},
+
+		{
+			Target: "main.tf",
+			Class:  report.ClassConfig,
+			Misconfigurations: []types.DetectedMisconfiguration{
+				{
+					Type:     "terraform",
+					ID:       "AVD-AWS-0002",
+					Severity: "HIGH",
+					Status:   "FAIL",
+					Layer:    ftypes.Layer{},
+					IacMetadata: ftypes.IacMetadata{
+						Resource: "aws_s3_bucket",
+						Provider: "AWS",
+						Service:  "s3",
+					},
+				},
+			},
+		},
+	}
+	policies, _ := client.GetPoliciesForRepository()
+	submitResults := processor.ProcessResults(results, policies, map[string]string{"AVD-AWS-0002": "policy-123"})
+
+	assert.Len(t, submitResults, 2)
+	SuppressionCount, policyCount := getSuppressionPolicyCount(submitResults)
+	assert.Equal(t, SuppressionCount, 1)
+	assert.Equal(t, policyCount, 1)
+}
+
+func getSuppressionPolicyCount(submitResults []*buildsecurity.Result) (int, int) {
+	var SuppressionCount, policyCount int
+	for _, res := range submitResults {
+		if res.SuppressionID == "" {
+			policyCount += 1
+		} else {
+			SuppressionCount += 1
+		}
 	}
 
-	submitResults := processor.ProcessResults(client, results)
-
-	assert.Len(t, submitResults, 1)
+	return SuppressionCount, policyCount
 }
 
 func Test_process_results_with_results_with_no_matching_policies_severity_level(t *testing.T) {
@@ -126,7 +164,8 @@ func Test_process_results_with_results_with_no_matching_policies_severity_level(
 		},
 	}
 
-	submitResults := processor.ProcessResults(client, results)
+	policies, _ := client.GetPoliciesForRepository()
+	submitResults := processor.ProcessResults(results, policies, nil)
 
 	assert.Len(t, submitResults, 1)
 }
@@ -155,8 +194,9 @@ func Test_process_results_with_results_with_matching_policies_severity_level(t *
 			},
 		},
 	}
+	policies, _ := client.GetPoliciesForRepository()
 
-	submitResults := processor.ProcessResults(client, results)
+	submitResults := processor.ProcessResults(results, policies, nil)
 
 	assert.Len(t, submitResults, 1)
 }
@@ -186,7 +226,9 @@ func Test_process_results_with_results_with_matching_policies_severity_level_gre
 		},
 	}
 
-	submitResults := processor.ProcessResults(client, results)
+	policies, _ := client.GetPoliciesForRepository()
+
+	submitResults := processor.ProcessResults(results, policies, nil)
 
 	assert.Len(t, submitResults, 1)
 }
