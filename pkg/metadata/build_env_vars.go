@@ -11,7 +11,7 @@ var possibleRepoEnvVars = []string{
 }
 
 var possibleBranchEnvVars = []string{
-	"OVERRIDE_OVERRIDE",
+	"OVERRIDE_BRANCH",
 	"GITHUB_REF_NAME",
 	"GIT_BRANCH",
 	"BITBUCKET_BRANCH",
