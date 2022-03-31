@@ -51,7 +51,7 @@ func Get(scanPath string) (Client, error) {
 
 	aquaSecret, ok := os.LookupEnv("AQUA_SECRET")
 	if !ok {
-		return nil, fmt.Errorf("could not find the AQUA_KEY environment variable")
+		return nil, fmt.Errorf("could not find the AQUA_SECRET environment variable")
 	}
 
 	log.Logger.Debugf("Logging in to CSPM")
