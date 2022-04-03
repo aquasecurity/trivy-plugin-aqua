@@ -22,8 +22,7 @@ import (
 )
 
 var (
-	skipResultUpload bool
-	tags             map[string]string
+	tags map[string]string
 )
 
 func main() {
@@ -37,10 +36,15 @@ func main() {
 	configCmd := commands.NewConfigCommand()
 	configCmd.Action = runScan
 	configCmd.Flags = append(configCmd.Flags,
-		&cli.StringFlag{
+		&cli.BoolFlag{
 			Name:    "skip-result-upload",
 			Usage:   "Add this flag if you want test failed policy locally before sending PR",
 			EnvVars: []string{"TRIVY_SKIP_RESULT_UPLOAD"},
+		},
+		&cli.BoolFlag{
+			Name:    "skip-policy-exit-code",
+			Usage:   "Add this flag if you want skip policies exist code",
+			EnvVars: []string{"TRIVY_SKIP_POLICY_EXIT_CODE"},
 		},
 		&cli.StringFlag{
 			Name:    "vuln-type",
@@ -61,10 +65,15 @@ func main() {
 	fsCmd := commands.NewFilesystemCommand()
 	fsCmd.Action = runScan
 	fsCmd.Flags = append(fsCmd.Flags,
-		&cli.StringFlag{
+		&cli.BoolFlag{
 			Name:    "skip-result-upload",
 			Usage:   "Add this flag if you want test failed policy locally before sending PR",
 			EnvVars: []string{"TRIVY_SKIP_RESULT_UPLOAD"},
+		},
+		&cli.BoolFlag{
+			Name:    "skip-policy-exit-code",
+			Usage:   "Add this flag if you want skip policies exist code",
+			EnvVars: []string{"TRIVY_SKIP_POLICY_EXIT_CODE"},
 		},
 		&cli.BoolFlag{
 			Name:    "debug",
@@ -145,13 +154,13 @@ func runScan(c *cli.Context) error {
 		return err
 	}
 
-	if !skipResultUpload {
+	if !c.Bool("skip-result-upload") {
 		if err := uploader.Upload(client, processedResults, tags); err != nil {
 			return err
 		}
 	}
 
-	return checkPolicyResults(processedResults)
+	return checkPolicyResults(c, processedResults)
 }
 
 func createIgnoreFile(c *cli.Context, checkSupIDMap map[string]string, fileName string) error {
@@ -182,7 +191,7 @@ func createIgnoreFile(c *cli.Context, checkSupIDMap map[string]string, fileName 
 	return nil
 }
 
-func checkPolicyResults(results []*buildsecurity.Result) error {
+func checkPolicyResults(c *cli.Context, results []*buildsecurity.Result) error {
 	uniqCount := 0
 
 	var warns []string
@@ -233,7 +242,7 @@ func checkPolicyResults(results []*buildsecurity.Result) error {
 		_, _ = fmt.Fprintf(os.Stderr, "\n")
 	}
 
-	if uniqCount == 0 {
+	if uniqCount == 0 || c.Bool("skip-policy-exit-code") {
 		return nil
 	}
 
