@@ -43,7 +43,7 @@ func main() {
 		},
 		&cli.BoolFlag{
 			Name:    "skip-policy-exit-code",
-			Usage:   "Add this flag if you want skip policies exist code",
+			Usage:   "Add this flag if you want skip policies exit code",
 			EnvVars: []string{"TRIVY_SKIP_POLICY_EXIT_CODE"},
 		},
 		&cli.StringFlag{
@@ -72,7 +72,7 @@ func main() {
 		},
 		&cli.BoolFlag{
 			Name:    "skip-policy-exit-code",
-			Usage:   "Add this flag if you want skip policies exist code",
+			Usage:   "Add this flag if you want skip policies exit code",
 			EnvVars: []string{"TRIVY_SKIP_POLICY_EXIT_CODE"},
 		},
 		&cli.BoolFlag{
