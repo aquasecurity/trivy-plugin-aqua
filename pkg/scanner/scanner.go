@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/aquasecurity/fanal/image"
@@ -27,9 +29,13 @@ import (
 )
 
 const (
-	policyDir   = "/tmp/policies"
-	dataDir     = "/tmp/data"
-	resultsFile = "results.json"
+	policyDir            = "/tmp/policies"
+	dataDir              = "/tmp/data"
+	resultsFile          = "results.json"
+	aquaPath             = "/tmp/aqua"
+	gitStatusDeleted     = "D"
+	gitStatusAdded       = "A"
+	gitStatusRenamedOnly = "R100"
 )
 
 func Scan(c *cli.Context, path string) (report.Results, error) {

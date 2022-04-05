@@ -42,6 +42,11 @@ func main() {
 			EnvVars: []string{"TRIVY_SKIP_RESULT_UPLOAD"},
 		},
 		&cli.BoolFlag{
+			Name:    "pr-scan",
+			Usage:   "Add this flag if you want scan only PR diff",
+			EnvVars: []string{"TRIVY_PR_SCAN"},
+		},
+		&cli.BoolFlag{
 			Name:    "skip-policy-exit-code",
 			Usage:   "Add this flag if you want skip policies exit code",
 			EnvVars: []string{"TRIVY_SKIP_POLICY_EXIT_CODE"},
@@ -69,6 +74,11 @@ func main() {
 			Name:    "skip-result-upload",
 			Usage:   "Add this flag if you want test failed policy locally before sending PR",
 			EnvVars: []string{"TRIVY_SKIP_RESULT_UPLOAD"},
+		},
+		&cli.BoolFlag{
+			Name:    "pr-scan",
+			Usage:   "Add this flag if you want scan only PR diff",
+			EnvVars: []string{"TRIVY_PR_SCAN"},
 		},
 		&cli.BoolFlag{
 			Name:    "skip-policy-exit-code",
