@@ -5,11 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/aquasecurity/fanal/image"
-	"github.com/aquasecurity/fanal/types"
 	"io"
 	"os"
 	"strings"
+
+	"github.com/aquasecurity/fanal/image"
+	"github.com/aquasecurity/fanal/types"
 
 	analyzerConfig "github.com/aquasecurity/fanal/analyzer/config"
 	fanalconfig "github.com/aquasecurity/fanal/analyzer/config"
@@ -78,13 +79,25 @@ func Scan(c *cli.Context, path string) (report.Results, error) {
 }
 
 func initializeDockerScanner(path string) artifact.InitializeScanner {
-	return func(ctx context.Context, s string, artifactCache cache.ArtifactCache, localArtifactCache cache.LocalArtifactCache, b bool, option fanalartifact.Option, option2 fanalconfig.ScannerOption) (scanner.Scanner, func(), error) {
+	return func(
+		ctx context.Context,
+		s string,
+		artifactCache cache.ArtifactCache,
+		localArtifactCache cache.LocalArtifactCache,
+		b bool,
+		option fanalartifact.Option,
+		option2 fanalconfig.ScannerOption) (
+		scanner.Scanner, func(), error) {
 		localScanner := newAquaScanner(localArtifactCache)
 		typesImage, cleanup, err := image.NewDockerImage(ctx, path, types.DockerOption{})
 		if err != nil {
 			return scanner.Scanner{}, nil, err
 		}
-		artifactArtifact, err := image2.NewArtifact(typesImage, artifactCache, fanalartifact.Option{}, analyzerConfig.ScannerOption{})
+		artifactArtifact, err := image2.NewArtifact(
+			typesImage,
+			artifactCache,
+			fanalartifact.Option{},
+			analyzerConfig.ScannerOption{})
 		if err != nil {
 			cleanup()
 			return scanner.Scanner{}, nil, err

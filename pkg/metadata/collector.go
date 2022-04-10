@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 )
 
 var (

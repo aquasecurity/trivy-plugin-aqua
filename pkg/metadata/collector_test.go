@@ -136,8 +136,10 @@ func TestGetImageDetails(t *testing.T) {
 			wantTag:    "3.9.4",
 		},
 		{
-			name:       "happy path - docker hash",
-			args:       args{imageName: "docker.io/repo/test@sha256:715760eedeabb0ca7b5758d4536e78c4c06cad699caa912bf1ef0f483b103efc"},
+			name: "happy path - docker hash",
+			args: args{
+				imageName: "docker.io/repo/test@sha256:715760eedeabb0ca7b5758d4536e78c4c06cad699caa912bf1ef0f483b103efc",
+			},
 			wantPrefix: "docker.io",
 			wantRepo:   "repo/test",
 			wantTag:    "@sha256:715760eedeabb0ca7b5758d4536e78c4c06cad699caa912bf1ef0f483b103efc",

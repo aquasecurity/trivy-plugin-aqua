@@ -3,9 +3,10 @@ package buildClient
 import (
 	"context"
 	"fmt"
-	"github.com/urfave/cli/v2"
 	"net/http"
 	"os"
+
+	"github.com/urfave/cli/v2"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
