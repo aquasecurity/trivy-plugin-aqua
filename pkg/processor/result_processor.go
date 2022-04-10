@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
@@ -25,6 +28,9 @@ func ProcessResults(reports report.Results,
 			results = append(results, reportResults...)
 		case report.ClassConfig:
 			reportResults := addMisconfigurationResults(rep, policies, checkSupIDMap)
+			results = append(results, reportResults...)
+		case report.ClassOSPkg:
+			reportResults := addVulnerabilitiesResults(rep)
 			results = append(results, reportResults...)
 		}
 	}
@@ -109,7 +115,8 @@ func addMisconfigurationResults(rep report.Result,
 	for _, miscon := range rep.Misconfigurations {
 
 		var r buildsecurity.Result
-		resource := fmt.Sprintf("%s Resource", strings.Title(rep.Type))
+		resource := fmt.Sprintf("%s Resource", cases.Title(language.English).String(rep.Type))
+
 		if miscon.IacMetadata.Resource != "" {
 			resource = miscon.IacMetadata.Resource
 		}

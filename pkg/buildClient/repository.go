@@ -1,6 +1,8 @@
 package buildClient
 
 import (
+	"fmt"
+
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
@@ -57,20 +59,31 @@ func (bc *TwirpClient) GetOrCreateRepository() (string, error) {
 	return repoId, nil
 }
 
-func (bc *TwirpClient) getScmID() (string, error) {
-	scmID, err := metadata.GetScmID(bc.scanPath)
-	if err != nil {
-		return "", err
+func (bc *TwirpClient) getScmID() (scmID string, err error) {
+	switch bc.c.Command.Name {
+	case "image":
+		prefix, repo, _ := metadata.GetImageDetails(bc.scanPath)
+		scmID = metadata.GetRepositoryUrl(prefix, repo)
+	default:
+		scmID, err = metadata.GetScmID(bc.scanPath)
+		if err != nil {
+			return "", fmt.Errorf("failed get scm id: %w", err)
+		}
 	}
 
 	return scmID, nil
 }
 
-func (bc *TwirpClient) getRepoName() (string, error) {
-	repoName, _, err := metadata.GetRepositoryDetails(bc.scanPath)
-	if err != nil {
-		return "", err
+func (bc *TwirpClient) getRepoName() (repoName string, err error) {
+	switch bc.c.Command.Name {
+	case "image":
+		prefix, repo, _ := metadata.GetImageDetails(bc.scanPath)
+		repoName = metadata.GetRepositoryUrl(prefix, repo)
+	default:
+		repoName, _, err = metadata.GetRepositoryDetails(bc.scanPath, "")
+		if err != nil {
+			return "", err
+		}
 	}
-
 	return repoName, nil
 }

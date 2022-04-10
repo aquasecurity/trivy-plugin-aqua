@@ -17,7 +17,7 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]s
 	}
 
 	gitUser := metadata.GetGitUser(bc.scanPath)
-	_, branch, err := metadata.GetRepositoryDetails(bc.scanPath)
+	_, branch, err := metadata.GetRepositoryDetails(bc.scanPath, bc.c.Command.Name)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/pkg/errors"
@@ -20,6 +22,7 @@ type Client interface {
 
 type TwirpClient struct {
 	client   buildsecurity.BuildSecurity
+	c        *cli.Context
 	scanPath string
 	jwtToken string
 	aquaUrl  string
@@ -28,7 +31,7 @@ type TwirpClient struct {
 
 var buildClient Client
 
-func Get(scanPath string) (Client, error) {
+func Get(scanPath string, c *cli.Context) (Client, error) {
 	if buildClient != nil {
 		log.Logger.Debugf("Valid client found, re-using...")
 		return buildClient, nil
@@ -67,6 +70,7 @@ func Get(scanPath string) (Client, error) {
 		scanPath: scanPath,
 		jwtToken: jwtToken,
 		aquaUrl:  aquaURL,
+		c:        c,
 	}
 
 	return buildClient, nil
