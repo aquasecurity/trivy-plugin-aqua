@@ -5,12 +5,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/aquasecurity/fanal/image"
+	"github.com/aquasecurity/fanal/types"
 	"io"
 	"os"
 	"strings"
 
+	analyzerConfig "github.com/aquasecurity/fanal/analyzer/config"
 	fanalconfig "github.com/aquasecurity/fanal/analyzer/config"
 	fanalartifact "github.com/aquasecurity/fanal/artifact"
+	image2 "github.com/aquasecurity/fanal/artifact/image"
 	"github.com/aquasecurity/fanal/artifact/local"
 	"github.com/aquasecurity/fanal/cache"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
@@ -28,8 +32,12 @@ const (
 )
 
 func Scan(c *cli.Context, path string) (report.Results, error) {
-
-	initializeScanner := initializeFilesystemScanner(path, policyDir, dataDir)
+	var initializeScanner artifact.InitializeScanner
+	if c.Command.Name == "image" {
+		initializeScanner = initializeDockerScanner(path)
+	} else {
+		initializeScanner = initializeFilesystemScanner(path, policyDir, dataDir)
+	}
 
 	opt, err := createScanOptions(c)
 	if err != nil {
@@ -66,6 +74,25 @@ func Scan(c *cli.Context, path string) (report.Results, error) {
 
 	return results, nil
 
+}
+
+func initializeDockerScanner(path string) artifact.InitializeScanner {
+	return func(ctx context.Context, s string, artifactCache cache.ArtifactCache, localArtifactCache cache.LocalArtifactCache, b bool, option fanalartifact.Option, option2 fanalconfig.ScannerOption) (scanner.Scanner, func(), error) {
+		localScanner := newAquaScanner(localArtifactCache)
+		typesImage, cleanup, err := image.NewDockerImage(ctx, path, types.DockerOption{})
+		if err != nil {
+			return scanner.Scanner{}, nil, err
+		}
+		artifactArtifact, err := image2.NewArtifact(typesImage, artifactCache, fanalartifact.Option{}, analyzerConfig.ScannerOption{})
+		if err != nil {
+			cleanup()
+			return scanner.Scanner{}, nil, err
+		}
+		scannerScanner := scanner.NewScanner(localScanner, artifactArtifact)
+		return scannerScanner, func() {
+			cleanup()
+		}, nil
+	}
 }
 
 func initializeFilesystemScanner(dir, _, _ string) artifact.InitializeScanner {

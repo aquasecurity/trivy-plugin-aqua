@@ -26,6 +26,9 @@ func ProcessResults(reports report.Results,
 		case report.ClassConfig:
 			reportResults := addMisconfigurationResults(rep, policies, checkSupIDMap)
 			results = append(results, reportResults...)
+		case report.ClassOSPkg:
+			reportResults := addVulnerabilitiesResults(rep)
+			results = append(results, reportResults...)
 		}
 	}
 

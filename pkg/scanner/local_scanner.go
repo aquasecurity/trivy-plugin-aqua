@@ -37,6 +37,7 @@ func (s aquaScanner) Scan(target, imageID string, layerIDs []string, options typ
 	if err != nil {
 		return nil, osFound, err
 	}
+
 	for i := range results {
 		s.resultClient.FillVulnerabilityInfo(results[i].Vulnerabilities, results[i].Type)
 	}

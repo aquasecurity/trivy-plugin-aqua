@@ -82,15 +82,18 @@ func main() {
 		},
 	)
 
+	imageCmd := commands.NewImageCommand()
+	imageCmd.Action = runScan
+
 	app.Action = runScan
 	app.Flags = fsCmd.Flags
 
 	app.Commands = []*cli.Command{
 		fsCmd,
 		configCmd,
+		imageCmd,
 		commands.NewPluginCommand(),
 		commands.NewClientCommand(),
-		commands.NewImageCommand(),
 		commands.NewRepositoryCommand(),
 		commands.NewRootfsCommand(),
 		commands.NewServerCommand(),
@@ -125,7 +128,7 @@ func runScan(c *cli.Context) error {
 	}
 	log.Logger.Debugf("Using scanPath %s", scanPath)
 
-	client, err := buildClient.Get(scanPath)
+	client, err := buildClient.Get(scanPath, c)
 	if err != nil {
 		return err
 	}
