@@ -62,7 +62,7 @@ func (bc *TwirpClient) getScmID() (scmID string, err error) {
 	switch bc.c.Command.Name {
 	case "image":
 		prefix, repo, _ := metadata.GetImageDetails(bc.scanPath)
-		scmID = fmt.Sprintf("%s/%s", prefix, repo)
+		scmID = metadata.GetRepositoryUrl(prefix, repo)
 	default:
 		scmID, err = metadata.GetScmID(bc.scanPath)
 		if err != nil {

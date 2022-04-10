@@ -33,9 +33,10 @@ const (
 
 func Scan(c *cli.Context, path string) (report.Results, error) {
 	var initializeScanner artifact.InitializeScanner
-	if c.Command.Name == "image" {
+	switch c.Command.Name {
+	case "image":
 		initializeScanner = initializeDockerScanner(path)
-	} else {
+	default:
 		initializeScanner = initializeFilesystemScanner(path, policyDir, dataDir)
 	}
 
