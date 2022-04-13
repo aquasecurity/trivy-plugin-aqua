@@ -1,0 +1,111 @@
+package scanner
+
+import (
+	"fmt"
+	"github.com/pkg/errors"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+)
+
+const (
+	gitStatusDeleted     = "D"
+	gitStatusAdded       = "A"
+	gitStatusRenamedOnly = "R100"
+)
+
+func gitExec(args ...string) (out string, err error) {
+	cmd := exec.Command("git", args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return out, errors.Wrap(err, "failed run git cmd")
+	}
+
+	return string(output), nil
+}
+func writeFile(path, content string) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return errors.Wrap(err, "failed create file")
+	}
+	_, err = f.WriteString(content)
+	if err != nil {
+		f.Close()
+		return errors.Wrap(err, "failed write file")
+	}
+
+	err = f.Close()
+	if err != nil {
+		return errors.Wrap(err, "failed close file")
+	}
+	return nil
+}
+
+// Create folders with head and base for diff scanning
+func createDiffScanFs() error {
+	var fileName string
+	//TODO get remote pr branch instead master
+	out, err := gitExec("diff", "--name-status", "origin/master")
+	if err != nil {
+		return errors.Wrap(err, "failed git diff")
+	}
+	if out != "" {
+		diffFiles := strings.Split(out, "\n")
+		for _, v := range diffFiles {
+			var status, name, newName, dirName string
+			diffFile := strings.SplitAfter(v, "\t")
+			status = strings.TrimSpace(diffFile[0])
+			switch len(diffFile) {
+			case 2:
+				name = strings.TrimSpace(diffFile[1])
+			case 3:
+				name = strings.TrimSpace(diffFile[1])
+				newName = strings.TrimSpace(diffFile[2])
+			}
+
+			if newName != "" {
+				dirName = filepath.Dir(newName)
+				fileName = newName
+			} else {
+				dirName = filepath.Dir(name)
+				fileName = name
+			}
+
+			if status != gitStatusDeleted && status != gitStatusRenamedOnly && status != "" {
+				// Create base
+				if status != gitStatusAdded {
+					err = os.MkdirAll(fmt.Sprintf("%s/base/%s", aquaPath, dirName), os.ModePerm)
+					if err != nil {
+						return errors.Wrap(err, "failed mkdir aqua tmp path")
+					}
+					//TODO  get remote pr branch instead master
+					out, err = gitExec("show", fmt.Sprintf("origin/master:%s", fileName))
+					if err != nil {
+						return errors.Wrap(err, "failed git show origin:"+fileName)
+					}
+					err = writeFile(fmt.Sprintf("%s/base/%s", aquaPath, fileName), out)
+					if err != nil {
+						return errors.Wrap(err, "failed write base file")
+					}
+				}
+				// Create head
+				err = os.MkdirAll(fmt.Sprintf("%s/head/%s", aquaPath, dirName), os.ModePerm)
+				if err != nil {
+					return errors.Wrap(err, "failed mkdir aqua tmp path")
+				}
+
+				out, err = gitExec("show", fmt.Sprintf(":%s", fileName))
+				if err != nil {
+					return errors.Wrap(err, "failed git show")
+				}
+				err = writeFile(fmt.Sprintf("%s/head/%s", aquaPath, fileName), out)
+				if err != nil {
+					return errors.Wrap(err, "failed write head file")
+				}
+			}
+			//TODO delete dir after scan
+		}
+	}
+	return nil
+}

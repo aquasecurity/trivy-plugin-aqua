@@ -2,6 +2,7 @@ package processor
 
 import (
 	"fmt"
+	"github.com/mitchellh/mapstructure"
 	"strings"
 
 	"golang.org/x/text/cases"
@@ -12,7 +13,46 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
 	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/types"
+	funk "github.com/thoas/go-funk"
 )
+
+func PrDiffResults(r report.Results) (reports report.Results) {
+	for _, v := range r {
+		// is head file and not exist in base
+		fileInBase := false
+		if strings.Contains(v.Target, "head") {
+			toBase := strings.ReplaceAll(v.Target, "head", "base")
+			for _, vBase := range r {
+				if vBase.Target == toBase {
+					fileInBase = true
+				}
+			}
+			// this is new file take full report
+			if !fileInBase {
+				reports = append(reports, v)
+			} else {
+				// in head and base
+				for _, vBase := range r {
+					if vBase.Target == toBase {
+						// misconf
+						diff, _ := funk.Difference(v.Misconfigurations, vBase.Misconfigurations)
+						misconf := []types.DetectedMisconfiguration{}
+						mapstructure.Decode(diff, &misconf)
+						v.Misconfigurations = misconf
+						// vulns
+						diff, _ = funk.Difference(v.Vulnerabilities, vBase.Vulnerabilities)
+						vulns := []types.DetectedVulnerability{}
+						mapstructure.Decode(diff, &vulns)
+						v.Vulnerabilities = vulns
+						reports = append(reports, v)
+					}
+				}
+			}
+		}
+	}
+
+	return reports
+}
 
 // ProcessResults downloads the latest policies for the repository the process the results
 // while evaluating them against the policies

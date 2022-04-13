@@ -1,6 +1,8 @@
 package processor
 
 import (
+	"github.com/aquasecurity/trivy/pkg/report"
+	"github.com/aquasecurity/trivy/pkg/types"
 	"reflect"
 	"testing"
 
@@ -109,6 +111,42 @@ func Test_distinguishPolicies(t *testing.T) {
 			}
 			if !reflect.DeepEqual(gotSuppressedIds, tt.wantSuppressedIds) {
 				t.Errorf("distinguishPolicies() gotSuppressedIds = %v, want %v", gotSuppressedIds, tt.wantSuppressedIds)
+			}
+		})
+	}
+}
+
+func TestPrDiffResults(t *testing.T) {
+	type args struct {
+		r report.Results
+	}
+	tests := []struct {
+		name        string
+		args        args
+		wantReports report.Results
+	}{
+		{
+			name:        "happy path - new file",
+			args:        args{r: report.Results{report.Result{Target: "head/cf/pr-bucket.yaml"}, report.Result{Target: "base/cf/bucket.yaml"}}},
+			wantReports: report.Results{report.Result{Target: "head/cf/pr-bucket.yaml"}},
+		},
+
+		{
+			name: "happy path - modify file take only diff",
+			args: args{r: report.Results{
+				report.Result{Target: "base/cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{types.DetectedMisconfiguration{ID: "AVD-000"}}},
+				report.Result{Target: "head/cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{
+					types.DetectedMisconfiguration{ID: "AVD-000"},
+					types.DetectedMisconfiguration{ID: "AVD-001"}}}},
+			},
+			wantReports: report.Results{report.Result{Target: "head/cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{
+				types.DetectedMisconfiguration{ID: "AVD-001"}}, Vulnerabilities: []types.DetectedVulnerability{}}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotReports := PrDiffResults(tt.args.r); !reflect.DeepEqual(gotReports, tt.wantReports) {
+				t.Errorf("PrDiffResults() = %v, want %v", gotReports, tt.wantReports)
 			}
 		})
 	}
