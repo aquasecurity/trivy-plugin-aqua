@@ -88,6 +88,13 @@ func main() {
 	app.Action = runScan
 	app.Flags = fsCmd.Flags
 
+	app.Flags = append(app.Flags,
+		&cli.BoolFlag{
+			Name:    "quiet",
+			Usage:   "suppress progress bar and log output (default: false)",
+			EnvVars: []string{"TRIVY_QUIET"},
+		})
+
 	app.Commands = []*cli.Command{
 		fsCmd,
 		configCmd,
