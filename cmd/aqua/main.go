@@ -163,7 +163,10 @@ func runScan(c *cli.Context) error {
 	}
 
 	if c.Bool("pr-scan") {
-		results = processor.PrDiffResults(results)
+		results, err = processor.PrDiffResults(results)
+		if err != nil {
+			return err
+		}
 	}
 
 	processedResults := processor.ProcessResults(results, policies, checkSupIDMap)

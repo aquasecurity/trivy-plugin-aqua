@@ -2,11 +2,13 @@ package scanner
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -29,6 +31,7 @@ func writeFile(path, content string) error {
 	if err != nil {
 		return errors.Wrap(err, "failed create file")
 	}
+	defer f.Close()
 	_, err = f.WriteString(content)
 	if err != nil {
 		f.Close()
@@ -45,8 +48,8 @@ func writeFile(path, content string) error {
 // Create folders with head and base for diff scanning
 func createDiffScanFs() error {
 	var fileName string
-	//TODO get remote pr branch instead master
-	out, err := gitExec("diff", "--name-status", "origin/master")
+	diffCmd := metadata.GetGitDiffCmd()
+	out, err := gitExec("diff", "--name-status", diffCmd)
 	if err != nil {
 		return errors.Wrap(err, "failed git diff")
 	}
@@ -79,8 +82,7 @@ func createDiffScanFs() error {
 					if err != nil {
 						return errors.Wrap(err, "failed mkdir aqua tmp path")
 					}
-					//TODO  get remote pr branch instead master
-					out, err = gitExec("show", fmt.Sprintf("origin/master:%s", fileName))
+					out, err = gitExec("show", fmt.Sprintf("%s:%s", diffCmd, fileName))
 					if err != nil {
 						return errors.Wrap(err, "failed git show origin:"+fileName)
 					}
@@ -104,8 +106,8 @@ func createDiffScanFs() error {
 					return errors.Wrap(err, "failed write head file")
 				}
 			}
-			//TODO delete dir after scan
 		}
 	}
+
 	return nil
 }

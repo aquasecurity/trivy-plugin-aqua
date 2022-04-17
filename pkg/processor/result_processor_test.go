@@ -1,10 +1,11 @@
 package processor
 
 import (
-	"github.com/aquasecurity/trivy/pkg/report"
-	"github.com/aquasecurity/trivy/pkg/types"
 	"reflect"
 	"testing"
+
+	"github.com/aquasecurity/trivy/pkg/report"
+	"github.com/aquasecurity/trivy/pkg/types"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
@@ -126,26 +127,29 @@ func TestPrDiffResults(t *testing.T) {
 		wantReports report.Results
 	}{
 		{
-			name:        "happy path - new file",
-			args:        args{r: report.Results{report.Result{Target: "head/cf/pr-bucket.yaml"}, report.Result{Target: "base/cf/bucket.yaml"}}},
+			name: "happy path - new file",
+			args: args{r: report.Results{
+				report.Result{Target: "head/cf/pr-bucket.yaml"}, report.Result{Target: "base/cf/bucket.yaml"}}},
 			wantReports: report.Results{report.Result{Target: "head/cf/pr-bucket.yaml"}},
 		},
 
 		{
 			name: "happy path - modify file take only diff",
 			args: args{r: report.Results{
-				report.Result{Target: "base/cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{types.DetectedMisconfiguration{ID: "AVD-000"}}},
+				report.Result{Target: "base/cf/bucket.yaml",
+					Misconfigurations: []types.DetectedMisconfiguration{types.DetectedMisconfiguration{ID: "AVD-000"}}},
 				report.Result{Target: "head/cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{
 					types.DetectedMisconfiguration{ID: "AVD-000"},
 					types.DetectedMisconfiguration{ID: "AVD-001"}}}},
 			},
-			wantReports: report.Results{report.Result{Target: "head/cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{
-				types.DetectedMisconfiguration{ID: "AVD-001"}}, Vulnerabilities: []types.DetectedVulnerability{}}},
+			wantReports: report.Results{report.Result{
+				Target: "head/cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{
+					types.DetectedMisconfiguration{ID: "AVD-001"}}, Vulnerabilities: []types.DetectedVulnerability{}}},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotReports := PrDiffResults(tt.args.r); !reflect.DeepEqual(gotReports, tt.wantReports) {
+			if gotReports, _ := PrDiffResults(tt.args.r); !reflect.DeepEqual(gotReports, tt.wantReports) {
 				t.Errorf("PrDiffResults() = %v, want %v", gotReports, tt.wantReports)
 			}
 		})

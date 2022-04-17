@@ -82,6 +82,9 @@ func Scan(c *cli.Context, path string) (report.Results, error) {
 		return nil, errors.Wrap(err, "failed unmarshaling results file")
 	}
 
+	// Cleanup tmp diff dir
+	defer os.RemoveAll(aquaPath)
+
 	return results, nil
 
 }

@@ -2,8 +2,10 @@ package processor
 
 import (
 	"fmt"
-	"github.com/mitchellh/mapstructure"
 	"strings"
+
+	"github.com/mitchellh/mapstructure"
+	"github.com/pkg/errors"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -16,7 +18,7 @@ import (
 	funk "github.com/thoas/go-funk"
 )
 
-func PrDiffResults(r report.Results) (reports report.Results) {
+func PrDiffResults(r report.Results) (reports report.Results, err error) {
 	for _, v := range r {
 		// is head file and not exist in base
 		fileInBase := false
@@ -37,12 +39,18 @@ func PrDiffResults(r report.Results) (reports report.Results) {
 						// misconf
 						diff, _ := funk.Difference(v.Misconfigurations, vBase.Misconfigurations)
 						misconf := []types.DetectedMisconfiguration{}
-						mapstructure.Decode(diff, &misconf)
+						err = mapstructure.Decode(diff, &misconf)
+						if err != nil {
+							return reports, errors.Wrap(err, "failed decode misconf")
+						}
 						v.Misconfigurations = misconf
 						// vulns
 						diff, _ = funk.Difference(v.Vulnerabilities, vBase.Vulnerabilities)
 						vulns := []types.DetectedVulnerability{}
-						mapstructure.Decode(diff, &vulns)
+						err = mapstructure.Decode(diff, &vulns)
+						if err != nil {
+							return reports, errors.Wrap(err, "failed decode vulns")
+						}
 						v.Vulnerabilities = vulns
 						reports = append(reports, v)
 					}
@@ -51,7 +59,7 @@ func PrDiffResults(r report.Results) (reports report.Results) {
 		}
 	}
 
-	return reports
+	return reports, nil
 }
 
 // ProcessResults downloads the latest policies for the repository the process the results
