@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func GetGitDiffCmd() (r string) {
+func GetBaseRef() (r string) {
 	buildSystem := GetBuildSystem()
 	switch buildSystem {
 	case azure:
@@ -19,6 +19,8 @@ func GetGitDiffCmd() (r string) {
 		return os.Getenv("FETCH_HEAD")
 	case gitlab:
 		return os.Getenv("CI_MERGE_REQUEST_DIFF_BASE_SHA")
+	case jenkins:
+		return os.Getenv("CHANGE_TARGET")
 	default:
 		return "origin/master"
 	}

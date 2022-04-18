@@ -155,3 +155,35 @@ func TestPrDiffResults(t *testing.T) {
 		})
 	}
 }
+
+func Test_fileInBase(t *testing.T) {
+	type args struct {
+		target string
+		r      report.Results
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "happy path - file in base",
+			args: args{target: "base/cf/bucket.yaml", r: report.Results{report.Result{
+				Target: "base/cf/bucket.yaml"}}},
+			want: true,
+		},
+		{
+			name: "happy path - not in base",
+			args: args{target: "base/cf/bucket-pr.yaml", r: report.Results{report.Result{
+				Target: "base/cf/bucket.yaml"}}},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := fileInBase(tt.args.target, tt.args.r); got != tt.want {
+				t.Errorf("fileInBase() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

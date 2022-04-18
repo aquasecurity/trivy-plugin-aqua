@@ -48,7 +48,12 @@ func writeFile(path, content string) error {
 // Create folders with head and base for diff scanning
 func createDiffScanFs() error {
 	var fileName string
-	diffCmd := metadata.GetGitDiffCmd()
+	err := os.MkdirAll(aquaPath, os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "failed create aqua tmp dir")
+	}
+
+	diffCmd := metadata.GetBaseRef()
 	out, err := gitExec("diff", "--name-status", diffCmd)
 	if err != nil {
 		return errors.Wrap(err, "failed git diff")

@@ -18,19 +18,24 @@ import (
 	funk "github.com/thoas/go-funk"
 )
 
+func fileInBase(target string, r report.Results) bool {
+	for _, vBase := range r {
+		if vBase.Target == target {
+			return true
+		}
+	}
+	return false
+}
+
 func PrDiffResults(r report.Results) (reports report.Results, err error) {
 	for _, v := range r {
 		// is head file and not exist in base
-		fileInBase := false
+		inBase := false
 		if strings.Contains(v.Target, "head") {
 			toBase := strings.ReplaceAll(v.Target, "head", "base")
-			for _, vBase := range r {
-				if vBase.Target == toBase {
-					fileInBase = true
-				}
-			}
+			inBase = fileInBase(toBase, r)
 			// this is new file take full report
-			if !fileInBase {
+			if !inBase {
 				reports = append(reports, v)
 			} else {
 				// in head and base
