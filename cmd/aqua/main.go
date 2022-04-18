@@ -131,6 +131,9 @@ func runScan(c *cli.Context) error {
 			return err
 		}
 	}
+	if c.String("triggered-by") != "" {
+		c.Set("triggered-by", strings.ToUpper(c.String("triggered-by")))
+	}
 
 	debug := c.Bool("debug")
 
@@ -169,7 +172,7 @@ func runScan(c *cli.Context) error {
 		return err
 	}
 
-	if strings.ToUpper(c.String("triggered-by")) == "PR" {
+	if c.String("triggered-by") == "PR" {
 		results, err = processor.PrDiffResults(results)
 		if err != nil {
 			return err
