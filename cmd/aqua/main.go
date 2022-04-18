@@ -42,11 +42,6 @@ func main() {
 			EnvVars: []string{"TRIVY_SKIP_RESULT_UPLOAD"},
 		},
 		&cli.BoolFlag{
-			Name:    "pr-scan",
-			Usage:   "Add this flag if you want scan only PR diff",
-			EnvVars: []string{"TRIVY_PR_SCAN"},
-		},
-		&cli.BoolFlag{
 			Name:    "skip-policy-exit-code",
 			Usage:   "Add this flag if you want skip policies exit code",
 			EnvVars: []string{"TRIVY_SKIP_POLICY_EXIT_CODE"},
@@ -65,6 +60,11 @@ func main() {
 			EnvVars: []string{"TRIVY_SECURITY_CHECKS"},
 			Hidden:  true,
 		},
+		&cli.StringFlag{
+			Name:    "triggered-by",
+			Usage:   "Add this flag to determine where the scan is coming from (push, pr, offline)",
+			EnvVars: []string{"TRIGGERED_BY"},
+		},
 	)
 
 	fsCmd := commands.NewFilesystemCommand()
@@ -76,11 +76,6 @@ func main() {
 			EnvVars: []string{"TRIVY_SKIP_RESULT_UPLOAD"},
 		},
 		&cli.BoolFlag{
-			Name:    "pr-scan",
-			Usage:   "Add this flag if you want scan only PR diff",
-			EnvVars: []string{"TRIVY_PR_SCAN"},
-		},
-		&cli.BoolFlag{
 			Name:    "skip-policy-exit-code",
 			Usage:   "Add this flag if you want skip policies exit code",
 			EnvVars: []string{"TRIVY_SKIP_POLICY_EXIT_CODE"},
@@ -89,6 +84,11 @@ func main() {
 			Name:    "debug",
 			Usage:   "Add this flag if you want run in debug mode",
 			EnvVars: []string{"DEBUG"},
+		},
+		&cli.StringFlag{
+			Name:    "triggered-by",
+			Usage:   "Add this flag to determine where the scan is coming from (push, pr, offline)",
+			EnvVars: []string{"TRIGGERED_BY"},
 		},
 	)
 
@@ -131,6 +131,11 @@ func runScan(c *cli.Context) error {
 			return err
 		}
 	}
+	if c.String("triggered-by") != "" {
+		if err := c.Set("triggered-by", strings.ToUpper(c.String("triggered-by"))); err != nil {
+			return err
+		}
+	}
 
 	debug := c.Bool("debug")
 
@@ -169,7 +174,7 @@ func runScan(c *cli.Context) error {
 		return err
 	}
 
-	if c.Bool("pr-scan") {
+	if c.String("triggered-by") == "PR" {
 		results, err = processor.PrDiffResults(results)
 		if err != nil {
 			return err

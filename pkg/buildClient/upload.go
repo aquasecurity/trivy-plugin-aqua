@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
+
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
@@ -33,6 +35,7 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]s
 		Commit:       commitId,
 		System:       buildSystem,
 		Tags:         tags,
+		TriggeredBy:  scanner.MatchTriggeredBy(bc.c.String("triggered-by")),
 	}
 
 	_, err = client.CreateScan(ctx, createScanReq)

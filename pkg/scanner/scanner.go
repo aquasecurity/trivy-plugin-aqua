@@ -39,7 +39,7 @@ func Scan(c *cli.Context, path string) (report.Results, error) {
 	case "image":
 		initializeScanner = initializeDockerScanner(path)
 	default:
-		if c.Bool("pr-scan") {
+		if c.String("triggered-by") == "PR" {
 			err := createDiffScanFs()
 			if err != nil {
 				return nil, errors.Wrap(err, "failed create diff scan system")
@@ -161,4 +161,10 @@ func MatchResultType(resultType string) buildsecurity.Result_TypeEnum {
 	resultType = strings.ToUpper(fmt.Sprintf("TYPE_%s", resultType))
 	index := buildsecurity.Result_TypeEnum_value[resultType]
 	return buildsecurity.Result_TypeEnum(index)
+}
+
+func MatchTriggeredBy(triggeredBy string) buildsecurity.TriggeredByEnum {
+	triggeredBy = fmt.Sprintf("TRIGGERED_BY_%s", triggeredBy)
+	index := buildsecurity.TriggeredByEnum_value[triggeredBy]
+	return buildsecurity.TriggeredByEnum(index)
 }
