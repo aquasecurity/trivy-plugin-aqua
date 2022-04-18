@@ -132,7 +132,9 @@ func runScan(c *cli.Context) error {
 		}
 	}
 	if c.String("triggered-by") != "" {
-		c.Set("triggered-by", strings.ToUpper(c.String("triggered-by")))
+		if err := c.Set("triggered-by", strings.ToUpper(c.String("triggered-by"))); err != nil {
+			return err
+		}
 	}
 
 	debug := c.Bool("debug")
