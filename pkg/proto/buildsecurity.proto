@@ -43,6 +43,14 @@ message CreateScanReq {
   string Commit = 5;
   repeated Result Results = 7;
   map<string, string> Tags = 8;
+  TriggeredByEnum TriggeredBy = 9;
+}
+
+enum TriggeredByEnum {
+  TRIGGERED_BY_UNKNOWN = 0;
+  TRIGGERED_BY_PUSH = 1;
+  TRIGGERED_BY_PR = 2;
+  TRIGGERED_BY_OFFLINE = 3;
 }
 
 message CreateScanResp {
