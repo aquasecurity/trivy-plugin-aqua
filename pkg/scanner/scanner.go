@@ -30,6 +30,7 @@ const (
 	policyDir   = "/tmp/policies"
 	dataDir     = "/tmp/data"
 	resultsFile = "results.json"
+	aquaPath    = "/tmp/aqua"
 )
 
 func Scan(c *cli.Context, path string) (report.Results, error) {
@@ -38,6 +39,13 @@ func Scan(c *cli.Context, path string) (report.Results, error) {
 	case "image":
 		initializeScanner = initializeDockerScanner(path)
 	default:
+		if c.Bool("pr-scan") {
+			err := createDiffScanFs()
+			if err != nil {
+				return nil, errors.Wrap(err, "failed create diff scan system")
+			}
+			path = aquaPath
+		}
 		initializeScanner = initializeFilesystemScanner(path, policyDir, dataDir)
 	}
 
@@ -73,6 +81,9 @@ func Scan(c *cli.Context, path string) (report.Results, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed unmarshaling results file")
 	}
+
+	// Cleanup tmp diff dir
+	defer os.RemoveAll(aquaPath)
 
 	return results, nil
 

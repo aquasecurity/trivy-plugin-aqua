@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mitchellh/mapstructure"
+	"github.com/pkg/errors"
+
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
@@ -12,7 +15,57 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
 	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/types"
+	funk "github.com/thoas/go-funk"
 )
+
+func fileInBase(target string, r report.Results) bool {
+	for _, vBase := range r {
+		if vBase.Target == target {
+			return true
+		}
+	}
+	return false
+}
+
+func PrDiffResults(r report.Results) (reports report.Results, err error) {
+	for _, v := range r {
+		// is head file and not exist in base
+		inBase := false
+		if strings.Contains(v.Target, "head") {
+			toBase := strings.ReplaceAll(v.Target, "head", "base")
+			inBase = fileInBase(toBase, r)
+			// this is new file take full report
+			if !inBase {
+				reports = append(reports, v)
+			} else {
+				// in head and base
+				for _, vBase := range r {
+					if vBase.Target == toBase {
+						// misconf
+						diff, _ := funk.Difference(v.Misconfigurations, vBase.Misconfigurations)
+						misconf := []types.DetectedMisconfiguration{}
+						err = mapstructure.Decode(diff, &misconf)
+						if err != nil {
+							return reports, errors.Wrap(err, "failed decode misconf")
+						}
+						v.Misconfigurations = misconf
+						// vulns
+						diff, _ = funk.Difference(v.Vulnerabilities, vBase.Vulnerabilities)
+						vulns := []types.DetectedVulnerability{}
+						err = mapstructure.Decode(diff, &vulns)
+						if err != nil {
+							return reports, errors.Wrap(err, "failed decode vulns")
+						}
+						v.Vulnerabilities = vulns
+						reports = append(reports, v)
+					}
+				}
+			}
+		}
+	}
+
+	return reports, nil
+}
 
 // ProcessResults downloads the latest policies for the repository the process the results
 // while evaluating them against the policies

@@ -1,5 +1,15 @@
 package metadata
 
+const (
+	bitbucket           = "bitbucket"
+	jenkins             = "jenkins"
+	gitlab              = "gitlab"
+	codebuild           = "codebuild"
+	azure               = "azure"
+	github              = "github"
+	overrideBuildSystem = "OVERRIDE_BUILDSYSTEM"
+)
+
 var possibleRepoEnvVars = []string{
 	"OVERRIDE_REPOSITORY",
 	"GITHUB_REPOSITORY",
@@ -35,12 +45,10 @@ var possibleUserEnvVars = []string{
 }
 
 var possibleBuildSystems = map[string]string{
-	"BITBUCKET_COMMIT":     "bitbucket",
-	"GIT_COMMIT":           "jenkins",
-	"CI_COMMIT_SHA":        "gitlab",
-	"CODEBUILD_GIT_COMMIT": "codebuild",
-	"BUILD_SOURCEBRANCH":   "azure",
-	"GITHUB_SHA":           "github",
+	"BITBUCKET_COMMIT":     bitbucket,
+	"GIT_COMMIT":           jenkins,
+	"CI_COMMIT_SHA":        gitlab,
+	"CODEBUILD_GIT_COMMIT": codebuild,
+	"BUILD_SOURCEBRANCH":   azure,
+	"GITHUB_SHA":           github,
 }
-
-const overrideBuildSystem = "OVERRIDE_BUILDSYSTEM"
