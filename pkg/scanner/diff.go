@@ -21,7 +21,7 @@ func gitExec(args ...string) (out string, err error) {
 	cmd := exec.Command("git", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return out, errors.Wrap(err, "failed run git cmd")
+		return out, errors.Wrap(err, fmt.Sprintf("failed run git cmd output: %s", string(output)))
 	}
 
 	return string(output), nil
@@ -55,6 +55,11 @@ func createDiffScanFs() error {
 
 	// In GitHub we need fetch the remote branch first
 	if os.Getenv("GITHUB_BASE_REF") != "" {
+		// In GitHub trivy action container we need safe directory to run git fetch
+		_, err = gitExec("config", "--global", "--add", "safe.directory", "/github/workspace")
+		if err != nil {
+			return errors.Wrap(err, "failed git fetch ref")
+		}
 		_, err = gitExec("fetch", "origin", fmt.Sprintf("refs/heads/%s", os.Getenv("GITHUB_BASE_REF")))
 		if err != nil {
 			return errors.Wrap(err, "failed git fetch ref")
