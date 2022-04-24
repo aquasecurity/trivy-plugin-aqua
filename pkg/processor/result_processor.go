@@ -64,6 +64,17 @@ func PrDiffResults(r report.Results) (reports report.Results, err error) {
 		}
 	}
 
+	// Cleanup tmp file names
+	for k, v := range reports {
+		if strings.Contains(v.Target, "head/") {
+			v.Target = strings.Replace(v.Target, "head/", "", 1)
+			reports[k] = v
+		}
+		if strings.Contains(v.Target, "base/") {
+			v.Target = strings.Replace(v.Target, "base/", "", 1)
+			reports[k] = v
+		}
+	}
 	return reports, nil
 }
 
