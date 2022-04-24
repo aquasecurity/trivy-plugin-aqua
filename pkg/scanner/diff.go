@@ -53,11 +53,20 @@ func createDiffScanFs() error {
 		return errors.Wrap(err, "failed create aqua tmp dir")
 	}
 
+	// In GitHub we need fetch the remote branch first
+	if os.Getenv("GITHUB_BASE_REF") != "" {
+		_, err = gitExec("fetch", "origin", fmt.Sprintf("refs/heads/%s", os.Getenv("GITHUB_BASE_REF")))
+		if err != nil {
+			return errors.Wrap(err, "failed git fetch ref")
+		}
+	}
+
 	diffCmd := metadata.GetBaseRef()
 	out, err := gitExec("diff", "--name-status", diffCmd)
 	if err != nil {
 		return errors.Wrap(err, "failed git diff")
 	}
+
 	if out != "" {
 		diffFiles := strings.Split(out, "\n")
 		for _, v := range diffFiles {

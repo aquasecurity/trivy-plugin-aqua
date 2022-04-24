@@ -130,7 +130,7 @@ func TestPrDiffResults(t *testing.T) {
 			name: "happy path - new file",
 			args: args{r: report.Results{
 				report.Result{Target: "head/cf/pr-bucket.yaml"}, report.Result{Target: "base/cf/bucket.yaml"}}},
-			wantReports: report.Results{report.Result{Target: "head/cf/pr-bucket.yaml"}},
+			wantReports: report.Results{report.Result{Target: "cf/pr-bucket.yaml"}},
 		},
 
 		{
@@ -143,7 +143,7 @@ func TestPrDiffResults(t *testing.T) {
 					types.DetectedMisconfiguration{ID: "AVD-001"}}}},
 			},
 			wantReports: report.Results{report.Result{
-				Target: "head/cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{
+				Target: "cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{
 					types.DetectedMisconfiguration{ID: "AVD-001"}}, Vulnerabilities: []types.DetectedVulnerability{}}},
 		},
 	}
