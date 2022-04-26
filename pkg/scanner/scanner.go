@@ -9,9 +9,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aquasecurity/fanal/applier"
-	"github.com/aquasecurity/trivy/pkg/detector/ospkg"
-	"github.com/aquasecurity/trivy/pkg/scanner/local"
 	"golang.org/x/xerrors"
 
 	"github.com/aquasecurity/fanal/image"
@@ -113,9 +110,7 @@ func initializeDockerScanner(
 	localArtifactCache cache.LocalArtifactCache,
 	dockerOpt types.DockerOption,
 	artifactOption fanalartifact.Option) (scanner.Scanner, func(), error) {
-	applierApplier := applier.NewApplier(localArtifactCache)
-	detector := ospkg.Detector{}
-	localScanner := local.NewScanner(applierApplier, detector)
+	localScanner := newAquaScanner(localArtifactCache)
 	typesImage, cleanup, err := image.NewDockerImage(ctx, imageName, dockerOpt)
 	if err != nil {
 		return scanner.Scanner{}, nil, err
@@ -152,9 +147,7 @@ func initializeFilesystemScanner(_ context.Context,
 	artifactCache cache.ArtifactCache,
 	localArtifactCache cache.LocalArtifactCache,
 	artifactOption fanalartifact.Option) (scanner.Scanner, func(), error) {
-	applierApplier := applier.NewApplier(localArtifactCache)
-	detector := ospkg.Detector{}
-	localScanner := local.NewScanner(applierApplier, detector)
+	localScanner := newAquaScanner(localArtifactCache)
 	artifactArtifact, err := fanalartifactlocal.NewArtifact(path, artifactCache, artifactOption)
 	if err != nil {
 		return scanner.Scanner{}, nil, err

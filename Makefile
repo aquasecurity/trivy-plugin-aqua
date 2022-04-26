@@ -12,6 +12,8 @@ integration-test:
 	go build -o /home/runner/.trivy/plugins/aqua/aqua cmd/aqua/main.go
 	cp plugin.yaml /home/runner/.trivy/plugins/aqua/
 	trivy fs --debug --security-checks config,vuln .
+	docker pull alpine
+	trivy --debug image alpine
 
 .PHONY: update-plugin
 update-plugin:
