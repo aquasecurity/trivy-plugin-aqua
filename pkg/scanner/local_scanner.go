@@ -2,12 +2,13 @@ package scanner
 
 import (
 	"encoding/json"
+	"io/ioutil"
+
 	"github.com/aquasecurity/fanal/applier"
 	"github.com/aquasecurity/fanal/cache"
 	"github.com/aquasecurity/trivy-db/pkg/db"
 	"github.com/aquasecurity/trivy/pkg/detector/ospkg"
 	localscanner "github.com/aquasecurity/trivy/pkg/scanner/local"
-	"io/ioutil"
 
 	ftypes "github.com/aquasecurity/fanal/types"
 	"github.com/aquasecurity/trivy/pkg/result"
