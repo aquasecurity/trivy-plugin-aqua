@@ -5,13 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
+	"strings"
+
 	"github.com/aquasecurity/fanal/applier"
 	"github.com/aquasecurity/trivy/pkg/detector/ospkg"
 	"github.com/aquasecurity/trivy/pkg/scanner/local"
 	"golang.org/x/xerrors"
-	"io"
-	"os"
-	"strings"
 
 	"github.com/aquasecurity/fanal/image"
 	"github.com/aquasecurity/fanal/types"
@@ -29,8 +30,6 @@ import (
 )
 
 const (
-	policyDir   = "/tmp/policies"
-	dataDir     = "/tmp/data"
 	resultsFile = "results.json"
 	aquaPath    = "/tmp/aqua"
 )
@@ -107,7 +106,13 @@ func imageScanner(path string) artifact.InitializeScanner {
 	}
 }
 
-func initializeDockerScanner(ctx context.Context, imageName string, artifactCache cache.ArtifactCache, localArtifactCache cache.LocalArtifactCache, dockerOpt types.DockerOption, artifactOption fanalartifact.Option) (scanner.Scanner, func(), error) {
+func initializeDockerScanner(
+	ctx context.Context,
+	imageName string,
+	artifactCache cache.ArtifactCache,
+	localArtifactCache cache.LocalArtifactCache,
+	dockerOpt types.DockerOption,
+	artifactOption fanalartifact.Option) (scanner.Scanner, func(), error) {
 	applierApplier := applier.NewApplier(localArtifactCache)
 	detector := ospkg.Detector{}
 	localScanner := local.NewScanner(applierApplier, detector)
@@ -128,7 +133,12 @@ func initializeDockerScanner(ctx context.Context, imageName string, artifactCach
 
 func filesystemStandaloneScanner(path string) artifact.InitializeScanner {
 	return func(ctx context.Context, config artifact.ScannerConfig) (scanner.Scanner, func(), error) {
-		s, cleanup, err := initializeFilesystemScanner(ctx, path, config.ArtifactCache, config.LocalArtifactCache, fanalartifact.Option{})
+		s, cleanup, err := initializeFilesystemScanner(
+			ctx,
+			path,
+			config.ArtifactCache,
+			config.LocalArtifactCache,
+			fanalartifact.Option{})
 		if err != nil {
 			return scanner.Scanner{}, func() {}, xerrors.Errorf("unable to initialize a filesystem scanner: %w", err)
 		}
@@ -137,7 +147,11 @@ func filesystemStandaloneScanner(path string) artifact.InitializeScanner {
 }
 
 // initializeFilesystemScanner is for filesystem scanning in standalone mode
-func initializeFilesystemScanner(_ context.Context, path string, artifactCache cache.ArtifactCache, localArtifactCache cache.LocalArtifactCache, artifactOption fanalartifact.Option) (scanner.Scanner, func(), error) {
+func initializeFilesystemScanner(_ context.Context,
+	path string,
+	artifactCache cache.ArtifactCache,
+	localArtifactCache cache.LocalArtifactCache,
+	artifactOption fanalartifact.Option) (scanner.Scanner, func(), error) {
 	applierApplier := applier.NewApplier(localArtifactCache)
 	detector := ospkg.Detector{}
 	localScanner := local.NewScanner(applierApplier, detector)
