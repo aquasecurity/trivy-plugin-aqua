@@ -2,16 +2,14 @@ package scanner
 
 import (
 	"encoding/json"
-	"io/ioutil"
-
+	ftypes "github.com/aquasecurity/fanal/types"
 	"github.com/aquasecurity/trivy-db/pkg/db"
 	"github.com/aquasecurity/trivy/pkg/result"
+	"io/ioutil"
 
 	"github.com/aquasecurity/fanal/applier"
 	"github.com/aquasecurity/fanal/cache"
-	ftypes "github.com/aquasecurity/fanal/types"
 	"github.com/aquasecurity/trivy/pkg/detector/ospkg"
-	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/scanner"
 	localscanner "github.com/aquasecurity/trivy/pkg/scanner/local"
 	"github.com/aquasecurity/trivy/pkg/types"
@@ -31,7 +29,7 @@ func newAquaScanner(localArtifactCache cache.LocalArtifactCache) aquaScanner {
 }
 
 func (s aquaScanner) Scan(target, imageID string, layerIDs []string, options types.ScanOptions) (
-	report.Results, *ftypes.OS, error) {
+	types.Results, *ftypes.OS, error) {
 
 	results, osFound, err := s.driver.Scan(target, imageID, layerIDs, options)
 	if err != nil {
