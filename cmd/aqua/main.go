@@ -48,15 +48,15 @@ func main() {
 		},
 		&cli.StringFlag{
 			Name:    "vuln-type",
-			Value:   strings.Join([]string{types.VulnTypeOS, types.VulnTypeLibrary}, ","),
-			Usage:   "comma-separated list of vulnerability types (os,library)",
+			Value:   strings.Join([]string{types.VulnTypeOS, types.VulnTypeLibrary, types.SecurityCheckSecret}, ","),
+			Usage:   "comma-separated list of vulnerability types (os,library,secret)",
 			EnvVars: []string{"TRIVY_VULN_TYPE"},
 			Hidden:  true,
 		},
 		&cli.StringFlag{
 			Name:    "security-checks",
 			Value:   types.SecurityCheckConfig,
-			Usage:   "comma-separated list of what security issues to detect (vuln,config)",
+			Usage:   "comma-separated list of what security issues to detect (vuln,config,secret)",
 			EnvVars: []string{"TRIVY_SECURITY_CHECKS"},
 			Hidden:  true,
 		},
