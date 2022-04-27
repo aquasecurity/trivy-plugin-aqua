@@ -21,13 +21,6 @@ jobs:
           go-version: '1.18'
       - run: go version
 
-      - name: Run integration tests
-        env:
-          AQUA_KEY: ${{ secrets.AQUA_KEY }}
-          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
-          TRIVY_RUN_AS_PLUGIN: aqua
-        run: make integration-test
-
       - name: Release
         uses: goreleaser/goreleaser-action@v2
         with:
