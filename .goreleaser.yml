@@ -24,9 +24,6 @@ changelog:
 
 archives:
   - name_template: "{{ .Os }}_{{ .Arch }}_v{{ .Version }}"
-    format_overrides:
-      - goos: windows
-        format: zip
 
 release:
   prerelease: auto
