@@ -95,6 +95,9 @@ func ProcessResults(reports types.Results,
 		case types.ClassOSPkg:
 			reportResults := addVulnerabilitiesResults(rep)
 			results = append(results, reportResults...)
+		case types.ClassSecret:
+			reportResults := addSecretsResults(rep)
+			results = append(results, reportResults...)
 		}
 	}
 
@@ -170,6 +173,26 @@ func contains(slice []string, value string) bool {
 		}
 	}
 	return false
+}
+
+func addSecretsResults(rep types.Result) (results []*buildsecurity.Result) {
+	for _, s := range rep.Secrets {
+		var r buildsecurity.Result
+
+		r.Type = scanner.MatchResultType("SECRETS")
+		r.Title = s.Title
+		r.Severity = scanner.MatchResultSeverity(s.Severity)
+		r.Filename = rep.Target
+		r.AVDID = s.RuleID
+		r.StartLine = int32(s.StartLine)
+		r.EndLine = int32(s.EndLine)
+		r.Resource = string(s.Category)
+		r.Message = s.Match
+
+		results = append(results, &r)
+
+	}
+	return results
 }
 
 func addMisconfigurationResults(rep types.Result,
