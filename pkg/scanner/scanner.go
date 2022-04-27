@@ -9,35 +9,33 @@ import (
 	"os"
 	"strings"
 
+	"golang.org/x/xerrors"
+
 	"github.com/aquasecurity/fanal/image"
 	"github.com/aquasecurity/fanal/types"
 
-	analyzerConfig "github.com/aquasecurity/fanal/analyzer/config"
-	fanalconfig "github.com/aquasecurity/fanal/analyzer/config"
 	fanalartifact "github.com/aquasecurity/fanal/artifact"
 	image2 "github.com/aquasecurity/fanal/artifact/image"
-	"github.com/aquasecurity/fanal/artifact/local"
+	fanalartifactlocal "github.com/aquasecurity/fanal/artifact/local"
 	"github.com/aquasecurity/fanal/cache"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
-	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/scanner"
+	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 )
 
 const (
-	policyDir   = "/tmp/policies"
-	dataDir     = "/tmp/data"
 	resultsFile = "results.json"
 	aquaPath    = "/tmp/aqua"
 )
 
-func Scan(c *cli.Context, path string) (report.Results, error) {
+func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 	var initializeScanner artifact.InitializeScanner
 	switch c.Command.Name {
 	case "image":
-		initializeScanner = initializeDockerScanner(path)
+		initializeScanner = imageScanner(path)
 	default:
 		if c.String("triggered-by") == "PR" {
 			err := createDiffScanFs()
@@ -46,7 +44,7 @@ func Scan(c *cli.Context, path string) (report.Results, error) {
 			}
 			path = aquaPath
 		}
-		initializeScanner = initializeFilesystemScanner(path, policyDir, dataDir)
+		initializeScanner = filesystemStandaloneScanner(path)
 	}
 
 	opt, err := createScanOptions(c)
@@ -76,7 +74,7 @@ func Scan(c *cli.Context, path string) (report.Results, error) {
 		return nil, errors.Wrap(err, "failed reading results file")
 	}
 
-	var results report.Results
+	var results trivyTypes.Results
 	err = json.Unmarshal(buf.Bytes(), &results)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed unmarshaling results file")
@@ -89,51 +87,74 @@ func Scan(c *cli.Context, path string) (report.Results, error) {
 
 }
 
-func initializeDockerScanner(path string) artifact.InitializeScanner {
-	return func(
-		ctx context.Context,
-		s string,
-		artifactCache cache.ArtifactCache,
-		localArtifactCache cache.LocalArtifactCache,
-		b bool,
-		option fanalartifact.Option,
-		option2 fanalconfig.ScannerOption) (
-		scanner.Scanner, func(), error) {
-		localScanner := newAquaScanner(localArtifactCache)
-		typesImage, cleanup, err := image.NewDockerImage(ctx, path, types.DockerOption{})
+// imageScanner initializes a container image scanner in standalone mode
+func imageScanner(path string) artifact.InitializeScanner {
+	return func(ctx context.Context, conf artifact.ScannerConfig) (scanner.Scanner, func(), error) {
+		dockerOpt, err := trivyTypes.GetDockerOption(conf.ArtifactOption.InsecureSkipTLS)
 		if err != nil {
 			return scanner.Scanner{}, nil, err
 		}
-		artifactArtifact, err := image2.NewArtifact(
-			typesImage,
-			artifactCache,
-			fanalartifact.Option{},
-			analyzerConfig.ScannerOption{})
+		s, cleanup, err := initializeDockerScanner(ctx, path, conf.ArtifactCache, conf.LocalArtifactCache,
+			dockerOpt, conf.ArtifactOption)
 		if err != nil {
-			cleanup()
-			return scanner.Scanner{}, nil, err
+			return scanner.Scanner{}, func() {}, xerrors.Errorf("unable to initialize a docker scanner: %w", err)
 		}
-		scannerScanner := scanner.NewScanner(localScanner, artifactArtifact)
-		return scannerScanner, func() {
-			cleanup()
-		}, nil
+		return s, cleanup, nil
 	}
 }
 
-func initializeFilesystemScanner(dir, _, _ string) artifact.InitializeScanner {
-
-	return func(_ context.Context, _ string, artifactCache cache.ArtifactCache,
-		localArtifactCache cache.LocalArtifactCache, _ bool,
-		option fanalartifact.Option, configScannerOption fanalconfig.ScannerOption) (scanner.Scanner, func(), error) {
-		fs, err := local.NewArtifact(dir, artifactCache, option, configScannerOption)
-		if err != nil {
-			return scanner.Scanner{}, func() {}, err
-		}
-
-		lscanner := newAquaScanner(localArtifactCache)
-
-		return scanner.NewScanner(lscanner, fs), func() {}, nil
+func initializeDockerScanner(
+	ctx context.Context,
+	imageName string,
+	artifactCache cache.ArtifactCache,
+	localArtifactCache cache.LocalArtifactCache,
+	dockerOpt types.DockerOption,
+	artifactOption fanalartifact.Option) (scanner.Scanner, func(), error) {
+	localScanner := newAquaScanner(localArtifactCache)
+	typesImage, cleanup, err := image.NewDockerImage(ctx, imageName, dockerOpt)
+	if err != nil {
+		return scanner.Scanner{}, nil, err
 	}
+	artifactArtifact, err := image2.NewArtifact(typesImage, artifactCache, artifactOption)
+	if err != nil {
+		cleanup()
+		return scanner.Scanner{}, nil, err
+	}
+	scannerScanner := scanner.NewScanner(localScanner, artifactArtifact)
+	return scannerScanner, func() {
+		cleanup()
+	}, nil
+}
+
+func filesystemStandaloneScanner(path string) artifact.InitializeScanner {
+	return func(ctx context.Context, config artifact.ScannerConfig) (scanner.Scanner, func(), error) {
+		s, cleanup, err := initializeFilesystemScanner(
+			ctx,
+			path,
+			config.ArtifactCache,
+			config.LocalArtifactCache,
+			fanalartifact.Option{})
+		if err != nil {
+			return scanner.Scanner{}, func() {}, xerrors.Errorf("unable to initialize a filesystem scanner: %w", err)
+		}
+		return s, cleanup, nil
+	}
+}
+
+// initializeFilesystemScanner is for filesystem scanning in standalone mode
+func initializeFilesystemScanner(_ context.Context,
+	path string,
+	artifactCache cache.ArtifactCache,
+	localArtifactCache cache.LocalArtifactCache,
+	artifactOption fanalartifact.Option) (scanner.Scanner, func(), error) {
+	localScanner := newAquaScanner(localArtifactCache)
+	artifactArtifact, err := fanalartifactlocal.NewArtifact(path, artifactCache, artifactOption)
+	if err != nil {
+		return scanner.Scanner{}, nil, err
+	}
+	scannerScanner := scanner.NewScanner(localScanner, artifactArtifact)
+	return scannerScanner, func() {
+	}, nil
 }
 
 func createScanOptions(c *cli.Context) (artifact.Option, error) {

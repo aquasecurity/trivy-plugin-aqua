@@ -13,12 +13,11 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
-	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/types"
 	funk "github.com/thoas/go-funk"
 )
 
-func fileInBase(target string, r report.Results) bool {
+func fileInBase(target string, r types.Results) bool {
 	for _, vBase := range r {
 		if vBase.Target == target {
 			return true
@@ -27,7 +26,7 @@ func fileInBase(target string, r report.Results) bool {
 	return false
 }
 
-func PrDiffResults(r report.Results) (reports report.Results, err error) {
+func PrDiffResults(r types.Results) (reports types.Results, err error) {
 	for _, v := range r {
 		// is head file and not exist in base
 		inBase := false
@@ -80,20 +79,20 @@ func PrDiffResults(r report.Results) (reports report.Results, err error) {
 
 // ProcessResults downloads the latest policies for the repository the process the results
 // while evaluating them against the policies
-func ProcessResults(reports report.Results,
+func ProcessResults(reports types.Results,
 	policies []*buildsecurity.Policy,
 	checkSupIDMap map[string]string) (
 	results []*buildsecurity.Result) {
 
 	for _, rep := range reports {
 		switch rep.Class {
-		case report.ClassLangPkg:
+		case types.ClassLangPkg:
 			reportResults := addVulnerabilitiesResults(rep)
 			results = append(results, reportResults...)
-		case report.ClassConfig:
+		case types.ClassConfig:
 			reportResults := addMisconfigurationResults(rep, policies, checkSupIDMap)
 			results = append(results, reportResults...)
-		case report.ClassOSPkg:
+		case types.ClassOSPkg:
 			reportResults := addVulnerabilitiesResults(rep)
 			results = append(results, reportResults...)
 		}
@@ -126,7 +125,7 @@ func DistinguishPolicies(
 	return policies, checkSupIDMap
 }
 
-func addVulnerabilitiesResults(rep report.Result) (results []*buildsecurity.Result) {
+func addVulnerabilitiesResults(rep types.Result) (results []*buildsecurity.Result) {
 	for _, vuln := range rep.Vulnerabilities {
 
 		var r buildsecurity.Result
@@ -173,7 +172,7 @@ func contains(slice []string, value string) bool {
 	return false
 }
 
-func addMisconfigurationResults(rep report.Result,
+func addMisconfigurationResults(rep types.Result,
 	downloadedPolicies []*buildsecurity.Policy,
 	checkSupIDMap map[string]string) (results []*buildsecurity.Result) {
 	for _, miscon := range rep.Misconfigurations {

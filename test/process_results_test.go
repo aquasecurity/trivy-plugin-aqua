@@ -8,7 +8,6 @@ import (
 	dbTypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/processor"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
-	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/types"
 	"github.com/stretchr/testify/assert"
 )
@@ -27,10 +26,10 @@ func Test_process_results_with_results_but_not_matching_policies(t *testing.T) {
 
 	client := FakeClient{}
 
-	results := report.Results{
+	results := types.Results{
 		{
 			Target: "main.tf",
-			Class:  report.ClassConfig,
+			Class:  types.ClassConfig,
 			Misconfigurations: []types.DetectedMisconfiguration{
 				{
 					Type:     "terraform",
@@ -48,7 +47,7 @@ func Test_process_results_with_results_but_not_matching_policies(t *testing.T) {
 		},
 		{
 			Target: "test.txt",
-			Class:  report.ClassLangPkg,
+			Class:  types.ClassLangPkg,
 			Vulnerabilities: []types.DetectedVulnerability{
 				{
 					DataSource:       &dbTypes.DataSource{Name: "test"},
@@ -78,10 +77,10 @@ func Test_process_results_with_results_with_matching_policies_and_suppressions(t
 
 	client := FakeClient{}
 
-	results := report.Results{
+	results := types.Results{
 		{
 			Target: "main.tf",
-			Class:  report.ClassConfig,
+			Class:  types.ClassConfig,
 			Misconfigurations: []types.DetectedMisconfiguration{
 				{
 					Type:     "terraform",
@@ -100,7 +99,7 @@ func Test_process_results_with_results_with_matching_policies_and_suppressions(t
 
 		{
 			Target: "main.tf",
-			Class:  report.ClassConfig,
+			Class:  types.ClassConfig,
 			Misconfigurations: []types.DetectedMisconfiguration{
 				{
 					Type:     "terraform",
@@ -143,10 +142,10 @@ func Test_process_results_with_results_with_no_matching_policies_severity_level(
 
 	client := FakeClient{}
 
-	results := report.Results{
+	results := types.Results{
 		{
 			Target: "main.tf",
-			Class:  report.ClassConfig,
+			Class:  types.ClassConfig,
 			Misconfigurations: []types.DetectedMisconfiguration{
 				{
 					Type:     "terraform",
@@ -174,10 +173,10 @@ func Test_process_results_with_results_with_matching_policies_severity_level(t *
 
 	client := FakeClient{}
 
-	results := report.Results{
+	results := types.Results{
 		{
 			Target: "main.tf",
-			Class:  report.ClassConfig,
+			Class:  types.ClassConfig,
 			Misconfigurations: []types.DetectedMisconfiguration{
 				{
 					Type:     "terraform",
@@ -205,10 +204,10 @@ func Test_process_results_with_results_with_matching_policies_severity_level_gre
 
 	client := FakeClient{}
 
-	results := report.Results{
+	results := types.Results{
 		{
 			Target: "main.tf",
-			Class:  report.ClassConfig,
+			Class:  types.ClassConfig,
 			Misconfigurations: []types.DetectedMisconfiguration{
 				{
 					Type:     "terraform",
