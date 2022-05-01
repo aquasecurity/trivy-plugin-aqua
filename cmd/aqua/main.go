@@ -3,10 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/aquasecurity/trivy/pkg/types"
 	"os"
 	"sort"
 	"time"
+
+	"github.com/aquasecurity/trivy/pkg/types"
 
 	"strings"
 
