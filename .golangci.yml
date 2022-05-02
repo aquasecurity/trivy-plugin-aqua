@@ -3,13 +3,9 @@ linters:
     enable:
         - deadcode
         - errcheck
-        - gosimple
         - govet
         - ineffassign
-        - staticcheck
-        - structcheck
         - typecheck
-        - unused
         - varcheck
         - dupl
         - funlen
@@ -22,8 +18,6 @@ linters:
         - lll
         - nakedret
         - unconvert
-        - unparam
-        - bodyclose
 linters-settings:
     funlen:
         lines: 150

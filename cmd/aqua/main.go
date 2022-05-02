@@ -7,6 +7,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/aquasecurity/trivy/pkg/types"
+
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
@@ -17,7 +19,6 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/uploader"
 	"github.com/aquasecurity/trivy/pkg/commands"
-	"github.com/aquasecurity/trivy/pkg/types"
 	"github.com/urfave/cli/v2"
 )
 
@@ -48,8 +49,8 @@ func main() {
 		},
 		&cli.StringFlag{
 			Name:    "vuln-type",
-			Value:   strings.Join([]string{types.VulnTypeOS, types.VulnTypeLibrary, types.SecurityCheckSecret}, ","),
-			Usage:   "comma-separated list of vulnerability types (os,library,secret)",
+			Value:   strings.Join([]string{types.VulnTypeOS, types.VulnTypeLibrary}, ","),
+			Usage:   "comma-separated list of vulnerability types (os,library)",
 			EnvVars: []string{"TRIVY_VULN_TYPE"},
 			Hidden:  true,
 		},
