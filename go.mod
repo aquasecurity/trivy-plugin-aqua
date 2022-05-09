@@ -11,7 +11,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.1
 	github.com/thoas/go-funk v0.9.2
-	github.com/twitchtv/twirp v8.1.1+incompatible
+	github.com/twitchtv/twirp v8.1.2+incompatible
 	github.com/urfave/cli/v2 v2.4.0
 	go.uber.org/zap v1.21.0
 	golang.org/x/text v0.3.7
