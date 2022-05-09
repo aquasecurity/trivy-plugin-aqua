@@ -7,7 +7,7 @@ require (
 	github.com/aquasecurity/go-dep-parser v0.0.0-20220422134844-880747206031
 	github.com/aquasecurity/trivy v0.27.1-0.20220426130527-b6baa65ff20b
 	github.com/aquasecurity/trivy-db v0.0.0-20220327074450-74195d9604b2
-	github.com/mitchellh/mapstructure v1.4.3
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.1
 	github.com/thoas/go-funk v0.9.2
