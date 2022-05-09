@@ -33,4 +33,4 @@ build:
   -w /build \
   -v `pwd`:/build \
   golang:1.18 \
-  go build -o /build/bin/aqua cmd/aqua/main.go|| exit 1
+  go build -o build/bin/aqua cmd/aqua/main.go|| exit 1
