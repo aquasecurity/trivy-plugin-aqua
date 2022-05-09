@@ -6,8 +6,7 @@ import (
 
 func Test_convertScmId(t *testing.T) {
 	type args struct {
-		system string
-		scmID  string
+		scmID string
 	}
 	tests := []struct {
 		name string
@@ -17,42 +16,38 @@ func Test_convertScmId(t *testing.T) {
 		{
 			name: "happy path - bitbucket",
 			args: args{
-				scmID:  "git@bitbucket.org:repo.git",
-				system: "bitbucket",
+				scmID: "git@bitbucket.org:repo.git",
 			},
-			want: "git@bitbucket.org:repo.git",
+			want: "bitbucket.org/repo",
 		},
 		{
 			name: "happy path - github",
 			args: args{
-				scmID:  "https://github.com/repo.git",
-				system: "github",
+				scmID: "https://github.com/repo.git",
 			},
-			want: "https://github.com/repo.git",
+			want: "github.com/repo",
 		},
 		{
 			name: "happy path - other",
 			args: args{
-				scmID:  "git@othertest.com/repo.git",
-				system: "other",
+				scmID: "git@othertest.com/repo.git",
 			},
-			want: "git@othertest.com/repo.git",
+			want: "othertest.com/repo",
 		},
 
 		{
 			name: "happy path - gitlab",
 			args: args{
-				scmID:  "https://gitlab-ci-token:123456-abcdef@gitlab.com/aqua/repo.git",
-				system: "gitlab",
+				scmID: "https://gitlab-ci-token:123456-abcdef@gitlab.com/aqua/repo.git",
 			},
-			want: "gitlab.com/aqua/repo.git",
+			want: "gitlab.com/aqua/repo",
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := sanitiseScmId(tt.args.system, tt.args.scmID); got != tt.want {
+			if got := sanitiseScmId(tt.args.scmID); got != tt.want {
 				t.Errorf("sanitiseScmId() = %v, want %v", got, tt.want)
 			}
 		})

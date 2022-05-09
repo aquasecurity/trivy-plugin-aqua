@@ -85,12 +85,11 @@ func GetImageDetails(imageName string) (prefix, repo, tag string) {
 func GetScmID(scanPath string) (string, error) {
 	gitConfigFile := filepath.Join(scanPath, ".git", "config")
 	gitConfig, err := ioutil.ReadFile(gitConfigFile)
-	system := GetBuildSystem()
 	if err == nil {
 		re := regexp.MustCompile(`(?m)^\s*url\s?=\s*(.*)\s*$`)
 		if re.Match(gitConfig) {
 			scmID := re.FindStringSubmatch(string(gitConfig))[1]
-			scmID = sanitiseScmId(system, scmID)
+			scmID = sanitiseScmId(scmID)
 
 			return scmID, nil
 		}
@@ -99,10 +98,13 @@ func GetScmID(scanPath string) (string, error) {
 	return filepath.Base(scanPath), nil
 }
 
-func sanitiseScmId(system string, scmID string) string {
-	if system == "gitlab" {
-		scmID = strings.Split(scmID, "@")[1]
-	}
+// This function is the formula on the DB, on Atlas side and on Argon side,
+// do not change without coordinating the change
+func sanitiseScmId(scmID string) string {
+	scmID = regexp.MustCompile("^.*@").ReplaceAllLiteralString(scmID, "")
+	scmID = regexp.MustCompile("^https?://").ReplaceAllLiteralString(scmID, "")
+	scmID = strings.TrimSuffix(scmID, ".git")
+	scmID = strings.ReplaceAll(scmID, ":", "/")
 	return scmID
 }
 
