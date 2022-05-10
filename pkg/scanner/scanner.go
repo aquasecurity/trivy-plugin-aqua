@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"golang.org/x/xerrors"
@@ -33,7 +34,7 @@ const (
 )
 
 //go:embed trivy-secret.yaml
-var secretsConfig []byte
+var secretsConfig string
 
 func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 	var initializeScanner artifact.InitializeScanner
@@ -57,7 +58,8 @@ func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 	}
 
 	if hasSecurityCheck(opt.SecurityChecks, trivyTypes.SecurityCheckSecret) {
-		configPath, err := createSecretConfigFile()
+		configPath := filepath.Join(aquaPath, "trivy-secret.yaml")
+		err := writeFile(configPath, secretsConfig)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed creating secret config file")
 		}
@@ -97,26 +99,6 @@ func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 
 	return results, nil
 
-}
-
-func createSecretConfigFile() (string, error) {
-	err := os.MkdirAll(aquaPath, os.ModePerm)
-	if err != nil {
-		return "", errors.Wrap(err, "failed create aqua tmp dir")
-	}
-	f, err := os.CreateTemp(aquaPath, "trivy-secret.yaml")
-	if err != nil {
-		return "", errors.Wrap(err, "failed to create trivy secrets config tmp file")
-	}
-
-	if _, err := f.Write(secretsConfig); err != nil {
-		return "", errors.Wrap(err, "failed to write trivy secrets config tmp file")
-	}
-
-	if err := f.Close(); err != nil {
-		return "", errors.Wrap(err, "failed to close trivy secrets config tmp file")
-	}
-	return f.Name(), nil
 }
 
 func hasSecurityCheck(checks []trivyTypes.SecurityCheck, check trivyTypes.SecurityCheck) bool {
