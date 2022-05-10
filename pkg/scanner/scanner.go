@@ -3,9 +3,11 @@ package scanner
 import (
 	"bytes"
 	"context"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -31,6 +33,9 @@ const (
 	aquaPath    = "/tmp/aqua"
 )
 
+//go:embed trivy-secret.yaml
+var secretsConfig []byte
+
 func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 	var initializeScanner artifact.InitializeScanner
 	switch c.Command.Name {
@@ -50,6 +55,14 @@ func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 	opt, err := createScanOptions(c)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed creating scan options")
+	}
+
+	if hasSecurityCheck(opt.SecurityChecks, trivyTypes.SecurityCheckSecret) {
+		configPath, err := createSecretConfigFile()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed creating secret config file")
+		}
+		opt.SecretOption.SecretConfigPath = configPath
 	}
 
 	err = artifact.Run(c.Context, opt, initializeScanner, initAquaCache())
@@ -85,6 +98,32 @@ func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 
 	return results, nil
 
+}
+
+func createSecretConfigFile() (string, error) {
+	err := os.MkdirAll(aquaPath, os.ModePerm)
+	if err != nil {
+		return "", errors.Wrap(err, "failed create aqua tmp dir")
+	}
+	file, err := ioutil.TempFile(aquaPath, "trivy-secret.yaml")
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create trivy secrets config tmp file")
+	}
+	file.Write(secretsConfig)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to write trivy secrets config tmp file")
+	}
+	file.Close()
+	return file.Name(), nil
+}
+
+func hasSecurityCheck(checks []trivyTypes.SecurityCheck, check trivyTypes.SecurityCheck) bool {
+	for _, c := range checks {
+		if c == check {
+			return true
+		}
+	}
+	return false
 }
 
 // imageScanner initializes a container image scanner in standalone mode
@@ -133,7 +172,7 @@ func filesystemStandaloneScanner(path string) artifact.InitializeScanner {
 			path,
 			config.ArtifactCache,
 			config.LocalArtifactCache,
-			fanalartifact.Option{})
+			config.ArtifactOption)
 		if err != nil {
 			return scanner.Scanner{}, func() {}, xerrors.Errorf("unable to initialize a filesystem scanner: %w", err)
 		}
