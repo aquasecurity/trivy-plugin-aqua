@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Validate YAML file
-        run: yamllint pkg/scanner/trivy-secret.yaml
+        run: yamllint -d relaxed pkg/scanner/trivy-secret.yaml
   
   build:
     name: testing PR build
