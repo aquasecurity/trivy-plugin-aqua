@@ -4,6 +4,13 @@ on:
   pull_request:
 
 jobs:
+  validate-secrets-yaml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Validate YAML file
+        run: yamllint pkg/scanner/trivy-secret.yaml
+  
   build:
     name: testing PR build
     runs-on: ubuntu-latest
