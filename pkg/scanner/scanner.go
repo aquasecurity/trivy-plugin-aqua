@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -105,16 +104,19 @@ func createSecretConfigFile() (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "failed create aqua tmp dir")
 	}
-	file, err := ioutil.TempFile(aquaPath, "trivy-secret.yaml")
+	f, err := os.CreateTemp(aquaPath, "trivy-secret.yaml")
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create trivy secrets config tmp file")
 	}
-	file.Write(secretsConfig)
-	if err != nil {
+
+	if _, err := f.Write(secretsConfig); err != nil {
 		return "", errors.Wrap(err, "failed to write trivy secrets config tmp file")
 	}
-	file.Close()
-	return file.Name(), nil
+
+	if err := f.Close(); err != nil {
+		return "", errors.Wrap(err, "failed to close trivy secrets config tmp file")
+	}
+	return f.Name(), nil
 }
 
 func hasSecurityCheck(checks []trivyTypes.SecurityCheck, check trivyTypes.SecurityCheck) bool {
