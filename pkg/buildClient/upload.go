@@ -28,6 +28,17 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]s
 	buildSystem := metadata.GetBuildSystem()
 
 	run, buildID := metadata.GetBuildInfo(buildSystem)
+	// add tags only if not exist and allow override
+	if _, ok := tags["run"]; !ok {
+		if run != "" {
+			tags["run"] = run
+		}
+	}
+	if _, ok := tags["build_id"]; !ok {
+		if buildID != "" {
+			tags["build_id"] = buildID
+		}
+	}
 
 	createScanReq := &buildsecurity.CreateScanReq{
 		RepositoryID: bc.repoId,
@@ -38,8 +49,6 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]s
 		System:       buildSystem,
 		Tags:         tags,
 		TriggeredBy:  scanner.MatchTriggeredBy(bc.c.String("triggered-by")),
-		Run:          run,
-		BuildID:      buildID,
 	}
 
 	_, err = client.CreateScan(ctx, createScanReq)
