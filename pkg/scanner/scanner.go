@@ -3,10 +3,12 @@ package scanner
 import (
 	"bytes"
 	"context"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"golang.org/x/xerrors"
@@ -31,6 +33,9 @@ const (
 	aquaPath    = "/tmp/aqua"
 )
 
+//go:embed trivy-secret.yaml
+var secretsConfig string
+
 func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 	var initializeScanner artifact.InitializeScanner
 	switch c.Command.Name {
@@ -50,6 +55,15 @@ func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 	opt, err := createScanOptions(c)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed creating scan options")
+	}
+
+	if hasSecurityCheck(opt.SecurityChecks, trivyTypes.SecurityCheckSecret) {
+		configPath := filepath.Join(aquaPath, "trivy-secret.yaml")
+		err := writeFile(configPath, secretsConfig)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed creating secret config file")
+		}
+		opt.SecretOption.SecretConfigPath = configPath
 	}
 
 	err = artifact.Run(c.Context, opt, initializeScanner, initAquaCache())
@@ -85,6 +99,15 @@ func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 
 	return results, nil
 
+}
+
+func hasSecurityCheck(checks []trivyTypes.SecurityCheck, check trivyTypes.SecurityCheck) bool {
+	for _, c := range checks {
+		if c == check {
+			return true
+		}
+	}
+	return false
 }
 
 // imageScanner initializes a container image scanner in standalone mode
@@ -133,7 +156,7 @@ func filesystemStandaloneScanner(path string) artifact.InitializeScanner {
 			path,
 			config.ArtifactCache,
 			config.LocalArtifactCache,
-			fanalartifact.Option{})
+			config.ArtifactOption)
 		if err != nil {
 			return scanner.Scanner{}, func() {}, xerrors.Errorf("unable to initialize a filesystem scanner: %w", err)
 		}
