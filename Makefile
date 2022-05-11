@@ -24,8 +24,8 @@ update-plugin:
 proto:
 	pushd pkg/proto && protoc --twirp_out=. --go_out=. ./buildsecurity.proto
 
-.PHONY: build
-build:
+.PHONY: build-image
+build-image:
 	docker run \
   --rm \
   -e GOARCH=amd64 \
@@ -34,3 +34,14 @@ build:
   -v `pwd`:/build \
   golang:1.18 \
   go build -o bin/aqua cmd/aqua/main.go|| exit 1
+
+.PHONY: test-image
+test-image:
+	docker run \
+  --rm \
+  -e GOARCH=amd64 \
+  -e GOOS=linux \
+  -w /build \
+  -v `pwd`:/build \
+  golang:1.18 \
+  go test -v ./...|| exit 1

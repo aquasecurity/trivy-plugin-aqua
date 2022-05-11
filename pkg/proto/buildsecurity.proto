@@ -44,8 +44,6 @@ message CreateScanReq {
   repeated Result Results = 7;
   map<string, string> Tags = 8;
   TriggeredByEnum TriggeredBy = 9;
-  string Run = 10;
-  string BuildID = 11;
 }
 
 enum TriggeredByEnum {
