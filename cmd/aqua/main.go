@@ -91,6 +91,10 @@ func main() {
 			Usage:   "Add this flag to determine where the scan is coming from (push, pr, offline)",
 			EnvVars: []string{"TRIGGERED_BY"},
 		},
+		&cli.StringSliceFlag{
+			Name:  "tags",
+			Usage: "Add this flag for key:val pairs as scan metadata",
+		},
 	)
 
 	imageCmd := commands.NewImageCommand()
@@ -188,12 +192,28 @@ func runScan(c *cli.Context) error {
 	}
 
 	if !c.Bool("skip-result-upload") {
+		if c.String("tags") != "" {
+			tags = convertToTags(c.StringSlice("tags"))
+		}
 		if err := uploader.Upload(client, processedResults, tags); err != nil {
 			return err
 		}
 	}
 
 	return checkPolicyResults(c, processedResults)
+}
+
+func convertToTags(t []string) (tags map[string]string) {
+	tags = make(map[string]string)
+	for _, v := range t {
+		if strings.Contains(v, ":") {
+			tag := strings.Split(v, ":")
+			if tag[0] != "" && tag[1] != "" {
+				tags[tag[0]] = tag[1]
+			}
+		}
+	}
+	return tags
 }
 
 func createIgnoreFile(c *cli.Context, checkSupIDMap map[string]string, fileName string) error {
