@@ -19,7 +19,11 @@ func Test_hasSecurityCheck(t *testing.T) {
 		{
 			name: "happy path - contains",
 			args: args{
-				slice: []types.SecurityCheck{types.SecurityCheckVulnerability, types.SecurityCheckSecret, types.SecurityCheckConfig},
+				slice: []types.SecurityCheck{
+					types.SecurityCheckVulnerability,
+					types.SecurityCheckSecret,
+					types.SecurityCheckConfig,
+				},
 				value: types.SecurityCheckSecret,
 			},
 			want: true,
