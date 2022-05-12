@@ -48,15 +48,11 @@ func writeFile(path, content string) error {
 // Create folders with head and base for diff scanning
 func createDiffScanFs() error {
 	var fileName string
-	err := os.MkdirAll(aquaPath, os.ModePerm)
-	if err != nil {
-		return errors.Wrap(err, "failed create aqua tmp dir")
-	}
 
 	// In GitHub we need fetch the remote branch first
 	if os.Getenv("GITHUB_BASE_REF") != "" {
 		// In GitHub trivy action container we need safe directory to run git fetch
-		_, err = gitExec("config", "--global", "--add", "safe.directory", "/github/workspace")
+		_, err := gitExec("config", "--global", "--add", "safe.directory", "/github/workspace")
 		if err != nil {
 			return errors.Wrap(err, "failed git fetch ref")
 		}
