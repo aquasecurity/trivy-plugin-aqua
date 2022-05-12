@@ -38,6 +38,10 @@ var secretsConfig string
 
 func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 	var initializeScanner artifact.InitializeScanner
+	err := os.MkdirAll(aquaPath, os.ModePerm)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed create aqua tmp dir")
+	}
 	switch c.Command.Name {
 	case "image":
 		initializeScanner = imageScanner(path)
@@ -58,10 +62,6 @@ func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 	}
 
 	if hasSecurityCheck(opt.SecurityChecks, trivyTypes.SecurityCheckSecret) {
-		err := os.MkdirAll(aquaPath, os.ModePerm)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed create aqua tmp dir")
-		}
 		configPath := filepath.Join(aquaPath, "trivy-secret.yaml")
 		err = writeFile(configPath, secretsConfig)
 		if err != nil {
