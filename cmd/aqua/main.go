@@ -29,7 +29,7 @@ var (
 func main() {
 	app := cli.NewApp()
 	app.Name = "aqua"
-	app.Version = "0.0.1"
+	app.Version = "0.27.1"
 	app.ArgsUsage = "target"
 	app.Usage = "A simple and comprehensive vulnerability scanner for containers"
 	app.EnableBashCompletion = true
@@ -110,6 +110,9 @@ func main() {
 			EnvVars: []string{"TRIVY_QUIET"},
 		})
 
+	versionCmd := commands.NewVersionCommand()
+	versionCmd.Usage = "print the version of the trivy import library"
+
 	app.Commands = []*cli.Command{
 		fsCmd,
 		configCmd,
@@ -119,6 +122,7 @@ func main() {
 		commands.NewRepositoryCommand(),
 		commands.NewRootfsCommand(),
 		commands.NewServerCommand(),
+		versionCmd,
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Logger.Error(err)
