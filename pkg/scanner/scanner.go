@@ -29,8 +29,8 @@ import (
 )
 
 const (
-	resultsFile = "results.json"
 	aquaPath    = "/tmp/aqua"
+	resultsFile = aquaPath + "/results.json"
 )
 
 //go:embed trivy-secret.yaml
@@ -98,7 +98,7 @@ func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 		return nil, errors.Wrap(err, "failed unmarshaling results file")
 	}
 
-	// Cleanup tmp diff dir
+	// Cleanup aqua tmp dir
 	defer os.RemoveAll(aquaPath)
 
 	return results, nil
