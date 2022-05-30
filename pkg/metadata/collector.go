@@ -264,15 +264,15 @@ func lastLogsHead(scanPath string) (s []string, err error) {
 // GetBuildInfo the vendor build run number and id
 func GetBuildInfo(buildSystem string) (run string, buildID string) {
 	switch buildSystem {
-	case github:
+	case Github:
 		return os.Getenv("GITHUB_RUN_NUMBER"), os.Getenv("GITHUB_RUN_ID")
-	case bitbucket:
+	case Bitbucket:
 		return os.Getenv("BITBUCKET_BUILD_NUMBER"), os.Getenv("BITBUCKET_PR_ID")
-	case gitlab:
+	case Gitlab:
 		return os.Getenv("CI_JOB_ID"), os.Getenv("CI_MERGE_REQUEST_IID")
-	case azure:
+	case Azure:
 		return os.Getenv("BUILD_BUILDID"), os.Getenv("SYSTEM_PULLREQUEST_PULLREQUESTID")
-	case jenkins:
+	case Jenkins:
 		return os.Getenv("BUILD_ID"), os.Getenv("BUILD_NUMBER")
 	default:
 		return "", ""

@@ -9,17 +9,17 @@ import (
 func GetBaseRef() (r string) {
 	buildSystem := GetBuildSystem()
 	switch buildSystem {
-	case azure:
+	case Azure:
 		return fmt.Sprintf(
 			"origin/%s",
 			strings.ReplaceAll(os.Getenv("SYSTEM_PULLREQUEST_TARGETBRANCH"), "refs/heads/", ""))
-	case bitbucket:
+	case Bitbucket:
 		return os.Getenv("BITBUCKET_PR_DESTINATION_COMMIT")
-	case github:
+	case Github:
 		return "FETCH_HEAD"
-	case gitlab:
+	case Gitlab:
 		return os.Getenv("CI_MERGE_REQUEST_DIFF_BASE_SHA")
-	case jenkins:
+	case Jenkins:
 		return fmt.Sprintf("origin/%s", os.Getenv("CHANGE_TARGET"))
 	default:
 		return "origin/master"
