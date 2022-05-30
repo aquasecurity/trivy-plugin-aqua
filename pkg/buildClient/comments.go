@@ -3,15 +3,16 @@ package buildClient
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/github"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/gitlab"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
-	"io/ioutil"
-	"os"
-	"strconv"
-	"strings"
 )
 
 // prComments send results PR comments
@@ -93,7 +94,9 @@ func getGitHubRepositoryDetails() (owner, repo string, err error) {
 	r := os.Getenv("GITHUB_REPOSITORY")
 	s := strings.Split(r, "/")
 	if len(s) != 2 {
-		return owner, repo, fmt.Errorf("failed unexpected value for GITHUB_REPOSITORY. Expected <organisation/name>, found %v", r)
+		return owner, repo,
+			fmt.Errorf("failed unexpected value for GITHUB_REPOSITORY."+
+				" Expected <organisation/name>, found %v", r)
 	}
 
 	return s[0], s[1], nil
