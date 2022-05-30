@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/github"
+	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/gitlab"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"io/ioutil"
@@ -34,6 +35,12 @@ func prComments(buildSystem string, result []*buildsecurity.Result) error {
 			return err
 		}
 		c = commenter.Repository(r)
+	case metadata.Gitlab:
+		r, err := gitlab.NewGitlab(os.Getenv("GITLAB_TOKEN"))
+		if err != nil {
+			return err
+		}
+		c = commenter.Repository(r)
 	default:
 		return nil
 	}
@@ -43,15 +50,13 @@ func prComments(buildSystem string, result []*buildsecurity.Result) error {
 		case buildsecurity.Result_TYPE_TERRAFORM, buildsecurity.Result_TYPE_CLOUDFORMATION,
 			buildsecurity.Result_TYPE_KUBERNETES, buildsecurity.Result_TYPE_DOCKERFILE,
 			buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML:
-			comment := returnMisconfMsg(r)
-			err := c.WriteMultiLineComment(r.Filename, comment, int(r.StartLine), int(r.EndLine))
+			err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r), int(r.StartLine), int(r.EndLine))
 			if err != nil {
 				return fmt.Errorf("failed write misconfiguration comment: %w", err)
 			}
 
 		case buildsecurity.Result_TYPE_SECRETS:
-			comment := returnSecretMsg(r)
-			err := c.WriteMultiLineComment(r.Filename, comment, int(r.StartLine), int(r.EndLine))
+			err := c.WriteMultiLineComment(r.Filename, returnSecretMsg(r), int(r.StartLine), int(r.EndLine))
 			if err != nil {
 				return fmt.Errorf("failed write secret findings comment: %w", err)
 			}
