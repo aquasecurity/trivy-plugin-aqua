@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
@@ -29,6 +31,7 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]s
 
 	run, buildID := metadata.GetBuildInfo(buildSystem)
 
+	triggeredBy := bc.c.String("triggered-by")
 	createScanReq := &buildsecurity.CreateScanReq{
 		RepositoryID: bc.repoId,
 		Results:      results,
@@ -37,7 +40,7 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]s
 		Commit:       commitId,
 		System:       buildSystem,
 		Tags:         tags,
-		TriggeredBy:  scanner.MatchTriggeredBy(bc.c.String("triggered-by")),
+		TriggeredBy:  scanner.MatchTriggeredBy(triggeredBy),
 		Run:          run,
 		BuildID:      buildID,
 	}
@@ -46,5 +49,14 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]s
 	if err != nil {
 		return fmt.Errorf("failed sending results with error: %w", err)
 	}
+
+	// Send pull request comments
+	if triggeredBy == "pr" && len(results) > 0 {
+		err = prComments(buildSystem, results)
+		if err != nil {
+			log.Logger.Info("failed send PR comment logging and continue the scan err: ", err)
+		}
+	}
+
 	return nil
 }
