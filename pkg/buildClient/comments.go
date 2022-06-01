@@ -68,7 +68,7 @@ func prComments(buildSystem string, result []*buildsecurity.Result) error {
 }
 
 func returnSecretMsg(r *buildsecurity.Result) string {
-	return fmt.Sprintf("### :warning:  Aqua found issue"+
+	return fmt.Sprintf("### :warning: Aqua detected sensitive data in your code"+
 		"\n<b>CATEGORY:</b> %s "+
 		"\n<b>DESCRIPTION:</b> %s "+
 		"\n<b>SEVERITY:</b> %s "+
@@ -79,7 +79,7 @@ func returnSecretMsg(r *buildsecurity.Result) string {
 		r.Message)
 }
 func returnMisconfMsg(r *buildsecurity.Result) string {
-	return fmt.Sprintf("### :warning:  Aqua found issue "+
+	return fmt.Sprintf("### :warning: Aqua detected misconfiguration in your code"+
 		"\n<b>MISCONF ID:</b> %s "+
 		"\n<b>CHECK:</b> %s "+
 		"\n<b>SEVERITY:</b> %s "+
@@ -104,7 +104,7 @@ func getGitHubRepositoryDetails() (owner, repo string, err error) {
 
 // extractGitHubActionPrNumber take the pull request number from the GitHub action run
 func extractGitHubActionPrNumber() (int, error) {
-	githubEventFile := "/github/workflow/event.json"
+	githubEventFile := os.Getenv("GITHUB_EVENT_PATH")
 	file, err := ioutil.ReadFile(githubEventFile)
 	if err != nil {
 		return 0, fmt.Errorf("failed gitHub event payload not found in %s", githubEventFile)

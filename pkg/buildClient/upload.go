@@ -51,7 +51,7 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]s
 	}
 
 	// Send pull request comments
-	if triggeredBy == "pr" && len(results) > 0 {
+	if triggeredBy == "PR" && len(results) > 0 {
 		err = prComments(buildSystem, results)
 		if err != nil {
 			log.Logger.Info("failed send PR comment logging and continue the scan err: ", err)
