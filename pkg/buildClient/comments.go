@@ -69,10 +69,10 @@ func prComments(buildSystem string, result []*buildsecurity.Result) error {
 
 func returnSecretMsg(r *buildsecurity.Result) string {
 	return fmt.Sprintf("### :warning: Aqua detected sensitive data in your code"+
-		"\n<b>Category:</b> %s "+
-		"\n<b>Description:</b> %s "+
-		"\n<b>Severity:</b> %s "+
-		"\n<b>Match:</b> %s",
+		"  \n**Category:** %s "+
+		"  \n**Description:** %s "+
+		"  \n**Severity:** %s "+
+		"  \n**Match:** %s",
 		r.Resource,
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
@@ -80,10 +80,10 @@ func returnSecretMsg(r *buildsecurity.Result) string {
 }
 func returnMisconfMsg(r *buildsecurity.Result) string {
 	return fmt.Sprintf("### :warning: Aqua detected misconfiguration in your code"+
-		"\n<b>Misconfiguration ID:</b> %s "+
-		"\n<b>Check Name:</b> %s "+
-		"\n<b>Severity:</b> %s "+
-		"\n<b>Message:</b> %s",
+		"  \n**Misconfiguration ID:** %s "+
+		"  \n**Check Name:** %s "+
+		"  \n**Severity:** %s "+
+		"  \n**Message:** %s",
 		r.AVDID,
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
