@@ -57,6 +57,10 @@ func Get(scanPath string, c *cli.Context) (Client, error) {
 		return nil, fmt.Errorf("could not find the AQUA_SECRET environment variable")
 	}
 
+	if aquaKey == "" || aquaSecret == "" {
+		return nil, fmt.Errorf("could not continue with empty value for AQUA_KEY or AQUA_SECRET environment variables")
+	}
+
 	log.Logger.Debugf("Logging in to CSPM")
 	jwtToken, err := obtainJWT(aquaKey, aquaSecret, cspmURL)
 	if err != nil {
