@@ -44,8 +44,7 @@ func prComments(buildSystem string, result []*buildsecurity.Result) error {
 		}
 		c = commenter.Repository(r)
 	case metadata.Azure:
-		r, err := azure.NewAzure(os.Getenv("AZURE_TOKEN"),
-			os.Getenv("AZURE_ORGANIZATION"))
+		r, err := azure.NewAzure(os.Getenv("AZURE_TOKEN"))
 		if err != nil {
 			return err
 		}
