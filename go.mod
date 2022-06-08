@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/aquasecurity/fanal v0.0.0-20220503163617-7b81bb08565f
 	github.com/aquasecurity/go-dep-parser v0.0.0-20220503151658-d316f5cc2cff
-	github.com/aquasecurity/go-git-pr-commenter v0.0.0-20220602114622-264c8b5aadff
+	github.com/aquasecurity/go-git-pr-commenter v0.0.0-20220608143155-fb7cd6a42bdd
 	github.com/aquasecurity/trivy v0.27.1-0.20220426130527-b6baa65ff20b
 	github.com/aquasecurity/trivy-db v0.0.0-20220327074450-74195d9604b2
 	github.com/mitchellh/mapstructure v1.5.0
