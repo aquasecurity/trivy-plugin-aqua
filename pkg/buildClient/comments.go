@@ -10,6 +10,7 @@ import (
 
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/azure"
+	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/bitbucket"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/github"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/gitlab"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
@@ -45,6 +46,12 @@ func prComments(buildSystem string, result []*buildsecurity.Result) error {
 		c = commenter.Repository(r)
 	case metadata.Azure:
 		r, err := azure.NewAzure(os.Getenv("AZURE_TOKEN"))
+		if err != nil {
+			return err
+		}
+		c = commenter.Repository(r)
+	case metadata.Bitbucket:
+		r, err := bitbucket.NewBitbucket(os.Getenv("BITBUCKET_USER"), os.Getenv("BITBUCKET_TOKEN"))
 		if err != nil {
 			return err
 		}
