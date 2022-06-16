@@ -71,6 +71,7 @@ message PolicyControl {
   string Service = 2;
   repeated string AVDIDs = 3;
   SeverityEnum Severity = 4;
+  ScanTypeEnum ScanType = 5;
 }
 
 message PolicyResult {
@@ -133,4 +134,10 @@ message VendorScoring {
 enum PolicyTypeEnum {
   POLICY_TYPE_POLICY = 0;
   POLICY_TYPE_SUPPRESSION = 1;
+}
+
+enum ScanTypeEnum {
+  SCAN_TYPE_MISCONFIGURATION = 0;
+  SCAN_TYPE_VULNERABILITY = 1;
+  SCAN_TYPE_SECRET = 2;
 }
