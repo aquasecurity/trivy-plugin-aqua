@@ -200,6 +200,40 @@ func Test_process_results_with_results_with_matching_policies_severity_level(t *
 	assert.Len(t, submitResults, 1)
 }
 
+func Test_process_results_with_results_with_matching_policies_severity_level_but_different_scan_type(t *testing.T) {
+
+	client := FakeClient{}
+
+	results := types.Results{
+		{
+			Target: "main.tf",
+			Class:  types.ClassConfig,
+			Misconfigurations: []types.DetectedMisconfiguration{
+				{
+					Type:     "terraform",
+					ID:       "AVD-AWS-0001",
+					Severity: "HIGH",
+					Status:   "FAIL",
+					Layer:    ftypes.Layer{},
+					IacMetadata: ftypes.IacMetadata{
+						Resource: "aws_instance",
+						Provider: "AWS",
+						Service:  "ec2",
+					},
+				},
+			},
+		},
+	}
+	policies, _ := client.GetPolicyForRepositoryWithVulnControl()
+
+	submitResults := processor.ProcessResults(results, policies, nil)
+
+	assert.Len(t, submitResults, 1)
+	assert.Len(t, submitResults[0].PolicyResults, 1)
+	assert.Equal(t, false, submitResults[0].PolicyResults[0].Failed)
+
+}
+
 func Test_process_results_with_results_with_matching_policies_severity_level_greater_than_specified(t *testing.T) {
 
 	client := FakeClient{}
