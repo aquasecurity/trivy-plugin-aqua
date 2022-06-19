@@ -13,7 +13,7 @@ require (
 	github.com/stretchr/testify v1.7.2
 	github.com/thoas/go-funk v0.9.2
 	github.com/twitchtv/twirp v8.1.2+incompatible
-	github.com/urfave/cli/v2 v2.8.1
+	github.com/urfave/cli/v2 v2.10.1
 	go.uber.org/zap v1.21.0
 	golang.org/x/exp v0.0.0-20220407100705-7b9b53b0aca4
 	golang.org/x/text v0.3.7
