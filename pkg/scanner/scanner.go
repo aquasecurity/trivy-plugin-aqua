@@ -3,18 +3,18 @@ package scanner
 import (
 	_ "embed"
 	"fmt"
-	"golang.org/x/exp/slices"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/pkg/errors"
+	"github.com/urfave/cli/v2"
+	"golang.org/x/exp/slices"
 	"golang.org/x/xerrors"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
-	"github.com/pkg/errors"
-	"github.com/urfave/cli/v2"
 )
 
 const aquaPath = "/tmp/aqua"
@@ -38,7 +38,7 @@ func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 
 	if slices.Contains(opt.SecurityChecks, trivyTypes.SecurityCheckSecret) {
 		configPath := filepath.Join(aquaPath, "trivy-secret.yaml")
-		if err = os.WriteFile(configPath, []byte(secretsConfig), 0666); err != nil {
+		if err = os.WriteFile(configPath, []byte(secretsConfig), 0600); err != nil {
 			return nil, errors.Wrap(err, "failed creating secret config file")
 		}
 		opt.SecretOption.SecretConfigPath = configPath
