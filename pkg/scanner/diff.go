@@ -26,6 +26,7 @@ func gitExec(args ...string) (out string, err error) {
 
 	return string(output), nil
 }
+
 func writeFile(path, content string) error {
 	f, err := os.Create(path)
 	if err != nil {
