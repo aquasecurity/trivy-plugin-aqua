@@ -37,7 +37,7 @@ func Test_process_results_with_results_but_not_matching_policies(t *testing.T) {
 					Severity: "MEDIUM",
 					Status:   "FAIL",
 					Layer:    ftypes.Layer{},
-					IacMetadata: ftypes.IacMetadata{
+					CauseMetadata: ftypes.CauseMetadata{
 						Resource: "aws_security_group_rule",
 						Provider: "AWS",
 						Service:  "vpc",
@@ -88,7 +88,7 @@ func Test_process_results_with_results_with_matching_policies_and_suppressions(t
 					Severity: "HIGH",
 					Status:   "FAIL",
 					Layer:    ftypes.Layer{},
-					IacMetadata: ftypes.IacMetadata{
+					CauseMetadata: ftypes.CauseMetadata{
 						Resource: "aws_s3_bucket",
 						Provider: "AWS",
 						Service:  "s3",
@@ -107,7 +107,7 @@ func Test_process_results_with_results_with_matching_policies_and_suppressions(t
 					Severity: "HIGH",
 					Status:   "FAIL",
 					Layer:    ftypes.Layer{},
-					IacMetadata: ftypes.IacMetadata{
+					CauseMetadata: ftypes.CauseMetadata{
 						Resource: "aws_s3_bucket",
 						Provider: "AWS",
 						Service:  "s3",
@@ -153,7 +153,7 @@ func Test_process_results_with_results_with_no_matching_policies_severity_level(
 					Severity: "LOW",
 					Status:   "FAIL",
 					Layer:    ftypes.Layer{},
-					IacMetadata: ftypes.IacMetadata{
+					CauseMetadata: ftypes.CauseMetadata{
 						Resource: "aws_instance",
 						Provider: "AWS",
 						Service:  "ec2",
@@ -184,7 +184,7 @@ func Test_process_results_with_results_with_matching_policies_severity_level(t *
 					Severity: "HIGH",
 					Status:   "FAIL",
 					Layer:    ftypes.Layer{},
-					IacMetadata: ftypes.IacMetadata{
+					CauseMetadata: ftypes.CauseMetadata{
 						Resource: "aws_instance",
 						Provider: "AWS",
 						Service:  "ec2",
@@ -215,7 +215,7 @@ func Test_process_results_with_results_with_matching_policies_severity_level_but
 					Severity: "HIGH",
 					Status:   "FAIL",
 					Layer:    ftypes.Layer{},
-					IacMetadata: ftypes.IacMetadata{
+					CauseMetadata: ftypes.CauseMetadata{
 						Resource: "aws_instance",
 						Provider: "AWS",
 						Service:  "ec2",
@@ -249,7 +249,7 @@ func Test_process_results_with_results_with_matching_policies_severity_level_gre
 					Severity: "CRITICAL",
 					Status:   "FAIL",
 					Layer:    ftypes.Layer{},
-					IacMetadata: ftypes.IacMetadata{
+					CauseMetadata: ftypes.CauseMetadata{
 						Resource: "aws_instance",
 						Provider: "AWS",
 						Service:  "ec2",
