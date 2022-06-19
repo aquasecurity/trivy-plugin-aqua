@@ -263,8 +263,8 @@ func addMisconfigurationResults(rep types.Result,
 		var r buildsecurity.Result
 		resource := fmt.Sprintf("%s Resource", cases.Title(language.English).String(rep.Type))
 
-		if miscon.IacMetadata.Resource != "" {
-			resource = miscon.IacMetadata.Resource
+		if miscon.CauseMetadata.Resource != "" {
+			resource = miscon.CauseMetadata.Resource
 		}
 
 		policyId, suppressedId := checkSupIDMap[miscon.ID]
@@ -281,8 +281,8 @@ func addMisconfigurationResults(rep types.Result,
 			r.Message = miscon.Message
 			r.Resource = resource
 			r.Severity = scanner.MatchResultSeverity(miscon.Severity)
-			r.StartLine = int32(miscon.IacMetadata.StartLine)
-			r.EndLine = int32(miscon.IacMetadata.EndLine)
+			r.StartLine = int32(miscon.CauseMetadata.StartLine)
+			r.EndLine = int32(miscon.CauseMetadata.EndLine)
 			r.Filename = rep.Target
 			r.Type = scanner.MatchResultType(rep.Type)
 
@@ -298,7 +298,7 @@ func checkMisconfAgainstPolicies(
 	filename string) (
 	results []*buildsecurity.PolicyResult) {
 
-	location := fmt.Sprintf("%s#L%d-%d", filename, miscon.IacMetadata.StartLine, miscon.IacMetadata.EndLine)
+	location := fmt.Sprintf("%s#L%d-%d", filename, miscon.CauseMetadata.StartLine, miscon.CauseMetadata.EndLine)
 
 	for _, policy := range policies {
 		controls := policy.GetControls()
@@ -311,9 +311,9 @@ func checkMisconfAgainstPolicies(
 			}
 
 			failed, reasons = checkAgainstSeverity(miscon.Severity, miscon.ID, control, failed, reasons, location)
-			if len(control.AVDIDs) == 0 && (miscon.IacMetadata.Provider != "" || miscon.IacMetadata.Service != "") {
+			if len(control.AVDIDs) == 0 && (miscon.CauseMetadata.Provider != "" || miscon.CauseMetadata.Service != "") {
 
-				if strings.EqualFold(control.Provider, miscon.IacMetadata.Provider) &&
+				if strings.EqualFold(control.Provider, miscon.CauseMetadata.Provider) &&
 					control.Service == "" {
 					failed = true
 					reasons = append(
@@ -321,8 +321,8 @@ func checkMisconfAgainstPolicies(
 						fmt.Sprintf("[%s] Provider specific control breach %s [%s]", miscon.ID, control.Provider, location))
 				}
 
-				if strings.EqualFold(control.Provider, miscon.IacMetadata.Provider) &&
-					strings.EqualFold(control.Service, miscon.IacMetadata.Service) {
+				if strings.EqualFold(control.Provider, miscon.CauseMetadata.Provider) &&
+					strings.EqualFold(control.Service, miscon.CauseMetadata.Service) {
 					failed = true
 					reasons = append(
 						reasons,
