@@ -94,6 +94,7 @@ message Result {
     TYPE_HCL = 6;
     TYPE_VULNERABILITIES = 7;
     TYPE_SECRETS = 8;
+    TYPE_HELM = 9;
   }
   TypeEnum Type = 4;
   SeverityEnum Severity = 5;
