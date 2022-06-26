@@ -61,23 +61,24 @@ func prComments(buildSystem string, result []*buildsecurity.Result) error {
 	}
 
 	for _, r := range result {
-		switch r.Type {
-		case buildsecurity.Result_TYPE_TERRAFORM, buildsecurity.Result_TYPE_CLOUDFORMATION,
-			buildsecurity.Result_TYPE_KUBERNETES, buildsecurity.Result_TYPE_DOCKERFILE,
-			buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML:
-			err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r), int(r.StartLine), int(r.EndLine))
-			if err != nil {
-				return fmt.Errorf("failed write misconfiguration comment: %w", err)
-			}
+		if r.SuppressionID == "" {
+			switch r.Type {
+			case buildsecurity.Result_TYPE_TERRAFORM, buildsecurity.Result_TYPE_CLOUDFORMATION,
+				buildsecurity.Result_TYPE_KUBERNETES, buildsecurity.Result_TYPE_DOCKERFILE,
+				buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML:
+				err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r), int(r.StartLine), int(r.EndLine))
+				if err != nil {
+					return fmt.Errorf("failed write misconfiguration comment: %w", err)
+				}
 
-		case buildsecurity.Result_TYPE_SECRETS:
-			err := c.WriteMultiLineComment(r.Filename, returnSecretMsg(r), int(r.StartLine), int(r.EndLine))
-			if err != nil {
-				return fmt.Errorf("failed write secret findings comment: %w", err)
+			case buildsecurity.Result_TYPE_SECRETS:
+				err := c.WriteMultiLineComment(r.Filename, returnSecretMsg(r), int(r.StartLine), int(r.EndLine))
+				if err != nil {
+					return fmt.Errorf("failed write secret findings comment: %w", err)
+				}
 			}
 		}
 	}
-
 	return nil
 }
 
