@@ -1,21 +1,26 @@
 package export
 
 import (
-	"encoding/json"
-	"os"
+    "encoding/json"
+    "github.com/aquasecurity/trivy/pkg/types"
+    "os"
 
-	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
+    "github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
 
 type File struct {
-	Results []*buildsecurity.Result `json:"Results"`
+    Report  *types.Report
+    Results []*buildsecurity.Result `json:"Results"`
 }
 
-func AssuranceData(path string, results []*buildsecurity.Result) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer func() { _ = f.Close() }()
-	return json.NewEncoder(f).Encode(File{Results: results})
+func AssuranceData(path string, report *types.Report, results []*buildsecurity.Result) error {
+    f, err := os.Create(path)
+    if err != nil {
+        return err
+    }
+    defer func() { _ = f.Close() }()
+    return json.NewEncoder(f).Encode(File{
+        Report:  report,
+        Results: results,
+    })
 }
