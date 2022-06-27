@@ -166,8 +166,8 @@ github.com/apparentlymart/go-textseg v1.0.0/go.mod h1:z96Txxhf3xSFMPmb5X/1W05FF/
 github.com/apparentlymart/go-textseg/v13 v13.0.0 h1:Y+KvPE1NYz0xl601PVImeQfFyEy6iT90AvPUL1NNfNw=
 github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkEghdlcqw7yxLeM89kiTRPUo=
 github.com/aquasecurity/bolt-fixtures v0.0.0-20200903104109-d34e7f983986 h1:2a30xLN2sUZcMXl50hg+PJCIDdJgIvIbVcKqLJ/ZrtM=
-github.com/aquasecurity/defsec v0.68.1 h1:lA82T2AqFQLqmof+Cfi9YUP8jSqoQMfxe06pIZDjeuo=
-github.com/aquasecurity/defsec v0.68.1/go.mod h1:xUmN8mHLF2RCITp9v6HH+vkqfnfAX6BsIC5pbCwzg9k=
+github.com/aquasecurity/defsec v0.68.3 h1:fVjPBPDcgxHubEZiMihlnPxoY40jOWzCgG2Q1Vrak4o=
+github.com/aquasecurity/defsec v0.68.3/go.mod h1:m59o8MPMXFbMgulxFOvFRW8tVg4gcnqZ9Gi3uvd/6zg=
 github.com/aquasecurity/fanal v0.0.0-20220615115521-e411bc995c6d h1:PK31RZ2JDs0QxVC0NjinSR1GDK8nrGDgR2b9ibMm1n4=
 github.com/aquasecurity/fanal v0.0.0-20220615115521-e411bc995c6d/go.mod h1:Fs7BQdSZ6pFVOKTmSjvFmCljrG2Mi87XikdOeaAoiPM=
 github.com/aquasecurity/go-dep-parser v0.0.0-20220607141748-ab2deea55bdf h1:LE3sTKuErkJqkNsPOYvbPb/3VOKKZKyjqBQla1KBL0k=
@@ -186,8 +186,8 @@ github.com/aquasecurity/go-version v0.0.0-20210121072130-637058cfe492/go.mod h1:
 github.com/aquasecurity/table v1.5.1 h1:y05AuHM3p4BGybbGn/XbcTX3RxpyzeTXAXYMcJve4IE=
 github.com/aquasecurity/table v1.5.1/go.mod h1:1MFKrEPJ8NchM917BrVGvsqoXJo1OL1Ja7dF3PgUea4=
 github.com/aquasecurity/testdocker v0.0.0-20210911155206-e1e85f5a1516 h1:moQmzbpLo5dxHQCyEhqzizsDSNrNhn/7uRTCZzo4A1o=
-github.com/aquasecurity/trivy v0.29.0 h1:u7JaIlHXyNxjqExQVYRCieDEs+tQidq1k6GQ5kvqFHw=
-github.com/aquasecurity/trivy v0.29.0/go.mod h1:rY7quMwE0sUPbMlnhtw/IbNqndKpGDpp3imUyojTmww=
+github.com/aquasecurity/trivy v0.29.2 h1:pEiUkyG/FYo2cblE2o614ltkQj165hHANJFlavCo3dk=
+github.com/aquasecurity/trivy v0.29.2/go.mod h1:SgYyLWGbomLUeP2YubM3WCAT7e71QVu5PmBCqfqjPzA=
 github.com/aquasecurity/trivy-db v0.0.0-20220602091213-39d8a6798e07 h1:EZfv20xfeW4Pj3yOjdzc+PnVvxJYgY7a0E0F3ewRsLI=
 github.com/aquasecurity/trivy-db v0.0.0-20220602091213-39d8a6798e07/go.mod h1:/nULgnDeq/JMPMVwE1dmf4kWlYn++7VrM3O2naj4BHA=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220613131930-79b2cb425b18 h1:91lBgoQCfXpAV8UtyeNCh4fId4VuMDFz+++iO9zz2do=
@@ -687,8 +687,8 @@ github.com/hashicorp/errwrap v1.1.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brv
 github.com/hashicorp/go-cleanhttp v0.5.1/go.mod h1:JpRdi6/HCYpAwUzNwuwqhbovhLtngrth3wmdIIUrZ80=
 github.com/hashicorp/go-cleanhttp v0.5.2 h1:035FKYIWjmULyFRBKPs8TBQoi0x6d9G4xc9neXJWAZQ=
 github.com/hashicorp/go-cleanhttp v0.5.2/go.mod h1:kO/YDlP8L1346E6Sodw+PrpBSV4/SoxCXGY6BqNFT48=
-github.com/hashicorp/go-getter v1.6.1 h1:NASsgP4q6tL94WH6nJxKWj8As2H/2kop/bB1d8JMyRY=
-github.com/hashicorp/go-getter v1.6.1/go.mod h1:IZCrswsZPeWv9IkVnLElzRU/gz/QPi6pZHn4tv6vbwA=
+github.com/hashicorp/go-getter v1.6.2 h1:7jX7xcB+uVCliddZgeKyNxv0xoT7qL5KDtH7rU4IqIk=
+github.com/hashicorp/go-getter v1.6.2/go.mod h1:IZCrswsZPeWv9IkVnLElzRU/gz/QPi6pZHn4tv6vbwA=
 github.com/hashicorp/go-hclog v0.9.2 h1:CG6TE5H9/JXsFWJCfoIVpKFIkFe6ysEuHirp4DxCsHI=
 github.com/hashicorp/go-hclog v0.9.2/go.mod h1:5CU+agLiy3J7N7QjHK5d05KxGsuXiQLrjA0H7acj2lQ=
 github.com/hashicorp/go-immutable-radix v1.0.0/go.mod h1:0y9vanUI8NX6FsYoO3zeMjhV/C5i9g4Q3DwcSNZ4P60=
