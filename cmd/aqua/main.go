@@ -15,13 +15,14 @@ import (
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/buildClient"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/processor"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/uploader"
 	"github.com/aquasecurity/trivy/pkg/commands"
-	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -209,6 +210,14 @@ func runScan(c *cli.Context) error {
 	if assuranceExportPath := os.Getenv("AQUA_ASSURANCE_EXPORT"); assuranceExportPath != "" {
 		if err := export.AssuranceData(assuranceExportPath, report, processedResults); err != nil {
 			return err
+		}
+	}
+
+	if reportExportPath := c.String("output"); reportExportPath != "" {
+		if c.String("format") == "json" {
+			if err := export.Report(reportExportPath, report); err != nil {
+				return err
+			}
 		}
 	}
 
