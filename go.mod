@@ -3,7 +3,6 @@ module github.com/aquasecurity/trivy-plugin-aqua
 go 1.18
 
 require (
-	github.com/aquasecurity/fanal v0.0.0-20220615115521-e411bc995c6d
 	github.com/aquasecurity/go-dep-parser v0.0.0-20220607141748-ab2deea55bdf
 	github.com/aquasecurity/go-git-pr-commenter v0.0.0-20220613143131-11d7592d121f
 	github.com/aquasecurity/trivy v0.29.2

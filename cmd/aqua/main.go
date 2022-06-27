@@ -7,6 +7,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/export"
+
 	"github.com/aquasecurity/trivy/pkg/types"
 
 	"strings"
@@ -178,19 +180,19 @@ func runScan(c *cli.Context) error {
 			return err
 		}
 	}
-	results, err := scanner.Scan(c, scanPath)
+	report, err := scanner.Scan(c, scanPath)
 	if err != nil {
 		return err
 	}
 
 	if c.String("triggered-by") == "PR" {
-		results, err = processor.PrDiffResults(results)
+		report.Results, err = processor.PrDiffResults(report.Results)
 		if err != nil {
 			return err
 		}
 	}
 
-	processedResults := processor.ProcessResults(results, policies, checkSupIDMap)
+	processedResults := processor.ProcessResults(report.Results, policies, checkSupIDMap)
 	if err != nil {
 		return err
 	}
@@ -200,6 +202,12 @@ func runScan(c *cli.Context) error {
 			tags = convertToTags(c.StringSlice("tags"))
 		}
 		if err := uploader.Upload(client, processedResults, tags); err != nil {
+			return err
+		}
+	}
+
+	if assuranceExportPath := os.Getenv("AQUA_ASSURANCE_EXPORT"); assuranceExportPath != "" {
+		if err := export.AssuranceData(assuranceExportPath, report, processedResults); err != nil {
 			return err
 		}
 	}

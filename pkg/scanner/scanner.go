@@ -22,7 +22,7 @@ const aquaPath = "/tmp/aqua"
 //go:embed trivy-secret.yaml
 var secretsConfig string
 
-func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
+func Scan(c *cli.Context, path string) (*trivyTypes.Report, error) {
 	err := os.MkdirAll(aquaPath, os.ModePerm)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed create aqua tmp dir")
@@ -76,7 +76,7 @@ func Scan(c *cli.Context, path string) (trivyTypes.Results, error) {
 		return nil, xerrors.Errorf("filter error: %w", err)
 	}
 
-	return report.Results, nil
+	return &report, nil
 }
 
 func MatchResultSeverity(severity string) buildsecurity.SeverityEnum {

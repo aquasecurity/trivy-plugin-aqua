@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	ftypes "github.com/aquasecurity/fanal/types"
+	ftypes "github.com/aquasecurity/trivy/pkg/fanal/types"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
@@ -16,7 +16,7 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
 	"github.com/aquasecurity/trivy/pkg/types"
-	funk "github.com/thoas/go-funk"
+	"github.com/thoas/go-funk"
 )
 
 func fileInBase(target string, r types.Results) bool {
@@ -44,7 +44,7 @@ func PrDiffResults(r types.Results) (reports types.Results, err error) {
 					if vBase.Target == toBase {
 						// misconf
 						diff, _ := funk.Difference(v.Misconfigurations, vBase.Misconfigurations)
-						misconf := []types.DetectedMisconfiguration{}
+						var misconf []types.DetectedMisconfiguration
 						err = mapstructure.Decode(diff, &misconf)
 						if err != nil {
 							return reports, errors.Wrap(err, "failed decode misconf")
@@ -52,7 +52,7 @@ func PrDiffResults(r types.Results) (reports types.Results, err error) {
 						v.Misconfigurations = misconf
 						// vulns
 						diff, _ = funk.Difference(v.Vulnerabilities, vBase.Vulnerabilities)
-						vulns := []types.DetectedVulnerability{}
+						var vulns []types.DetectedVulnerability
 						err = mapstructure.Decode(diff, &vulns)
 						if err != nil {
 							return reports, errors.Wrap(err, "failed decode vulns")
