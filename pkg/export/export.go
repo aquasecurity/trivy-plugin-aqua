@@ -25,3 +25,12 @@ func AssuranceData(path string, report *types.Report, results []*buildsecurity.R
 		Results: results,
 	})
 }
+
+func Report(path string, report *types.Report) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = f.Close() }()
+	return json.NewEncoder(f).Encode(report)
+}
