@@ -7,6 +7,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/export"
+
 	"github.com/aquasecurity/trivy/pkg/types"
 
 	"strings"
@@ -200,6 +202,12 @@ func runScan(c *cli.Context) error {
 			tags = convertToTags(c.StringSlice("tags"))
 		}
 		if err := uploader.Upload(client, processedResults, tags); err != nil {
+			return err
+		}
+	}
+
+	if assuranceExportPath := os.Getenv("AQUA_ASSURANCE_EXPORT"); assuranceExportPath != "" {
+		if err := export.AssuranceData(assuranceExportPath, processedResults); err != nil {
 			return err
 		}
 	}
