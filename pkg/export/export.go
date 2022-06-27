@@ -10,7 +10,7 @@ import (
 )
 
 type File struct {
-	Report  *types.Report `json:"Report"`
+	Report  *types.Report           `json:"Report"`
 	Results []*buildsecurity.Result `json:"Results"`
 }
 
