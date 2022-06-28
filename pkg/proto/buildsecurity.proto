@@ -112,6 +112,7 @@ message Result {
   string suppressionID = 17;
   int64 PublishedDate = 18;
   int64 LastModified = 19;
+  string PrimaryURL = 20;
 }
 
 enum SeverityEnum {

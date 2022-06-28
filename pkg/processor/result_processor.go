@@ -145,6 +145,8 @@ func addVulnerabilitiesResults(rep types.Result,
 		r.InstalledVersion = vuln.InstalledVersion
 		r.FixedVersion = vuln.FixedVersion
 		r.DataSource = vuln.DataSource.Name
+		r.PrimaryURL = vuln.PrimaryURL
+
 		if vuln.PublishedDate != nil {
 			r.PublishedDate = vuln.PublishedDate.Unix()
 		}
@@ -285,6 +287,7 @@ func addMisconfigurationResults(rep types.Result,
 			r.EndLine = int32(miscon.CauseMetadata.EndLine)
 			r.Filename = rep.Target
 			r.Type = scanner.MatchResultType(rep.Type)
+			r.PrimaryURL = miscon.PrimaryURL
 
 			results = append(results, &r)
 		}

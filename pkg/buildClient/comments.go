@@ -98,11 +98,13 @@ func returnMisconfMsg(r *buildsecurity.Result) string {
 		"  \n**Misconfiguration ID:** %s "+
 		"  \n**Check Name:** %s "+
 		"  \n**Severity:** %s "+
-		"  \n**Message:** %s",
+		"  \n**Message:** %s"+
+		"  \n**AVD Link:** %s",
 		r.AVDID,
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
-		r.Message)
+		r.Message,
+		r.PrimaryURL)
 }
 
 func getGitHubRepositoryDetails() (owner, repo string, err error) {
@@ -136,5 +138,6 @@ func extractGitHubActionPrNumber() (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("failed not a valid PR")
 	}
+
 	return prNumber, nil
 }
