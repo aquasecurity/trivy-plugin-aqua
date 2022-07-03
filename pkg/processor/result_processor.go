@@ -4,27 +4,98 @@ import (
 	"fmt"
 	"strings"
 
+	ftypes "github.com/aquasecurity/trivy/pkg/fanal/types"
+
+	"github.com/mitchellh/mapstructure"
+	"github.com/pkg/errors"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
-	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/types"
+	"github.com/thoas/go-funk"
 )
+
+func fileInBase(target string, r types.Results) bool {
+	for _, vBase := range r {
+		if vBase.Target == target {
+			return true
+		}
+	}
+	return false
+}
+
+func PrDiffResults(r types.Results) (reports types.Results, err error) {
+	for _, v := range r {
+		// is head file and not exist in base
+		inBase := false
+		if strings.Contains(v.Target, "head") {
+			toBase := strings.ReplaceAll(v.Target, "head", "base")
+			inBase = fileInBase(toBase, r)
+			// this is new file take full report
+			if !inBase {
+				reports = append(reports, v)
+			} else {
+				// in head and base
+				for _, vBase := range r {
+					if vBase.Target == toBase {
+						// misconf
+						diff, _ := funk.Difference(v.Misconfigurations, vBase.Misconfigurations)
+						var misconf []types.DetectedMisconfiguration
+						err = mapstructure.Decode(diff, &misconf)
+						if err != nil {
+							return reports, errors.Wrap(err, "failed decode misconf")
+						}
+						v.Misconfigurations = misconf
+						// vulns
+						diff, _ = funk.Difference(v.Vulnerabilities, vBase.Vulnerabilities)
+						var vulns []types.DetectedVulnerability
+						err = mapstructure.Decode(diff, &vulns)
+						if err != nil {
+							return reports, errors.Wrap(err, "failed decode vulns")
+						}
+						v.Vulnerabilities = vulns
+						reports = append(reports, v)
+					}
+				}
+			}
+		}
+	}
+
+	// Cleanup tmp file names
+	for k, v := range reports {
+		if strings.Contains(v.Target, "head/") {
+			v.Target = strings.Replace(v.Target, "head/", "", 1)
+			reports[k] = v
+		}
+		if strings.Contains(v.Target, "base/") {
+			v.Target = strings.Replace(v.Target, "base/", "", 1)
+			reports[k] = v
+		}
+	}
+	return reports, nil
+}
 
 // ProcessResults downloads the latest policies for the repository the process the results
 // while evaluating them against the policies
-func ProcessResults(reports report.Results,
+func ProcessResults(reports types.Results,
 	policies []*buildsecurity.Policy,
 	checkSupIDMap map[string]string) (
 	results []*buildsecurity.Result) {
 
 	for _, rep := range reports {
 		switch rep.Class {
-		case report.ClassLangPkg:
-			reportResults := addVulnerabilitiesResults(rep)
+		case types.ClassLangPkg, types.ClassOSPkg:
+			reportResults := addVulnerabilitiesResults(rep, policies)
 			results = append(results, reportResults...)
-		case report.ClassConfig:
+		case types.ClassConfig:
 			reportResults := addMisconfigurationResults(rep, policies, checkSupIDMap)
+			results = append(results, reportResults...)
+		case types.ClassSecret:
+			reportResults := addSecretsResults(rep, policies)
 			results = append(results, reportResults...)
 		}
 	}
@@ -56,11 +127,14 @@ func DistinguishPolicies(
 	return policies, checkSupIDMap
 }
 
-func addVulnerabilitiesResults(rep report.Result) (results []*buildsecurity.Result) {
+func addVulnerabilitiesResults(rep types.Result,
+	downloadedPolicies []*buildsecurity.Policy) (
+	results []*buildsecurity.Result) {
 	for _, vuln := range rep.Vulnerabilities {
 
 		var r buildsecurity.Result
 
+		r.PolicyResults = checkVulnAgainstPolicies(vuln, downloadedPolicies, rep.Target)
 		r.Type = scanner.MatchResultType("VULNERABILITIES")
 		r.Title = vuln.Title
 		r.Message = vuln.Description
@@ -103,15 +177,94 @@ func contains(slice []string, value string) bool {
 	return false
 }
 
-func addMisconfigurationResults(rep report.Result,
+func addSecretsResults(rep types.Result, downloadedPolicies []*buildsecurity.Policy) (results []*buildsecurity.Result) {
+	for _, s := range rep.Secrets {
+		var r buildsecurity.Result
+
+		r.PolicyResults = checkSecretAgainstPolicies(s, downloadedPolicies, rep.Target)
+		r.Type = scanner.MatchResultType("SECRETS")
+		r.Title = s.Title
+		r.Severity = scanner.MatchResultSeverity(s.Severity)
+		r.Filename = rep.Target
+		r.AVDID = s.RuleID
+		r.StartLine = int32(s.StartLine)
+		r.EndLine = int32(s.EndLine)
+		r.Resource = string(s.Category)
+		r.Message = s.Match
+
+		results = append(results, &r)
+
+	}
+	return results
+}
+
+func checkVulnAgainstPolicies(
+	vuln types.DetectedVulnerability,
+	policies []*buildsecurity.Policy,
+	filename string) (
+	results []*buildsecurity.PolicyResult) {
+
+	for _, policy := range policies {
+		controls := policy.GetControls()
+		var failed bool
+		var reasons []string
+		for _, control := range controls {
+			if control.ScanType != buildsecurity.ScanTypeEnum_SCAN_TYPE_VULNERABILITY {
+				continue
+			}
+			failed, reasons = checkAgainstSeverity(vuln.Severity, vuln.VulnerabilityID, control, failed, reasons, filename)
+		}
+		results = appendResults(results, policy, failed, reasons)
+	}
+	return results
+}
+
+func appendResults(results []*buildsecurity.PolicyResult,
+	policy *buildsecurity.Policy,
+	failed bool,
+	reasons []string) []*buildsecurity.PolicyResult {
+	results = append(results, &buildsecurity.PolicyResult{
+		PolicyID: policy.PolicyID,
+		Failed:   failed,
+		Enforced: policy.Enforced,
+		Reason:   strings.Join(reasons, "\n"),
+	})
+	return results
+}
+
+func checkSecretAgainstPolicies(
+	secret ftypes.SecretFinding,
+	policies []*buildsecurity.Policy,
+	filename string) (
+	results []*buildsecurity.PolicyResult) {
+
+	location := fmt.Sprintf("%s#L%d-%d", filename, secret.StartLine, secret.EndLine)
+
+	for _, policy := range policies {
+		controls := policy.GetControls()
+		var failed bool
+		var reasons []string
+		for _, control := range controls {
+			if control.ScanType != buildsecurity.ScanTypeEnum_SCAN_TYPE_SECRET {
+				continue
+			}
+			failed, reasons = checkAgainstSeverity(secret.Severity, secret.RuleID, control, failed, reasons, location)
+		}
+		results = appendResults(results, policy, failed, reasons)
+	}
+	return results
+}
+
+func addMisconfigurationResults(rep types.Result,
 	downloadedPolicies []*buildsecurity.Policy,
 	checkSupIDMap map[string]string) (results []*buildsecurity.Result) {
 	for _, miscon := range rep.Misconfigurations {
 
 		var r buildsecurity.Result
-		resource := fmt.Sprintf("%s Resource", strings.Title(rep.Type))
-		if miscon.IacMetadata.Resource != "" {
-			resource = miscon.IacMetadata.Resource
+		resource := fmt.Sprintf("%s Resource", cases.Title(language.English).String(rep.Type))
+
+		if miscon.CauseMetadata.Resource != "" {
+			resource = miscon.CauseMetadata.Resource
 		}
 
 		policyId, suppressedId := checkSupIDMap[miscon.ID]
@@ -121,15 +274,15 @@ func addMisconfigurationResults(rep report.Result,
 				log.Logger.Debugf("Skipping suppressed id: %s, due to Suppression ID: %s", miscon.ID, policyId)
 				r.SuppressionID = policyId
 			} else {
-				r.PolicyResults = checkAgainstPolicies(miscon, downloadedPolicies, rep.Target)
+				r.PolicyResults = checkMisconfAgainstPolicies(miscon, downloadedPolicies, rep.Target)
 			}
 			r.AVDID = miscon.ID
 			r.Title = miscon.Title
 			r.Message = miscon.Message
 			r.Resource = resource
 			r.Severity = scanner.MatchResultSeverity(miscon.Severity)
-			r.StartLine = int32(miscon.IacMetadata.StartLine)
-			r.EndLine = int32(miscon.IacMetadata.EndLine)
+			r.StartLine = int32(miscon.CauseMetadata.StartLine)
+			r.EndLine = int32(miscon.CauseMetadata.EndLine)
 			r.Filename = rep.Target
 			r.Type = scanner.MatchResultType(rep.Type)
 
@@ -139,13 +292,13 @@ func addMisconfigurationResults(rep report.Result,
 	return results
 }
 
-func checkAgainstPolicies(
+func checkMisconfAgainstPolicies(
 	miscon types.DetectedMisconfiguration,
 	policies []*buildsecurity.Policy,
 	filename string) (
 	results []*buildsecurity.PolicyResult) {
 
-	location := fmt.Sprintf("%s#L%d-%d", filename, miscon.IacMetadata.StartLine, miscon.IacMetadata.EndLine)
+	location := fmt.Sprintf("%s#L%d-%d", filename, miscon.CauseMetadata.StartLine, miscon.CauseMetadata.EndLine)
 
 	for _, policy := range policies {
 		controls := policy.GetControls()
@@ -153,15 +306,14 @@ func checkAgainstPolicies(
 		var reasons []string
 		for _, control := range controls {
 
-			if scanner.MatchResultSeverity(miscon.Severity) >= control.Severity &&
-				control.Severity != buildsecurity.SeverityEnum_SEVERITY_UNKNOWN {
-				failed = true
-				reasons = append(reasons, fmt.Sprintf("[%s] Severity level control breach [%s]", miscon.ID, location))
+			if control.ScanType != buildsecurity.ScanTypeEnum_SCAN_TYPE_MISCONFIGURATION {
+				continue
 			}
 
-			if len(control.AVDIDs) == 0 && (miscon.IacMetadata.Provider != "" || miscon.IacMetadata.Service != "") {
+			failed, reasons = checkAgainstSeverity(miscon.Severity, miscon.ID, control, failed, reasons, location)
+			if len(control.AVDIDs) == 0 && (miscon.CauseMetadata.Provider != "" || miscon.CauseMetadata.Service != "") {
 
-				if strings.EqualFold(control.Provider, miscon.IacMetadata.Provider) &&
+				if strings.EqualFold(control.Provider, miscon.CauseMetadata.Provider) &&
 					control.Service == "" {
 					failed = true
 					reasons = append(
@@ -169,8 +321,8 @@ func checkAgainstPolicies(
 						fmt.Sprintf("[%s] Provider specific control breach %s [%s]", miscon.ID, control.Provider, location))
 				}
 
-				if strings.EqualFold(control.Provider, miscon.IacMetadata.Provider) &&
-					strings.EqualFold(control.Service, miscon.IacMetadata.Service) {
+				if strings.EqualFold(control.Provider, miscon.CauseMetadata.Provider) &&
+					strings.EqualFold(control.Service, miscon.CauseMetadata.Service) {
 					failed = true
 					reasons = append(
 						reasons,
@@ -192,13 +344,23 @@ func checkAgainstPolicies(
 			}
 
 		}
-		results = append(results, &buildsecurity.PolicyResult{
-			PolicyID: policy.PolicyID,
-			Failed:   failed,
-			Enforced: policy.Enforced,
-			Reason:   strings.Join(reasons, "\n"),
-		})
+		results = appendResults(results, policy, failed, reasons)
 
 	}
 	return results
+}
+
+func checkAgainstSeverity(severity string,
+	id string,
+	control *buildsecurity.PolicyControl,
+	failed bool,
+	reasons []string,
+	location string) (
+	bool, []string) {
+	if scanner.MatchResultSeverity(severity) >= control.Severity &&
+		control.Severity != buildsecurity.SeverityEnum_SEVERITY_UNKNOWN {
+		failed = true
+		reasons = append(reasons, fmt.Sprintf("[%s] Severity level control breach [%s]", id, location))
+	}
+	return failed, reasons
 }

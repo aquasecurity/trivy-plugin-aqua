@@ -37,7 +37,7 @@ func Test_get_repo_name_from_env(t *testing.T) {
 		err = os.Setenv(possibleBranchEnvVars[i], fmt.Sprintf("BRANCH_%d", i))
 		require.NoError(t, err)
 
-		repoName, branch, err := metadata.GetRepositoryDetails("")
+		repoName, branch, err := metadata.GetRepositoryDetails("", "")
 		require.NoError(t, err)
 
 		assert.Equal(t, fmt.Sprintf("REPOSITORY_%d", i), repoName)

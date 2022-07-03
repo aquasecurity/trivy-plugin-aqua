@@ -7,9 +7,15 @@ import (
 	"sort"
 	"time"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/export"
+
+	"github.com/aquasecurity/trivy/pkg/types"
+
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
+
+	"github.com/urfave/cli/v2"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/buildClient"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
@@ -17,19 +23,16 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/uploader"
 	"github.com/aquasecurity/trivy/pkg/commands"
-	"github.com/aquasecurity/trivy/pkg/types"
-	"github.com/urfave/cli/v2"
 )
 
 var (
-	skipResultUpload bool
-	tags             map[string]string
+	tags map[string]string
 )
 
 func main() {
 	app := cli.NewApp()
 	app.Name = "aqua"
-	app.Version = "0.0.1"
+	app.Version = "0.27.1"
 	app.ArgsUsage = "target"
 	app.Usage = "A simple and comprehensive vulnerability scanner for containers"
 	app.EnableBashCompletion = true
@@ -37,10 +40,15 @@ func main() {
 	configCmd := commands.NewConfigCommand()
 	configCmd.Action = runScan
 	configCmd.Flags = append(configCmd.Flags,
-		&cli.StringFlag{
+		&cli.BoolFlag{
 			Name:    "skip-result-upload",
 			Usage:   "Add this flag if you want test failed policy locally before sending PR",
 			EnvVars: []string{"TRIVY_SKIP_RESULT_UPLOAD"},
+		},
+		&cli.BoolFlag{
+			Name:    "skip-policy-exit-code",
+			Usage:   "Add this flag if you want skip policies exit code",
+			EnvVars: []string{"TRIVY_SKIP_POLICY_EXIT_CODE"},
 		},
 		&cli.StringFlag{
 			Name:    "vuln-type",
@@ -52,39 +60,72 @@ func main() {
 		&cli.StringFlag{
 			Name:    "security-checks",
 			Value:   types.SecurityCheckConfig,
-			Usage:   "comma-separated list of what security issues to detect (vuln,config)",
+			Usage:   "comma-separated list of what security issues to detect (vuln,config,secret)",
 			EnvVars: []string{"TRIVY_SECURITY_CHECKS"},
 			Hidden:  true,
+		},
+		&cli.StringFlag{
+			Name:    "triggered-by",
+			Usage:   "Add this flag to determine where the scan is coming from (push, pr, offline)",
+			EnvVars: []string{"TRIGGERED_BY"},
 		},
 	)
 
 	fsCmd := commands.NewFilesystemCommand()
 	fsCmd.Action = runScan
 	fsCmd.Flags = append(fsCmd.Flags,
-		&cli.StringFlag{
+		&cli.BoolFlag{
 			Name:    "skip-result-upload",
 			Usage:   "Add this flag if you want test failed policy locally before sending PR",
 			EnvVars: []string{"TRIVY_SKIP_RESULT_UPLOAD"},
+		},
+		&cli.BoolFlag{
+			Name:    "skip-policy-exit-code",
+			Usage:   "Add this flag if you want skip policies exit code",
+			EnvVars: []string{"TRIVY_SKIP_POLICY_EXIT_CODE"},
 		},
 		&cli.BoolFlag{
 			Name:    "debug",
 			Usage:   "Add this flag if you want run in debug mode",
 			EnvVars: []string{"DEBUG"},
 		},
+		&cli.StringFlag{
+			Name:    "triggered-by",
+			Usage:   "Add this flag to determine where the scan is coming from (push, pr, offline)",
+			EnvVars: []string{"TRIGGERED_BY"},
+		},
+		&cli.StringSliceFlag{
+			Name:  "tags",
+			Usage: "Add this flag for key:val pairs as scan metadata",
+		},
 	)
+
+	imageCmd := commands.NewImageCommand()
+	imageCmd.Action = runScan
 
 	app.Action = runScan
 	app.Flags = fsCmd.Flags
 
+	app.Flags = append(app.Flags,
+		&cli.BoolFlag{
+			Name:    "quiet",
+			Usage:   "suppress progress bar and log output (default: false)",
+			EnvVars: []string{"TRIVY_QUIET"},
+		})
+
+	versionCmd := commands.NewVersionCommand()
+	versionCmd.Usage = "print the version of the trivy import library"
+
 	app.Commands = []*cli.Command{
 		fsCmd,
 		configCmd,
+		imageCmd,
 		commands.NewPluginCommand(),
 		commands.NewClientCommand(),
-		commands.NewImageCommand(),
 		commands.NewRepositoryCommand(),
 		commands.NewRootfsCommand(),
 		commands.NewServerCommand(),
+		versionCmd,
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Logger.Error(err)
@@ -102,6 +143,11 @@ func runScan(c *cli.Context) error {
 			return err
 		}
 	}
+	if c.String("triggered-by") != "" {
+		if err := c.Set("triggered-by", strings.ToUpper(c.String("triggered-by"))); err != nil {
+			return err
+		}
+	}
 
 	debug := c.Bool("debug")
 
@@ -116,7 +162,7 @@ func runScan(c *cli.Context) error {
 	}
 	log.Logger.Debugf("Using scanPath %s", scanPath)
 
-	client, err := buildClient.Get(scanPath)
+	client, err := buildClient.Get(scanPath, c)
 	if err != nil {
 		return err
 	}
@@ -135,23 +181,60 @@ func runScan(c *cli.Context) error {
 			return err
 		}
 	}
-	results, err := scanner.Scan(c, scanPath)
+	report, err := scanner.Scan(c, scanPath)
 	if err != nil {
 		return err
 	}
 
-	processedResults := processor.ProcessResults(results, policies, checkSupIDMap)
+	if c.String("triggered-by") == "PR" {
+		report.Results, err = processor.PrDiffResults(report.Results)
+		if err != nil {
+			return err
+		}
+	}
+
+	processedResults := processor.ProcessResults(report.Results, policies, checkSupIDMap)
 	if err != nil {
 		return err
 	}
 
-	if !skipResultUpload {
+	if !c.Bool("skip-result-upload") {
+		if c.String("tags") != "" {
+			tags = convertToTags(c.StringSlice("tags"))
+		}
 		if err := uploader.Upload(client, processedResults, tags); err != nil {
 			return err
 		}
 	}
 
-	return checkPolicyResults(processedResults)
+	if assuranceExportPath := os.Getenv("AQUA_ASSURANCE_EXPORT"); assuranceExportPath != "" {
+		if err := export.AssuranceData(assuranceExportPath, report, processedResults); err != nil {
+			return err
+		}
+	}
+
+	if reportExportPath := c.String("output"); reportExportPath != "" {
+		if c.String("format") == "json" {
+			if err := export.Report(reportExportPath, report); err != nil {
+				return err
+			}
+		}
+	}
+
+	return checkPolicyResults(c, processedResults)
+}
+
+func convertToTags(t []string) (tags map[string]string) {
+	tags = make(map[string]string)
+	for _, v := range t {
+		if strings.Contains(v, ":") {
+			tag := strings.Split(v, ":")
+			if tag[0] != "" && tag[1] != "" {
+				tags[tag[0]] = tag[1]
+			}
+		}
+	}
+	return tags
 }
 
 func createIgnoreFile(c *cli.Context, checkSupIDMap map[string]string, fileName string) error {
@@ -182,7 +265,7 @@ func createIgnoreFile(c *cli.Context, checkSupIDMap map[string]string, fileName 
 	return nil
 }
 
-func checkPolicyResults(results []*buildsecurity.Result) error {
+func checkPolicyResults(c *cli.Context, results []*buildsecurity.Result) error {
 	uniqCount := 0
 
 	var warns []string
@@ -233,7 +316,7 @@ func checkPolicyResults(results []*buildsecurity.Result) error {
 		_, _ = fmt.Fprintf(os.Stderr, "\n")
 	}
 
-	if uniqCount == 0 {
+	if uniqCount == 0 || c.Bool("skip-policy-exit-code") {
 		return nil
 	}
 

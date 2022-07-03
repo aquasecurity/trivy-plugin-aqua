@@ -4,19 +4,26 @@ on:
   pull_request:
 
 jobs:
+  validate-secrets-yaml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Validate YAML file
+        run: yamllint -d relaxed pkg/scanner/trivy-secret.yaml
+  
   build:
     name: testing PR build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
         with:
           stable: 'false'
-          go-version: '1.16'
+          go-version: '1.18'
       - run: go version
 
       - name: Run tests

@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/aquasecurity/trivy/pkg/types"
+
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
 
@@ -109,6 +111,77 @@ func Test_distinguishPolicies(t *testing.T) {
 			}
 			if !reflect.DeepEqual(gotSuppressedIds, tt.wantSuppressedIds) {
 				t.Errorf("distinguishPolicies() gotSuppressedIds = %v, want %v", gotSuppressedIds, tt.wantSuppressedIds)
+			}
+		})
+	}
+}
+
+func TestPrDiffResults(t *testing.T) {
+	type args struct {
+		r types.Results
+	}
+	tests := []struct {
+		name        string
+		args        args
+		wantReports types.Results
+	}{
+		{
+			name: "happy path - new file",
+			args: args{r: types.Results{
+				types.Result{Target: "head/cf/pr-bucket.yaml"}, types.Result{Target: "base/cf/bucket.yaml"}}},
+			wantReports: types.Results{types.Result{Target: "cf/pr-bucket.yaml"}},
+		},
+
+		{
+			name: "happy path - modify file take only diff",
+			args: args{r: types.Results{
+				types.Result{Target: "base/cf/bucket.yaml",
+					Misconfigurations: []types.DetectedMisconfiguration{types.DetectedMisconfiguration{ID: "AVD-000"}}},
+				types.Result{Target: "head/cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{
+					types.DetectedMisconfiguration{ID: "AVD-000"},
+					types.DetectedMisconfiguration{ID: "AVD-001"}}}},
+			},
+			wantReports: types.Results{types.Result{
+				Target: "cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{
+					types.DetectedMisconfiguration{ID: "AVD-001"}}, Vulnerabilities: []types.DetectedVulnerability{}}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotReports, _ := PrDiffResults(tt.args.r); !reflect.DeepEqual(gotReports, tt.wantReports) {
+				t.Errorf("PrDiffResults() = %v, want %v", gotReports, tt.wantReports)
+			}
+		})
+	}
+}
+
+func Test_fileInBase(t *testing.T) {
+	type args struct {
+		target string
+		r      types.Results
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "happy path - file in base",
+			args: args{target: "base/cf/bucket.yaml", r: types.Results{types.Result{
+				Target: "base/cf/bucket.yaml"}}},
+			want: true,
+		},
+		{
+			name: "happy path - not in base",
+			args: args{target: "base/cf/bucket-pr.yaml", r: types.Results{types.Result{
+				Target: "base/cf/bucket.yaml"}}},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := fileInBase(tt.args.target, tt.args.r); got != tt.want {
+				t.Errorf("fileInBase() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -2,6 +2,7 @@ package metadata
 
 import (
 	"fmt"
+	"net"
 
 	"io/ioutil"
 	"os"
@@ -12,16 +13,83 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 )
 
+var (
+	// SHARegexp is used to split an image digest value to a registry prefix,
+	// repository name, and the SHA256 hash.
+	SHARegexp = regexp.MustCompile(`^(?:([^/]+)/)([^@]+)(@sha256:[0-9a-f]+)$`)
+
+	// SplitImageNameRegexp is used to split a fully qualified image name to a
+	// registry prefix, repository name and image tag.
+	SplitImageNameRegexp = regexp.MustCompile(`^(?:([^/]+)/)?([^:]+)(?::(.*))?$`)
+	// PortRegexp is used to check whether a string ends with a port suffix
+	// (e.g. :8080)
+	PortRegexp = regexp.MustCompile(`:\d+$`)
+)
+
+func GetRepositoryUrl(prefix, repo string) string {
+	if prefix != "" {
+		return fmt.Sprintf("%s/%s", prefix, repo)
+	}
+	return repo
+}
+
+// GetImageDetails gets the full name of an image (e.g. "repo/test:master",
+// or even "docker.io/repo/test:master") and splits it into the registry
+// prefix, repository name and the image tag (e.g. "docker.io", "repo/test"
+// and "master" in the previous example).
+func GetImageDetails(imageName string) (prefix, repo, tag string) {
+	if imageName == "" {
+		return prefix, repo, tag
+	}
+
+	shaMatches := SHARegexp.FindStringSubmatch(imageName)
+	if len(shaMatches) == 4 {
+		prefix = shaMatches[1]
+		repo = shaMatches[2]
+		tag = shaMatches[3]
+	} else {
+		matches := SplitImageNameRegexp.FindStringSubmatch(imageName)
+		if len(matches) < 3 {
+			return prefix, repo, tag
+		}
+
+		prefix = matches[1]
+		repo = matches[2]
+		tag = matches[3]
+	}
+
+	// we may have extracted a prefix, but it may actually be part of the
+	// repository name, because repository names can contain multiple slashes.
+	// to verify, we will check that the prefix we extract is a valid IP address
+	// or DNS name. We will also assume everything with a port suffix (e.g.
+	// :8080) is a registry prefix
+	if prefix != "" && !PortRegexp.MatchString(prefix) {
+		if net.ParseIP(prefix) == nil {
+			dns, _ := net.LookupIP(prefix)
+			if len(dns) == 0 {
+				// prefix is probably a part of the repository name
+				if repo == "" {
+					repo = prefix
+				} else {
+					repo = fmt.Sprintf("%s/%s", prefix, repo)
+				}
+				prefix = ""
+			}
+		}
+	}
+
+	return prefix, repo, tag
+}
+
 // GetScmID extracts the git path from the config file
 func GetScmID(scanPath string) (string, error) {
 	gitConfigFile := filepath.Join(scanPath, ".git", "config")
 	gitConfig, err := ioutil.ReadFile(gitConfigFile)
-	system := GetBuildSystem()
 	if err == nil {
 		re := regexp.MustCompile(`(?m)^\s*url\s?=\s*(.*)\s*$`)
 		if re.Match(gitConfig) {
 			scmID := re.FindStringSubmatch(string(gitConfig))[1]
-			scmID = sanitiseScmId(system, scmID)
+			scmID = sanitiseScmId(scmID)
 
 			return scmID, nil
 		}
@@ -30,10 +98,13 @@ func GetScmID(scanPath string) (string, error) {
 	return filepath.Base(scanPath), nil
 }
 
-func sanitiseScmId(system string, scmID string) string {
-	if system == "gitlab" {
-		scmID = strings.Split(scmID, "@")[1]
-	}
+// This function is the formula on the DB, on Atlas side and on Argon side,
+// do not change without coordinating the change
+func sanitiseScmId(scmID string) string {
+	scmID = regexp.MustCompile("^.*@").ReplaceAllLiteralString(scmID, "")
+	scmID = regexp.MustCompile("^https?://").ReplaceAllLiteralString(scmID, "")
+	scmID = strings.TrimSuffix(scmID, ".git")
+	scmID = strings.ReplaceAll(scmID, ":", "/")
 	return scmID
 }
 
@@ -53,28 +124,8 @@ func GetBuildSystem() string {
 	return "other"
 }
 
-// GetRepositoryDetails gets the repository name and branch
-// multiple env vars will be checked first before falling back to the folder name
-func GetRepositoryDetails(scanPath string) (repoName, branch string, err error) {
-
-	for _, repoEnv := range possibleRepoEnvVars {
-		if v, ok := os.LookupEnv(repoEnv); ok {
-			repoName = v
-			break
-		}
-	}
-
-	for _, branchEnv := range possibleBranchEnvVars {
-		if v, ok := os.LookupEnv(branchEnv); ok {
-			branch = v
-			break
-		}
-	}
-
-	if repoName != "" && branch != "" {
-		return repoName, branch, nil
-	}
-
+// Get repository details based on FS scan
+func getFsRepositoryDetails(scanPath string) (repoName, branch string, err error) {
 	workingDir := scanPath
 	abs, err := filepath.Abs(workingDir)
 	if err != nil {
@@ -105,6 +156,43 @@ func GetRepositoryDetails(scanPath string) (repoName, branch string, err error) 
 		}
 	}
 	return inferredRepoName, "", nil
+}
+
+// GetRepositoryDetails gets the repository name and branch
+// multiple env vars will be checked first before falling back to the folder name
+func GetRepositoryDetails(scanPath string, cmd string) (repoName, branch string, err error) {
+
+	for _, repoEnv := range possibleRepoEnvVars {
+		if v, ok := os.LookupEnv(repoEnv); ok {
+			repoName = v
+			break
+		}
+	}
+
+	for _, branchEnv := range possibleBranchEnvVars {
+		if v, ok := os.LookupEnv(branchEnv); ok {
+			branch = v
+			break
+		}
+	}
+
+	if repoName != "" && branch != "" {
+		return repoName, branch, nil
+	}
+
+	switch cmd {
+	case "image":
+		prefix, repo, tag := GetImageDetails(scanPath)
+		branch = tag
+		repoName = GetRepositoryUrl(prefix, repo)
+	default:
+		repoName, branch, err = getFsRepositoryDetails(scanPath)
+		if err != nil {
+			return repoName, branch, fmt.Errorf("failed get FS repository details: %w", err)
+		}
+	}
+
+	return repoName, branch, nil
 }
 
 // GetCommitID gets the current CommitID of the repository
@@ -171,4 +259,22 @@ func lastLogsHead(scanPath string) (s []string, err error) {
 	}
 
 	return s, nil
+}
+
+// GetBuildInfo the vendor build run number and id
+func GetBuildInfo(buildSystem string) (run string, buildID string) {
+	switch buildSystem {
+	case Github:
+		return os.Getenv("GITHUB_RUN_NUMBER"), os.Getenv("GITHUB_RUN_ID")
+	case Bitbucket:
+		return os.Getenv("BITBUCKET_BUILD_NUMBER"), os.Getenv("BITBUCKET_PR_ID")
+	case Gitlab:
+		return os.Getenv("CI_JOB_ID"), os.Getenv("CI_MERGE_REQUEST_IID")
+	case Azure:
+		return os.Getenv("BUILD_BUILDID"), os.Getenv("SYSTEM_PULLREQUEST_PULLREQUESTID")
+	case Jenkins:
+		return os.Getenv("BUILD_ID"), os.Getenv("BUILD_NUMBER")
+	default:
+		return "", ""
+	}
 }
