@@ -133,7 +133,7 @@ func getFsRepositoryDetails(scanPath string) (repoName, branch string, err error
 	}
 
 	inferredRepoName := filepath.Base(abs)
-	repoRegex := regexp.MustCompile(`^(?i).+[:/](.+/.+)\.git`)
+	repoRegex := regexp.MustCompile(`^(?i).+[:/](.+/.+)`)
 	scmID, err := GetScmID(scanPath)
 	if err != nil {
 		return inferredRepoName, "", err
