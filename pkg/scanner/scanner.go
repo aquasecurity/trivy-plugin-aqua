@@ -76,6 +76,9 @@ func Scan(c *cli.Context, path string) (*trivyTypes.Report, error) {
 		return nil, xerrors.Errorf("filter error: %w", err)
 	}
 
+	if err = r.Report(opt, report); err != nil {
+		return nil, xerrors.Errorf("report error: %w", err)
+	}
 	return &report, nil
 }
 
