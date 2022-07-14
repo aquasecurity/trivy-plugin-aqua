@@ -213,14 +213,6 @@ func runScan(c *cli.Context) error {
 		}
 	}
 
-	if reportExportPath := c.String("output"); reportExportPath != "" {
-		if c.String("format") == "json" {
-			if err := export.Report(reportExportPath, report); err != nil {
-				return err
-			}
-		}
-	}
-
 	return checkPolicyResults(c, processedResults)
 }
 
