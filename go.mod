@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/aquasecurity/go-dep-parser v0.0.0-20220607141748-ab2deea55bdf
-	github.com/aquasecurity/go-git-pr-commenter v0.0.0-20220613143131-11d7592d121f
 	github.com/aquasecurity/trivy v0.29.2
 	github.com/aquasecurity/trivy-db v0.0.0-20220602091213-39d8a6798e07
 	github.com/mitchellh/mapstructure v1.5.0
@@ -58,6 +57,7 @@ require (
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/aquasecurity/defsec v0.68.3 // indirect
 	github.com/aquasecurity/go-gem-version v0.0.0-20201115065557-8eed6fe000ce // indirect
+	github.com/aquasecurity/go-git-pr-commenter v0.3.0 // indirect
 	github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798 // indirect
 	github.com/aquasecurity/go-pep440-version v0.0.0-20210121094942-22b2f8951d46 // indirect
 	github.com/aquasecurity/go-version v0.0.0-20210121072130-637058cfe492 // indirect
