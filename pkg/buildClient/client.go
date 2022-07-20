@@ -15,7 +15,7 @@ import (
 )
 
 type Client interface {
-	Upload([]*buildsecurity.Result, map[string]string) error
+	Upload([]*buildsecurity.Result, map[string]string, ResultIdToUrlMap) error
 	GetPoliciesForRepository() ([]*buildsecurity.Policy, error)
 	GetOrCreateRepository() (string, error)
 }
@@ -27,6 +27,12 @@ type TwirpClient struct {
 	jwtToken string
 	aquaUrl  string
 	repoId   string
+}
+
+type ResultIdToUrlMap map[string]string
+
+func GenerateResultId(r *buildsecurity.Result) string {
+	return fmt.Sprintf("%d_%s", r.Type, r.AVDID)
 }
 
 var buildClient Client

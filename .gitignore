@@ -17,4 +17,5 @@
 results.json
 policy/
 
-.vscode/launch.json
+vendor/
+.vscode/

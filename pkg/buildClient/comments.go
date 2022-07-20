@@ -18,7 +18,7 @@ import (
 )
 
 // prComments send results PR comments
-func prComments(buildSystem string, result []*buildsecurity.Result) error {
+func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap ResultIdToUrlMap) error {
 	var c = commenter.Repository(nil)
 	switch buildSystem {
 	case metadata.Github:
@@ -66,7 +66,7 @@ func prComments(buildSystem string, result []*buildsecurity.Result) error {
 			case buildsecurity.Result_TYPE_TERRAFORM, buildsecurity.Result_TYPE_CLOUDFORMATION,
 				buildsecurity.Result_TYPE_KUBERNETES, buildsecurity.Result_TYPE_DOCKERFILE,
 				buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML:
-				err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r), int(r.StartLine), int(r.EndLine))
+				err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r, avdUrlMap), int(r.StartLine), int(r.EndLine))
 				if err != nil {
 					return fmt.Errorf("failed write misconfiguration comment: %w", err)
 				}
@@ -93,8 +93,8 @@ func returnSecretMsg(r *buildsecurity.Result) string {
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
 		r.Message)
 }
-func returnMisconfMsg(r *buildsecurity.Result) string {
-	return fmt.Sprintf("### :warning: Aqua detected misconfiguration in your code"+
+func returnMisconfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string {
+	commentWithoutAvdUrl := fmt.Sprintf("### :warning: Aqua detected misconfiguration in your code"+
 		"  \n**Misconfiguration ID:** %s "+
 		"  \n**Check Name:** %s "+
 		"  \n**Severity:** %s "+
@@ -103,6 +103,14 @@ func returnMisconfMsg(r *buildsecurity.Result) string {
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
 		r.Message)
+
+	if avdUrl := avdUrlMap[GenerateResultId(r)]; avdUrl != "" {
+		return commentWithoutAvdUrl +
+			fmt.Sprintf("  \n  \nRead more at %s",
+				avdUrl)
+	}
+
+	return commentWithoutAvdUrl
 }
 
 func getGitHubRepositoryDetails() (owner, repo string, err error) {

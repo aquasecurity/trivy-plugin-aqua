@@ -17,7 +17,7 @@ func Test_process_results_with_no_results(t *testing.T) {
 	client := FakeClient{}
 	policies, _ := client.GetPoliciesForRepository()
 
-	results := processor.ProcessResults(nil, policies, nil)
+	results, _ := processor.ProcessResults(nil, policies, nil)
 	assert.Nil(t, results)
 
 }
@@ -68,7 +68,7 @@ func Test_process_results_with_results_but_not_matching_policies(t *testing.T) {
 	}
 
 	policies, _ := client.GetPoliciesForRepository()
-	submitResults := processor.ProcessResults(results, policies, nil)
+	submitResults, _ := processor.ProcessResults(results, policies, nil)
 
 	assert.Len(t, submitResults, 2)
 }
@@ -117,7 +117,7 @@ func Test_process_results_with_results_with_matching_policies_and_suppressions(t
 		},
 	}
 	policies, _ := client.GetPoliciesForRepository()
-	submitResults := processor.ProcessResults(results, policies, map[string]string{"AVD-AWS-0002": "policy-123"})
+	submitResults, _ := processor.ProcessResults(results, policies, map[string]string{"AVD-AWS-0002": "policy-123"})
 
 	assert.Len(t, submitResults, 2)
 	SuppressionCount, policyCount := getSuppressionPolicyCount(submitResults)
@@ -164,7 +164,7 @@ func Test_process_results_with_results_with_no_matching_policies_severity_level(
 	}
 
 	policies, _ := client.GetPoliciesForRepository()
-	submitResults := processor.ProcessResults(results, policies, nil)
+	submitResults, _ := processor.ProcessResults(results, policies, nil)
 
 	assert.Len(t, submitResults, 1)
 }
@@ -195,7 +195,7 @@ func Test_process_results_with_results_with_matching_policies_severity_level(t *
 	}
 	policies, _ := client.GetPoliciesForRepository()
 
-	submitResults := processor.ProcessResults(results, policies, nil)
+	submitResults, _ := processor.ProcessResults(results, policies, nil)
 
 	assert.Len(t, submitResults, 1)
 }
@@ -226,7 +226,7 @@ func Test_process_results_with_results_with_matching_policies_severity_level_but
 	}
 	policies, _ := client.GetPolicyForRepositoryWithVulnControl()
 
-	submitResults := processor.ProcessResults(results, policies, nil)
+	submitResults, _ := processor.ProcessResults(results, policies, nil)
 
 	assert.Len(t, submitResults, 1)
 	assert.Len(t, submitResults[0].PolicyResults, 1)
@@ -261,7 +261,7 @@ func Test_process_results_with_results_with_matching_policies_severity_level_gre
 
 	policies, _ := client.GetPoliciesForRepository()
 
-	submitResults := processor.ProcessResults(results, policies, nil)
+	submitResults, _ := processor.ProcessResults(results, policies, nil)
 
 	assert.Len(t, submitResults, 1)
 }

@@ -193,7 +193,7 @@ func runScan(c *cli.Context) error {
 		}
 	}
 
-	processedResults := processor.ProcessResults(report.Results, policies, checkSupIDMap)
+	processedResults, avdUrlMap := processor.ProcessResults(report.Results, policies, checkSupIDMap)
 	if err != nil {
 		return err
 	}
@@ -202,7 +202,7 @@ func runScan(c *cli.Context) error {
 		if c.String("tags") != "" {
 			tags = convertToTags(c.StringSlice("tags"))
 		}
-		if err := uploader.Upload(client, processedResults, tags); err != nil {
+		if err := uploader.Upload(client, processedResults, tags, avdUrlMap); err != nil {
 			return err
 		}
 	}
