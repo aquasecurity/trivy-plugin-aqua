@@ -12,6 +12,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/buildClient"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
@@ -84,15 +85,17 @@ func PrDiffResults(r types.Results) (reports types.Results, err error) {
 func ProcessResults(reports types.Results,
 	policies []*buildsecurity.Policy,
 	checkSupIDMap map[string]string) (
-	results []*buildsecurity.Result) {
+	results []*buildsecurity.Result,
+	avdUrlMap buildClient.ResultIdToUrlMap) {
+	avdUrlMap = make(buildClient.ResultIdToUrlMap)
 
 	for _, rep := range reports {
 		switch rep.Class {
 		case types.ClassLangPkg, types.ClassOSPkg:
-			reportResults := addVulnerabilitiesResults(rep, policies)
+			reportResults := addVulnerabilitiesResults(rep, policies, avdUrlMap)
 			results = append(results, reportResults...)
 		case types.ClassConfig:
-			reportResults := addMisconfigurationResults(rep, policies, checkSupIDMap)
+			reportResults := addMisconfigurationResults(rep, policies, checkSupIDMap, avdUrlMap)
 			results = append(results, reportResults...)
 		case types.ClassSecret:
 			reportResults := addSecretsResults(rep, policies)
@@ -100,7 +103,7 @@ func ProcessResults(reports types.Results,
 		}
 	}
 
-	return results
+	return results, avdUrlMap
 }
 
 func DistinguishPolicies(
@@ -128,7 +131,8 @@ func DistinguishPolicies(
 }
 
 func addVulnerabilitiesResults(rep types.Result,
-	downloadedPolicies []*buildsecurity.Policy) (
+	downloadedPolicies []*buildsecurity.Policy,
+	avdUrlMap buildClient.ResultIdToUrlMap) (
 	results []*buildsecurity.Result) {
 	for _, vuln := range rep.Vulnerabilities {
 
@@ -151,6 +155,8 @@ func addVulnerabilitiesResults(rep types.Result,
 		if vuln.LastModifiedDate != nil {
 			r.LastModified = vuln.LastModifiedDate.Unix()
 		}
+
+		avdUrlMap[buildClient.GenerateResultId(&r)] = vuln.PrimaryURL
 
 		for vendor, cvssVal := range vuln.Vulnerability.CVSS {
 			r.VendorScoring = append(r.VendorScoring, &buildsecurity.VendorScoring{
@@ -257,7 +263,8 @@ func checkSecretAgainstPolicies(
 
 func addMisconfigurationResults(rep types.Result,
 	downloadedPolicies []*buildsecurity.Policy,
-	checkSupIDMap map[string]string) (results []*buildsecurity.Result) {
+	checkSupIDMap map[string]string,
+	avdUrlMap buildClient.ResultIdToUrlMap) (results []*buildsecurity.Result) {
 	for _, miscon := range rep.Misconfigurations {
 
 		var r buildsecurity.Result
@@ -285,6 +292,8 @@ func addMisconfigurationResults(rep types.Result,
 			r.EndLine = int32(miscon.CauseMetadata.EndLine)
 			r.Filename = rep.Target
 			r.Type = scanner.MatchResultType(rep.Type)
+
+			avdUrlMap[buildClient.GenerateResultId(&r)] = miscon.PrimaryURL
 
 			results = append(results, &r)
 		}
