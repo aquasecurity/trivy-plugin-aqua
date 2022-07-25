@@ -83,13 +83,8 @@ func createDiffScanFs() error {
 				newName = strings.TrimSpace(diffFile[2])
 			}
 
-			if newName != "" {
-				dirName = filepath.Dir(newName)
-				fileName = newName
-			} else {
-				dirName = filepath.Dir(name)
-				fileName = name
-			}
+			dirName = filepath.Dir(name)
+			fileName = name
 
 			if status != gitStatusDeleted && status != gitStatusRenamedOnly && status != "" {
 				// Create base
@@ -106,6 +101,10 @@ func createDiffScanFs() error {
 					if err != nil {
 						return errors.Wrap(err, "failed write base file")
 					}
+				}
+				if newName != "" {
+					dirName = filepath.Dir(newName)
+					fileName = newName
 				}
 				// Create head
 				err = os.MkdirAll(fmt.Sprintf("%s/head/%s", aquaPath, dirName), os.ModePerm)
