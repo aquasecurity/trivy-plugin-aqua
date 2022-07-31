@@ -1,7 +1,7 @@
 package pipelines
 
 import (
-	"crypto/sha1"
+	"crypto/md5"
 	"encoding/hex"
 	"strings"
 
@@ -77,7 +77,7 @@ func getPipelineId(rootDir, path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	hash := sha1.Sum([]byte(scmId + path))
+	hash := md5.Sum([]byte(scmId + path))
 	return hex.EncodeToString(hash[:]), nil
 }
 
