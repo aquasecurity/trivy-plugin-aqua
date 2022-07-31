@@ -1,0 +1,50 @@
+package git
+
+import (
+	"strings"
+
+	"github.com/pkg/errors"
+)
+
+func GetFirstCommit(path string) (Commit, error) {
+	out, err := GitExec("log", "--format=%H%x1f%ai%x1f%aN", "--diff-filter=A", "--", path)
+	if err != nil {
+		return Commit{}, errors.Wrap(err, "failed to get first commit")
+	}
+
+	var commit Commit
+	if err := parseCommit(out, &commit); err != nil {
+		return Commit{}, errors.Wrap(err, "failed to parse commit")
+	}
+
+	return commit, nil
+}
+
+// Gets the last commit that modified the file
+func GetLastCommit(path string) (Commit, error) {
+	out, err := GitExec("log", "-n", "1", "--format=%H%x1f%ai%x1f%aN", "--", path)
+	if err != nil {
+		return Commit{}, errors.Wrap(err, "failed to get last commit")
+	}
+
+	var commit Commit
+	if err := parseCommit(out, &commit); err != nil {
+		return Commit{}, errors.Wrap(err, "failed to parse commit")
+	}
+
+	return commit, nil
+}
+
+func parseCommit(out string, commit *Commit) error {
+	lines := strings.Split(out, "\n")
+	fields := strings.Split(lines[0], "\x1f")
+	if len(fields) != 3 {
+		return errors.New("invalid commit format")
+	}
+
+	commit.SHA = fields[0]
+	commit.Date = fields[1]
+	commit.Author = fields[2]
+
+	return nil
+}
