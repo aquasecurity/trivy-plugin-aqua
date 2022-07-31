@@ -36,6 +36,7 @@ func parseGitHubWorkflow(workflowPath string) (*Pipeline, error) {
 		// Link:     "",
 	}, nil
 }
+
 func parseGitLabPipelineFile(pipelinePath string) (*Pipeline, error) {
 	parsedPipeline, err := parsePipelineFile(pipelinePath, ppConsts.GitLabPlatform)
 	if err != nil {

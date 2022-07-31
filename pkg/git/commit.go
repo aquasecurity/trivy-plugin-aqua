@@ -1,13 +1,15 @@
 package git
 
 import (
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
 )
 
 func GetFirstCommit(path string) (Commit, error) {
-	out, err := GitExec("log", "--format=%H%x1f%ai%x1f%aN", "--diff-filter=A", "--", path)
+	dir := filepath.Dir(path)
+	out, err := GitExecInDir(dir, "log", "--format=%H%x1f%ai%x1f%aN", "--diff-filter=A", "--", path)
 	if err != nil {
 		return Commit{}, errors.Wrap(err, "failed to get first commit")
 	}
@@ -22,7 +24,8 @@ func GetFirstCommit(path string) (Commit, error) {
 
 // Gets the last commit that modified the file
 func GetLastCommit(path string) (Commit, error) {
-	out, err := GitExec("log", "-n", "1", "--format=%H%x1f%ai%x1f%aN", "--", path)
+	dir := filepath.Dir(path)
+	out, err := GitExecInDir(dir, "log", "-n", "1", "--format=%H%x1f%ai%x1f%aN", "--", path)
 	if err != nil {
 		return Commit{}, errors.Wrap(err, "failed to get last commit")
 	}

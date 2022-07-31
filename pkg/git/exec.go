@@ -22,3 +22,13 @@ func GitExec(args ...string) (string, error) {
 
 	return string(output), nil
 }
+
+func GitExecInDir(dir string, args ...string) (string, error) {
+	cmd := exec.Command("git", args...)
+	cmd.Dir = dir
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", errors.Wrap(err, fmt.Sprintf("failed run git cmd output: %s", string(output)))
+	}
+	return string(output), nil
+}
