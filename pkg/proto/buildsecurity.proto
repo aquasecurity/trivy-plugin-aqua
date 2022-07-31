@@ -46,14 +46,15 @@ message CreateScanReq {
   TriggeredByEnum TriggeredBy = 9;
   string Run = 10;
   string BuildID = 11;
+  repeated Pipeline Pipelines = 12;
 }
 
 enum TriggeredByEnum {
-  TRIGGERED_BY_UNKNOWN = 0;
-  TRIGGERED_BY_PUSH = 1;
-  TRIGGERED_BY_PR = 2;
-  TRIGGERED_BY_OFFLINE = 3;
-}
+    TRIGGERED_BY_UNKNOWN = 0;
+    TRIGGERED_BY_PUSH = 1;
+    TRIGGERED_BY_PULL_REQUEST = 2;
+    TRIGGERED_BY_OFFLINE = 3;
+    }
 
 message CreateScanResp {
   string ScanID = 1;
@@ -123,15 +124,6 @@ enum SeverityEnum {
   SEVERITY_MAX = 5;
 }
 
-
-message VendorScoring {
-  string vendorName = 1;
-  float V2Score = 2;
-  string V2Vector = 3;
-  float V3Score = 4;
-  string V3Vector =5;
-}
-
 enum PolicyTypeEnum {
   POLICY_TYPE_POLICY = 0;
   POLICY_TYPE_SUPPRESSION = 1;
@@ -141,4 +133,26 @@ enum ScanTypeEnum {
   SCAN_TYPE_MISCONFIGURATION = 0;
   SCAN_TYPE_VULNERABILITY = 1;
   SCAN_TYPE_SECRET = 2;
+}
+
+message VendorScoring {
+string vendorName = 1;
+float V2Score = 2;
+string V2Vector = 3;
+float V3Score = 4;
+string V3Vector = 5;
+}
+
+message Pipeline {
+  string ID = 1;
+  string Name = 2;
+  string CreatedDate = 4;
+  string CreatedBy = 5;
+  string Path = 6;
+  string Platform = 7;
+  string Branch = 8;
+  string LastCommitSha = 9;
+  string LastCommitDate = 10;
+  string UpdatedBy = 11;
+  string Link = 12;
 }

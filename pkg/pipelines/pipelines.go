@@ -7,37 +7,38 @@ import (
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/samber/lo"
 )
 
-func getParsedGitHubPipelines(rootDir string) []*Pipeline {
+func getParsedGitHubPipelines(rootDir string) []*buildsecurity.Pipeline {
 	gitHubWorkflows := getGitHubPipelines(rootDir)
-	parsedGithubPipelines := lo.FilterMap(gitHubWorkflows, func(path string, _ int) (*Pipeline, bool) {
+	parsedGithubPipelines := lo.FilterMap(gitHubWorkflows, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseGitHubWorkflow(path)
 		return pipeline, err == nil
 	})
 	return parsedGithubPipelines
 }
 
-func getParsedGitLabPipelines(rootDir string) []*Pipeline {
+func getParsedGitLabPipelines(rootDir string) []*buildsecurity.Pipeline {
 	gitLabPipelines := getGitLabPipelines(rootDir)
-	parsedGitLabPipelines := lo.FilterMap(gitLabPipelines, func(path string, _ int) (*Pipeline, bool) {
+	parsedGitLabPipelines := lo.FilterMap(gitLabPipelines, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseGitLabPipelineFile(path)
 		return pipeline, err == nil
 	})
 	return parsedGitLabPipelines
 }
 
-func getParsedAzurePipelines(rootDir string) []*Pipeline {
+func getParsedAzurePipelines(rootDir string) []*buildsecurity.Pipeline {
 	azurePipelines := getAzurePipelines(rootDir)
-	parsedAzurePipelines := lo.FilterMap(azurePipelines, func(path string, _ int) (*Pipeline, bool) {
+	parsedAzurePipelines := lo.FilterMap(azurePipelines, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseAzurePipelineFile(path)
 		return pipeline, err == nil
 	})
 	return parsedAzurePipelines
 }
 
-func enhancePipeline(pipeline *Pipeline, rootDir string) error {
+func enhancePipeline(pipeline *buildsecurity.Pipeline, rootDir string) error {
 	firstCommit, err := git.GetFirstCommit(pipeline.Path)
 	if err != nil {
 		return err
@@ -50,8 +51,8 @@ func enhancePipeline(pipeline *Pipeline, rootDir string) error {
 		return err
 	}
 	pipeline.UpdatedBy = lastCommit.Author
-	pipeline.UpdatedDate = lastCommit.Date
-	pipeline.CommitSHA = lastCommit.SHA
+	pipeline.LastCommitDate = lastCommit.Date
+	pipeline.LastCommitSha = lastCommit.SHA
 
 	pipeline.Path = strings.TrimPrefix(pipeline.Path, rootDir+"/")
 	pipeline.ID, err = getPipelineId(rootDir, pipeline.Path)
@@ -72,7 +73,7 @@ func getPipelineId(rootDir, path string) (string, error) {
 
 }
 
-func enhancePipelines(rootDir string, pipelines []*Pipeline) error {
+func enhancePipelines(rootDir string, pipelines []*buildsecurity.Pipeline) error {
 	for _, pipeline := range pipelines {
 		if err := enhancePipeline(pipeline, rootDir); err != nil {
 			return err
@@ -81,8 +82,8 @@ func enhancePipelines(rootDir string, pipelines []*Pipeline) error {
 	return nil
 }
 
-func GetPipelines(rootDir string) ([]*Pipeline, error) {
-	pipelines := []*Pipeline{}
+func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, error) {
+	pipelines := []*buildsecurity.Pipeline{}
 	pipelines = append(pipelines, getParsedGitHubPipelines(rootDir)...)
 	pipelines = append(pipelines, getParsedGitLabPipelines(rootDir)...)
 	pipelines = append(pipelines, getParsedAzurePipelines(rootDir)...)
