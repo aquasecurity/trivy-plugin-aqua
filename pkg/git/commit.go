@@ -7,6 +7,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+type Commit struct {
+	SHA    string
+	Date   string
+	Author string
+}
+
 func GetFirstCommit(path string) (Commit, error) {
 	dir := filepath.Dir(path)
 	out, err := GitExecInDir(dir, "log", "--format=%H%x1f%ai%x1f%aN", "--diff-filter=A", "--", path)
