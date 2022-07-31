@@ -1,6 +1,7 @@
 package pipelines
 
 import (
+	// #nosec
 	"crypto/md5"
 	"encoding/hex"
 	"strings"
@@ -77,6 +78,7 @@ func getPipelineId(rootDir, path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	// #nosec - MD5 is used to generate a unique ID
 	hash := md5.Sum([]byte(scmId + path))
 	return hex.EncodeToString(hash[:]), nil
 }
