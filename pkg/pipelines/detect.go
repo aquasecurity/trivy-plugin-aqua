@@ -28,20 +28,23 @@ func isYamlFile(path string, info os.FileInfo) bool {
 	return !info.IsDir() && hasSuffixes(path, ".yml", ".yaml")
 }
 
-func getGitHubPipelines(rootDir string) []string {
+func getGitHubPipelines(rootDir string) ([]string, error) {
 	workflowsDir := filepath.Join(rootDir, gitHubWorkflowsDir)
 	if _, err := os.Stat(workflowsDir); os.IsNotExist(err) {
-		return nil
+		return nil, err
 	}
 
 	var pipelines []string
-	filepath.Walk(workflowsDir, func(path string, info fs.FileInfo, err error) error {
+	if err := filepath.Walk(workflowsDir, func(path string, info fs.FileInfo, err error) error {
 		if isYamlFile(path, info) {
 			pipelines = append(pipelines, path)
 		}
 		return nil
-	})
-	return pipelines
+	}); err != nil {
+		return nil, err
+	}
+
+	return pipelines, nil
 }
 
 func getGitLabPipelines(rootDir string) []string {
@@ -52,9 +55,9 @@ func getGitLabPipelines(rootDir string) []string {
 	return []string{gitLabPipelineFilename}
 }
 
-func getAzurePipelines(rootDir string) []string {
+func getAzurePipelines(rootDir string) ([]string, error) {
 	var pipelines []string
-	filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
+	if err := filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
 		if !isYamlFile(path, info) {
 			return nil
 		}
@@ -63,6 +66,9 @@ func getAzurePipelines(rootDir string) []string {
 		}
 
 		return nil
-	})
-	return pipelines
+	}); err != nil {
+		return nil, err
+	}
+
+	return pipelines, nil
 }

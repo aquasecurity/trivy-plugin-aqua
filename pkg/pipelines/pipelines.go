@@ -11,13 +11,18 @@ import (
 	"github.com/samber/lo"
 )
 
-func getParsedGitHubPipelines(rootDir string) []*buildsecurity.Pipeline {
-	gitHubWorkflows := getGitHubPipelines(rootDir)
+func getParsedGitHubPipelines(rootDir string) ([]*buildsecurity.Pipeline, error) {
+	gitHubWorkflows, err := getGitHubPipelines(rootDir)
+	if err != nil {
+		return nil, err
+	}
+
 	parsedGithubPipelines := lo.FilterMap(gitHubWorkflows, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseGitHubWorkflow(path)
 		return pipeline, err == nil
 	})
-	return parsedGithubPipelines
+
+	return parsedGithubPipelines, nil
 }
 
 func getParsedGitLabPipelines(rootDir string) []*buildsecurity.Pipeline {
@@ -29,13 +34,17 @@ func getParsedGitLabPipelines(rootDir string) []*buildsecurity.Pipeline {
 	return parsedGitLabPipelines
 }
 
-func getParsedAzurePipelines(rootDir string) []*buildsecurity.Pipeline {
-	azurePipelines := getAzurePipelines(rootDir)
+func getParsedAzurePipelines(rootDir string) ([]*buildsecurity.Pipeline, error) {
+	azurePipelines, err := getAzurePipelines(rootDir)
+	if err != nil {
+		return nil, err
+	}
+
 	parsedAzurePipelines := lo.FilterMap(azurePipelines, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseAzurePipelineFile(path)
 		return pipeline, err == nil
 	})
-	return parsedAzurePipelines
+	return parsedAzurePipelines, nil
 }
 
 func enhancePipeline(pipeline *buildsecurity.Pipeline, rootDir string) error {
@@ -70,23 +79,33 @@ func getPipelineId(rootDir, path string) (string, error) {
 	}
 	hash := sha1.Sum([]byte(scmId + path))
 	return hex.EncodeToString(hash[:]), nil
-
 }
 
 func enhancePipelines(rootDir string, pipelines []*buildsecurity.Pipeline) error {
-	for _, pipeline := range pipelines {
-		if err := enhancePipeline(pipeline, rootDir); err != nil {
-			return err
+	var err error
+	lo.ForEach(pipelines, func(pipeline *buildsecurity.Pipeline, _ int) {
+		if err == nil {
+			err = enhancePipeline(pipeline, rootDir)
 		}
-	}
-	return nil
+	})
+	return err
 }
 
 func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, error) {
 	pipelines := []*buildsecurity.Pipeline{}
-	pipelines = append(pipelines, getParsedGitHubPipelines(rootDir)...)
+	githubPipelines, err := getParsedGitHubPipelines(rootDir)
+	if err != nil {
+		return nil, err
+	}
+	pipelines = append(pipelines, githubPipelines...)
+
+	azurePipelines, err := getParsedAzurePipelines(rootDir)
+	if err != nil {
+		return nil, err
+	}
+	pipelines = append(pipelines, azurePipelines...)
+
 	pipelines = append(pipelines, getParsedGitLabPipelines(rootDir)...)
-	pipelines = append(pipelines, getParsedAzurePipelines(rootDir)...)
 
 	if err := enhancePipelines(rootDir, pipelines); err != nil {
 		return nil, err
