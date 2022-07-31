@@ -29,11 +29,9 @@ func parseGitHubWorkflow(workflowPath string) (*Pipeline, error) {
 	}
 
 	return &Pipeline{
-		ID:       *parsedPipeline.Name,
 		Name:     *parsedPipeline.Name,
 		Path:     workflowPath,
 		Platform: string(ppConsts.GitHubPlatform),
-		// Link:     "",
 	}, nil
 }
 
@@ -44,10 +42,21 @@ func parseGitLabPipelineFile(pipelinePath string) (*Pipeline, error) {
 	}
 
 	return &Pipeline{
-		ID:       *parsedPipeline.Name,
 		Name:     *parsedPipeline.Name,
 		Path:     pipelinePath,
 		Platform: string(ppConsts.GitLabPlatform),
-		// Link:     "",
+	}, nil
+}
+
+func parseAzurePipelineFile(pipelinePath string) (*Pipeline, error) {
+	parsedPipeline, err := parsePipelineFile(pipelinePath, ppConsts.AzurePlatform)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Pipeline{
+		Name:     *parsedPipeline.Name,
+		Path:     pipelinePath,
+		Platform: string(ppConsts.AzurePlatform),
 	}, nil
 }

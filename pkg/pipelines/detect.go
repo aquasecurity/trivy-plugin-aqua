@@ -44,7 +44,7 @@ func getGitHubPipelines(rootDir string) []string {
 	return pipelines
 }
 
-func getGitlabPipelines(rootDir string) []string {
+func getGitLabPipelines(rootDir string) []string {
 	gitLabPipelineFilename := filepath.Join(rootDir, gitLabPipelineFile)
 	if _, err := os.Stat(gitLabPipelineFilename); os.IsNotExist(err) {
 		return nil

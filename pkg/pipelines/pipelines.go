@@ -1,9 +1,12 @@
 package pipelines
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/samber/lo"
 )
 
@@ -14,6 +17,24 @@ func getParsedGitHubPipelines(rootDir string) []*Pipeline {
 		return pipeline, err == nil
 	})
 	return parsedGithubPipelines
+}
+
+func getParsedGitLabPipelines(rootDir string) []*Pipeline {
+	gitLabPipelines := getGitLabPipelines(rootDir)
+	parsedGitLabPipelines := lo.FilterMap(gitLabPipelines, func(path string, _ int) (*Pipeline, bool) {
+		pipeline, err := parseGitLabPipelineFile(path)
+		return pipeline, err == nil
+	})
+	return parsedGitLabPipelines
+}
+
+func getParsedAzurePipelines(rootDir string) []*Pipeline {
+	azurePipelines := getAzurePipelines(rootDir)
+	parsedAzurePipelines := lo.FilterMap(azurePipelines, func(path string, _ int) (*Pipeline, bool) {
+		pipeline, err := parseAzurePipelineFile(path)
+		return pipeline, err == nil
+	})
+	return parsedAzurePipelines
 }
 
 func enhancePipeline(pipeline *Pipeline, rootDir string) error {
@@ -33,8 +54,22 @@ func enhancePipeline(pipeline *Pipeline, rootDir string) error {
 	pipeline.CommitSHA = lastCommit.SHA
 
 	pipeline.Path = strings.TrimPrefix(pipeline.Path, rootDir+"/")
+	pipeline.ID, err = getPipelineId(rootDir, pipeline.Path)
+	if err != nil {
+		return err
+	}
 
 	return nil
+}
+
+func getPipelineId(rootDir, path string) (string, error) {
+	scmId, err := metadata.GetScmID(rootDir)
+	if err != nil {
+		return "", err
+	}
+	hash := sha1.Sum([]byte(scmId + path))
+	return hex.EncodeToString(hash[:]), nil
+
 }
 
 func enhancePipelines(rootDir string, pipelines []*Pipeline) error {
@@ -49,6 +84,9 @@ func enhancePipelines(rootDir string, pipelines []*Pipeline) error {
 func GetPipelines(rootDir string) ([]*Pipeline, error) {
 	pipelines := []*Pipeline{}
 	pipelines = append(pipelines, getParsedGitHubPipelines(rootDir)...)
+	pipelines = append(pipelines, getParsedGitLabPipelines(rootDir)...)
+	pipelines = append(pipelines, getParsedAzurePipelines(rootDir)...)
+
 	if err := enhancePipelines(rootDir, pipelines); err != nil {
 		return nil, err
 	}
