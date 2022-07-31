@@ -23,41 +23,27 @@ func parsePipelineFile(path string, platform ppConsts.Platform) (*ppModels.Pipel
 
 }
 
-func parseGitHubWorkflow(workflowPath string) (*buildsecurity.Pipeline, error) {
-	parsedPipeline, err := parsePipelineFile(workflowPath, ppConsts.GitHubPlatform)
+func parsePipeline(path string, platform ppConsts.Platform) (*buildsecurity.Pipeline, error) {
+	parsedPipeline, err := parsePipelineFile(path, platform)
 	if err != nil {
 		return nil, err
 	}
 
 	return &buildsecurity.Pipeline{
 		Name:     *parsedPipeline.Name,
-		Path:     workflowPath,
-		Platform: string(ppConsts.GitHubPlatform),
+		Path:     path,
+		Platform: string(platform),
 	}, nil
+}
+
+func parseGitHubWorkflow(workflowPath string) (*buildsecurity.Pipeline, error) {
+	return parsePipeline(workflowPath, ppConsts.GitHubPlatform)
 }
 
 func parseGitLabPipelineFile(pipelinePath string) (*buildsecurity.Pipeline, error) {
-	parsedPipeline, err := parsePipelineFile(pipelinePath, ppConsts.GitLabPlatform)
-	if err != nil {
-		return nil, err
-	}
-
-	return &buildsecurity.Pipeline{
-		Name:     *parsedPipeline.Name,
-		Path:     pipelinePath,
-		Platform: string(ppConsts.GitLabPlatform),
-	}, nil
+	return parsePipeline(pipelinePath, ppConsts.GitLabPlatform)
 }
 
 func parseAzurePipelineFile(pipelinePath string) (*buildsecurity.Pipeline, error) {
-	parsedPipeline, err := parsePipelineFile(pipelinePath, ppConsts.AzurePlatform)
-	if err != nil {
-		return nil, err
-	}
-
-	return &buildsecurity.Pipeline{
-		Name:     *parsedPipeline.Name,
-		Path:     pipelinePath,
-		Platform: string(ppConsts.AzurePlatform),
-	}, nil
+	return parsePipeline(pipelinePath, ppConsts.AzurePlatform)
 }
