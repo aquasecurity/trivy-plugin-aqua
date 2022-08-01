@@ -3,10 +3,10 @@ package scanner
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/pkg/errors"
 )
@@ -16,16 +16,6 @@ const (
 	gitStatusAdded       = "A"
 	gitStatusRenamedOnly = "R100"
 )
-
-func gitExec(args ...string) (out string, err error) {
-	cmd := exec.Command("git", args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return out, errors.Wrap(err, fmt.Sprintf("failed run git cmd output: %s", string(output)))
-	}
-
-	return string(output), nil
-}
 
 func writeFile(path, content string) error {
 	f, err := os.Create(path)
@@ -53,18 +43,18 @@ func createDiffScanFs() error {
 	// In GitHub we need fetch the remote branch first
 	if os.Getenv("GITHUB_BASE_REF") != "" {
 		// In GitHub trivy action container we need safe directory to run git fetch
-		_, err := gitExec("config", "--global", "--add", "safe.directory", "/github/workspace")
+		_, err := git.GitExec("config", "--global", "--add", "safe.directory", "/github/workspace")
 		if err != nil {
 			return errors.Wrap(err, "failed git fetch ref")
 		}
-		_, err = gitExec("fetch", "origin", fmt.Sprintf("refs/heads/%s", os.Getenv("GITHUB_BASE_REF")))
+		_, err = git.GitExec("fetch", "origin", fmt.Sprintf("refs/heads/%s", os.Getenv("GITHUB_BASE_REF")))
 		if err != nil {
 			return errors.Wrap(err, "failed git fetch ref")
 		}
 	}
 
 	diffCmd := metadata.GetBaseRef()
-	out, err := gitExec("diff", "--name-status", diffCmd)
+	out, err := git.GitExec("diff", "--name-status", diffCmd)
 	if err != nil {
 		return errors.Wrap(err, "failed git diff")
 	}
@@ -93,7 +83,7 @@ func createDiffScanFs() error {
 					if err != nil {
 						return errors.Wrap(err, "failed mkdir aqua tmp path")
 					}
-					out, err = gitExec("show", fmt.Sprintf("%s:%s", diffCmd, fileName))
+					out, err = git.GitExec("show", fmt.Sprintf("%s:%s", diffCmd, fileName))
 					if err != nil {
 						return errors.Wrap(err, "failed git show origin:"+fileName)
 					}
@@ -112,7 +102,7 @@ func createDiffScanFs() error {
 					return errors.Wrap(err, "failed mkdir aqua tmp path")
 				}
 
-				out, err = gitExec("show", fmt.Sprintf(":%s", fileName))
+				out, err = git.GitExec("show", fmt.Sprintf(":%s", fileName))
 				if err != nil {
 					return errors.Wrap(err, "failed git show")
 				}

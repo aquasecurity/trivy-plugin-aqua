@@ -7,7 +7,7 @@ import (
 )
 
 // Upload forwards the results to the configured client
-func Upload(client buildClient.Client, results []*buildsecurity.Result, tags map[string]string, avdUrlMap buildClient.ResultIdToUrlMap) error {
+func Upload(client buildClient.Client, results []*buildsecurity.Result, tags map[string]string, avdUrlMap buildClient.ResultIdToUrlMap, pipelines []*buildsecurity.Pipeline) error {
 	log.Logger.Debugf("Uploading scan with tags. %v", tags)
-	return client.Upload(results, tags, avdUrlMap)
+	return client.Upload(results, tags, avdUrlMap, pipelines)
 }

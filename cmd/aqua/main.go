@@ -94,6 +94,11 @@ func main() {
 			Usage:   "Add this flag to determine where the scan is coming from (push, pr, offline)",
 			EnvVars: []string{"TRIGGERED_BY"},
 		},
+		&cli.BoolFlag{
+			Name:    "pipelines",
+			Usage:   "Add this flag to fetch and scan pipelines",
+			EnvVars: []string{"PIPELINES"},
+		},
 		&cli.StringSliceFlag{
 			Name:  "tags",
 			Usage: "Add this flag for key:val pairs as scan metadata",
@@ -181,7 +186,7 @@ func runScan(c *cli.Context) error {
 			return err
 		}
 	}
-	report, err := scanner.Scan(c, scanPath)
+	report, pipelines, err := scanner.Scan(c, scanPath)
 	if err != nil {
 		return err
 	}
@@ -202,7 +207,7 @@ func runScan(c *cli.Context) error {
 		if c.String("tags") != "" {
 			tags = convertToTags(c.StringSlice("tags"))
 		}
-		if err := uploader.Upload(client, processedResults, tags, avdUrlMap); err != nil {
+		if err := uploader.Upload(client, processedResults, tags, avdUrlMap, pipelines); err != nil {
 			return err
 		}
 	}
