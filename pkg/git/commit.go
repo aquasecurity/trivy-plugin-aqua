@@ -14,24 +14,17 @@ type Commit struct {
 }
 
 func GetFirstCommit(path string) (Commit, error) {
-	dir := filepath.Dir(path)
-	out, err := GitExecInDir(dir, "log", "--format=%H%x1f%ai%x1f%aN", "--diff-filter=A", "--", path)
-	if err != nil {
-		return Commit{}, errors.Wrap(err, "failed to get first commit")
-	}
-
-	var commit Commit
-	if err := parseCommit(out, &commit); err != nil {
-		return Commit{}, errors.Wrap(err, "failed to parse commit")
-	}
-
-	return commit, nil
+	return executeCommitCommand(path, "log", "--format=%H%x1f%ai%x1f%aN", "--diff-filter=A", "--", path)
 }
 
 // Gets the last commit that modified the file
 func GetLastCommit(path string) (Commit, error) {
+	return executeCommitCommand(path, "log", "-n", "1", "--format=%H%x1f%ai%x1f%aN", "--", path)
+}
+
+func executeCommitCommand(path string, args ...string) (Commit, error) {
 	dir := filepath.Dir(path)
-	out, err := GitExecInDir(dir, "log", "-n", "1", "--format=%H%x1f%ai%x1f%aN", "--", path)
+	out, err := GitExecInDir(dir, args...)
 	if err != nil {
 		return Commit{}, errors.Wrap(err, "failed to get last commit")
 	}
