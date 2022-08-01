@@ -2,6 +2,7 @@ package pipelines
 
 import (
 	"io/ioutil"
+	"path/filepath"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	ppConsts "github.com/argonsecurity/pipeline-parser/pkg/consts"
@@ -29,8 +30,13 @@ func parsePipeline(path string, platform ppConsts.Platform) (*buildsecurity.Pipe
 		return nil, err
 	}
 
+	pipelineName := filepath.Base(path)
+	if parsedPipeline.Name != nil {
+		pipelineName = *parsedPipeline.Name
+	}
+
 	return &buildsecurity.Pipeline{
-		Name:     *parsedPipeline.Name,
+		Name:     pipelineName,
 		Path:     path,
 		Platform: string(platform),
 	}, nil
