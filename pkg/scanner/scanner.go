@@ -68,8 +68,7 @@ func Scan(c *cli.Context, path string) (*trivyTypes.Report, []*buildsecurity.Pip
 			opt.Target = aquaPath
 		}
 
-		// Determine if we want to send pipelines on PR
-		if c.Bool("pipelines") && c.String("triggered-by") != "PR" {
+		if c.Bool("pipelines") {
 			repositoryPipelines, err = pipelines.GetPipelines(path)
 			if err != nil {
 				return nil, nil, errors.Wrap(err, "failed get pipelines")
