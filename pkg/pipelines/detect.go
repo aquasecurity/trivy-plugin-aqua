@@ -36,6 +36,10 @@ func getGitHubPipelines(rootDir string) ([]string, error) {
 
 	var pipelines []string
 	if err := filepath.Walk(workflowsDir, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
 		if isYamlFile(path, info) {
 			pipelines = append(pipelines, path)
 		}
@@ -58,6 +62,9 @@ func getGitLabPipelines(rootDir string) []string {
 func getAzurePipelines(rootDir string) ([]string, error) {
 	var pipelines []string
 	if err := filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 		if !isYamlFile(path, info) {
 			return nil
 		}
