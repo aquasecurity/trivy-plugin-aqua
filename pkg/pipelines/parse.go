@@ -31,7 +31,7 @@ func parsePipeline(path string, platform ppConsts.Platform) (*buildsecurity.Pipe
 	}
 
 	pipelineName := filepath.Base(path)
-	if parsedPipeline.Name != nil {
+	if parsedPipeline.Name != nil && *parsedPipeline.Name != "" {
 		pipelineName = *parsedPipeline.Name
 	}
 
