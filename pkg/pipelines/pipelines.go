@@ -4,18 +4,21 @@ import (
 	// #nosec
 	"crypto/md5"
 	"encoding/hex"
+	"io/ioutil"
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
+	"github.com/aquasecurity/trivy/pkg/fanal/types"
+	ppConsts "github.com/argonsecurity/pipeline-parser/pkg/consts"
 	"github.com/samber/lo"
 )
 
-func getParsedGitHubPipelines(rootDir string) ([]*buildsecurity.Pipeline, error) {
+func getParsedGitHubPipelines(rootDir string) ([]*buildsecurity.Pipeline, []string, error) {
 	gitHubWorkflows, err := getGitHubPipelines(rootDir)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	parsedGithubPipelines := lo.FilterMap(gitHubWorkflows, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
@@ -23,29 +26,29 @@ func getParsedGitHubPipelines(rootDir string) ([]*buildsecurity.Pipeline, error)
 		return pipeline, err == nil
 	})
 
-	return parsedGithubPipelines, nil
+	return parsedGithubPipelines, gitHubWorkflows, nil
 }
 
-func getParsedGitLabPipelines(rootDir string) []*buildsecurity.Pipeline {
+func getParsedGitLabPipelines(rootDir string) ([]*buildsecurity.Pipeline, []string) {
 	gitLabPipelines := getGitLabPipelines(rootDir)
 	parsedGitLabPipelines := lo.FilterMap(gitLabPipelines, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseGitLabPipelineFile(path)
 		return pipeline, err == nil
 	})
-	return parsedGitLabPipelines
+	return parsedGitLabPipelines, gitLabPipelines
 }
 
-func getParsedAzurePipelines(rootDir string) ([]*buildsecurity.Pipeline, error) {
+func getParsedAzurePipelines(rootDir string) ([]*buildsecurity.Pipeline, []string, error) {
 	azurePipelines, err := getAzurePipelines(rootDir)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	parsedAzurePipelines := lo.FilterMap(azurePipelines, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseAzurePipelineFile(path)
 		return pipeline, err == nil
 	})
-	return parsedAzurePipelines, nil
+	return parsedAzurePipelines, azurePipelines, nil
 }
 
 func enhancePipeline(pipeline *buildsecurity.Pipeline, rootDir string) error {
@@ -93,25 +96,67 @@ func enhancePipelines(rootDir string, pipelines []*buildsecurity.Pipeline) error
 	return err
 }
 
-func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, error) {
-	pipelines := []*buildsecurity.Pipeline{}
-	githubPipelines, err := getParsedGitHubPipelines(rootDir)
-	if err != nil {
-		return nil, err
-	}
-	pipelines = append(pipelines, githubPipelines...)
+func getPipelinesFiles(pipelinePaths []string) ([]types.File, error) {
+	var files []types.File
+	for _, pipelinePath := range pipelinePaths {
+		content, err := ioutil.ReadFile(pipelinePath)
+		if err != nil {
+			return nil, err
+		}
 
-	azurePipelines, err := getParsedAzurePipelines(rootDir)
+		files = append(files, types.File{
+			Path:    pipelinePath,
+			Content: content,
+			Type:    "yaml",
+		})
+	}
+	return files, nil
+}
+
+func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, map[string]ppConsts.Platform, error) {
+	var files []types.File
+	var sourcesMap = map[string]ppConsts.Platform{}
+	pipelines := []*buildsecurity.Pipeline{}
+	paths := []string{}
+	githubPipelines, githubPaths, err := getParsedGitHubPipelines(rootDir)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
+	}
+
+	for _, pipeline := range githubPaths {
+		sourcesMap[pipeline] = ppConsts.GitHubPlatform
+	}
+
+	pipelines = append(pipelines, githubPipelines...)
+	paths = append(paths, githubPaths...)
+
+	azurePipelines, azurePaths, err := getParsedAzurePipelines(rootDir)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	for _, pipeline := range azurePaths {
+		sourcesMap[pipeline] = ppConsts.AzurePlatform
 	}
 	pipelines = append(pipelines, azurePipelines...)
+	paths = append(paths, azurePaths...)
 
-	pipelines = append(pipelines, getParsedGitLabPipelines(rootDir)...)
-
-	if err := enhancePipelines(rootDir, pipelines); err != nil {
-		return nil, err
+	gitlabPipelines, gitlabPaths := getParsedGitLabPipelines(rootDir)
+	for _, pipeline := range gitlabPaths {
+		sourcesMap[pipeline] = ppConsts.GitLabPlatform
 	}
 
-	return pipelines, nil
+	pipelines = append(pipelines, gitlabPipelines...)
+	paths = append(paths, gitlabPaths...)
+
+	files, err = getPipelinesFiles(paths)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	if err := enhancePipelines(rootDir, pipelines); err != nil {
+		return nil, nil, nil, err
+	}
+
+	return pipelines, files, sourcesMap, err
 }

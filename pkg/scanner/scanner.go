@@ -1,12 +1,16 @@
 package scanner
 
 import (
+	"context"
 	_ "embed"
 	"fmt"
+	"io"
 	"os"
+
 	"path/filepath"
 	"strings"
 
+	"github.com/liamg/memoryfs"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/exp/slices"
@@ -15,10 +19,14 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/pipelines"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
+	"github.com/aquasecurity/trivy/pkg/fanal/types"
+	ppConsts "github.com/argonsecurity/pipeline-parser/pkg/consts"
+
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
 )
 
 const aquaPath = "/tmp/aqua"
+const policiesPath = "/Users/tamirkiviti/Argon/trivy-plugin-aqua/pkg/pipelines/policies/policy.rego"
 
 //go:embed trivy-secret.yaml
 var secretsConfig string
@@ -69,11 +77,17 @@ func Scan(c *cli.Context, path string) (*trivyTypes.Report, []*buildsecurity.Pip
 		}
 
 		if c.Bool("pipelines") {
-			repositoryPipelines, err = pipelines.GetPipelines(path)
+			repositoryPipelines, files, sourcesMap, err := pipelines.GetPipelines(path)
 			if err != nil {
 				return nil, nil, errors.Wrap(err, "failed get pipelines")
 			}
+			pipelineMisconfigurations, err := ScanPipelines(ctx, repositoryPipelines, files, sourcesMap)
+			fmt.Println(pipelineMisconfigurations)
+			if err != nil {
+				return nil, nil, errors.Wrap(err, "failed scan pipelines")
+			}
 		}
+
 		// Filesystem scanning
 		if report, err = r.ScanFilesystem(ctx, opt); err != nil {
 			return nil, nil, xerrors.Errorf("image scan error: %w", err)
@@ -107,4 +121,37 @@ func MatchTriggeredBy(triggeredBy string) buildsecurity.TriggeredByEnum {
 	triggeredBy = fmt.Sprintf("TRIGGERED_BY_%s", triggeredBy)
 	index := buildsecurity.TriggeredByEnum_value[triggeredBy]
 	return buildsecurity.TriggeredByEnum(index)
+}
+
+func CreateMemoryFs(files []types.File) (*memoryfs.FS, error) {
+	memFs := memoryfs.New()
+
+	for _, file := range files {
+		if filepath.Dir(file.Path) != "." {
+			if err := memFs.MkdirAll(filepath.Dir(file.Path), os.ModePerm); err != nil {
+				return nil, xerrors.Errorf("memoryfs mkdir error: %w", err)
+			}
+		}
+		if err := memFs.WriteFile(file.Path, file.Content, os.ModePerm); err != nil {
+			return nil, xerrors.Errorf("memoryfs write error: %w", err)
+		}
+	}
+	return memFs, nil
+}
+
+func ScanPipelines(ctx context.Context, repositoryPipelines []*buildsecurity.Pipeline, files []types.File, sourcesMap map[string]ppConsts.Platform) ([]*trivyTypes.DetectedMisconfiguration, error) {
+	f, err := os.Open(filepath.ToSlash(policiesPath))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed read policies")
+	}
+	memFs, err := CreateMemoryFs(files)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed create memory fs")
+	}
+	pipelineScanner := pipelines.NewScanner()
+	pipelineScanner.SetPolicyReaders([]io.Reader{f})
+
+	mis, err := pipelineScanner.ScanFS(context.WithValue(ctx, "sourcesMap", sourcesMap), memFs, "/")
+	fmt.Println(mis)
+	return nil, nil
 }
