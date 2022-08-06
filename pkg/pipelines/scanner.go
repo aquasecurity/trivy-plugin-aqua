@@ -129,7 +129,7 @@ func (s *Scanner) scanRego(ctx context.Context, srcFS fs.FS, inputs ...rego.Inpu
 	if err != nil {
 		return nil, err
 	}
-	regoScanner.SetPolicyNamespaces("main")
+
 	results, err := regoScanner.ScanInput(ctx, inputs...)
 	if err != nil {
 		return nil, err

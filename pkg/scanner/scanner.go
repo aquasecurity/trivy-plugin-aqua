@@ -32,7 +32,7 @@ import (
 )
 
 const aquaPath = "/tmp/aqua"
-const policiesPath = "/Users/tamirkiviti/Argon/trivy-plugin-aqua/pkg/pipelines/policies/policy.rego"
+const policiesPath = "/Users/tamirkiviti/Argon/trivy-plugin-aqua/pkg/pipelines/rules"
 
 //go:embed trivy-secret.yaml
 var secretsConfig string
@@ -84,7 +84,9 @@ func Scan(c *cli.Context, path string) (*trivyTypes.Report, []*buildsecurity.Pip
 		}
 
 		if c.Bool("pipelines") {
-			repositoryPipelines, files, sourcesMap, err := pipelines.GetPipelines(path)
+			var files []types.File
+			var sourcesMap map[string]ppConsts.Platform
+			repositoryPipelines, files, sourcesMap, err = pipelines.GetPipelines(path)
 			if err != nil {
 				return nil, nil, errors.Wrap(err, "failed get pipelines")
 			}
