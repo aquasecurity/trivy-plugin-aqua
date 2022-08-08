@@ -4,8 +4,8 @@ go 1.18
 
 require (
 	github.com/aquasecurity/defsec v0.68.3
-	github.com/aquasecurity/go-dep-parser v0.0.0-20220607141748-ab2deea55bdf
-	github.com/aquasecurity/go-git-pr-commenter v0.3.0
+	github.com/aquasecurity/go-dep-parser v0.0.0-20220804071900-9f811a36efa3
+	github.com/aquasecurity/go-git-pr-commenter v0.4.0
 	github.com/aquasecurity/trivy v0.29.2
 	github.com/aquasecurity/trivy-db v0.0.0-20220602091213-39d8a6798e07
 	github.com/argonsecurity/pipeline-parser v0.1.15
