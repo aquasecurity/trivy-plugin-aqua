@@ -25,9 +25,8 @@ deny[msg] {
 	count(path) == 1
 	pipeline.contains_untrusted_inputs(value)
 	msg := {
-		"id": "ERROR_UNTRUSTED_INPUT_USAGE",
-		"line": value,
-		"start_line": envs[i].file_reference.start_ref.line,
-		"end_line": envs[i].file_reference.end_ref.line,
+		"msg": value,
+		"startline": envs[i].file_reference.start_ref.line,
+		"endline": envs[i].file_reference.end_ref.line,
 	}
 }

@@ -26,9 +26,8 @@ deny[result] {
 	pipeline.contains_fetching_commands(script)
 
 	result = {
-		"id": "GITLAB-PIPELINE-02",
-		"line": script,
-		"start_line": input.jobs[i].steps[j].file_reference.start_ref.line,
-		"end_line": input.jobs[i].steps[j].file_reference.end_ref.line,
+		"msg": script,
+		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
+		"endline": input.jobs[i].steps[j].file_reference.end_ref.line,
 	}
 }

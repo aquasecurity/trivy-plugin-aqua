@@ -26,9 +26,8 @@ deny[msg] {
 	pipeline.contains_log_functions(script)
 	pipeline.contains_variables(script)
 	msg := {
-		"id": "ERROR_VARIABLES_LOGGING",
-		"line": script,
-		"start_line": input.jobs[i].steps[j].file_reference.start_ref.line,
-		"end_line": input.jobs[i].steps[j].file_reference.end_ref.line,
+		"msg": script,
+		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
+		"endline": input.jobs[i].steps[j].file_reference.end_ref.line,
 	}
 }

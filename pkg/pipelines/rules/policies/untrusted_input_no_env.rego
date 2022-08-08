@@ -23,10 +23,9 @@ deny[msg] {
 	fields := pipeline.get_job_fields(input.jobs[i])
 	pipeline.contains_untrusted_inputs(fields[j])
 	msg := {
-		"id": "ERROR_UNTRUSTED_INPUT_NO_ENV",
-		"line": fields[j],
-		"start_line": input.jobs[i].file_reference.start_ref.line,
-		"end_line": input.jobs[i].file_reference.end_ref.line,
+		"msg": fields[j],
+		"startline": input.jobs[i].file_reference.start_ref.line,
+		"endline": input.jobs[i].file_reference.end_ref.line,
 	}
 }
 
@@ -35,9 +34,8 @@ deny[msg] {
 	fields := pipeline.get_step_fields(input.jobs[i].steps[j])
 	pipeline.contains_untrusted_inputs(fields[k])
 	msg := {
-		"id": "ERROR_UNTRUSTED_INPUT_NO_ENV",
-		"line": fields[k],
-		"start_line": input.jobs[i].steps[j].file_reference.start_ref.line,
-		"end_line": input.jobs[i].steps[j].file_reference.end_ref.line,
+		"msg": fields[k],
+		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
+		"endline": input.jobs[i].steps[j].file_reference.end_ref.line,
 	}
 }

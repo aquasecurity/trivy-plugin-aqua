@@ -29,10 +29,9 @@ deny[msg] {
 	pipeline.contains_ref_value(input.jobs[i].steps[j].task.inputs[k].value)
 
 	msg := {
-		"id": "ERROR_CHECKOUT_WITH_PR_TARGET",
-		"line": "pull_request_target",
-		"start_line": input.triggers.triggers[a].file_reference.start_ref.line,
-		"end_line": input.triggers.triggers[a].file_reference.end_ref.line,
+		"msg": "pull_request_target: true",
+		"startline": input.triggers.triggers[a].file_reference.start_ref.line,
+		"endline": input.triggers.triggers[a].file_reference.end_ref.line,
 		"index": input.jobs[i].steps[j].file_reference.start_ref.line,
 	}
 }

@@ -25,9 +25,8 @@ deny[msg] {
 	not pipeline.persist_credentials_passing_check(input.jobs[i].steps[j].task)
 
 	msg := {
-		"id": "ERROR_PERSIST_CREDENTIALS",
-		"line": sprintf("%v", [input.jobs[i].steps[j].file_reference.start_ref.line]),
-		"start_line": input.jobs[i].steps[j].file_reference.start_ref.line,
-		"end_line": input.jobs[i].steps[j].file_reference.end_ref.line,
+		"msg": sprintf("%v", [input.jobs[i].steps[j].file_reference.start_ref.line]),
+		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
+		"endline": input.jobs[i].steps[j].file_reference.end_ref.line,
 	}
 }
