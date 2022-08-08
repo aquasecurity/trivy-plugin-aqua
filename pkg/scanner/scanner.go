@@ -172,7 +172,7 @@ func ScanPipelines(ctx context.Context, repositoryPipelines []*buildsecurity.Pip
 func getPolicyReaders() ([]io.Reader, error) {
 	var policyReaders []io.Reader
 
-	fs.WalkDir(pipelines.PipelineRules, ".", func(path string, d fs.DirEntry, err error) error {
+	if err := fs.WalkDir(pipelines.PipelineRules, ".", func(path string, d fs.DirEntry, err error) error {
 		if !d.IsDir() && strings.HasSuffix(d.Name(), ".rego") && !strings.HasSuffix(d.Name(), "_test.rego") {
 			f, err := pipelines.PipelineRules.Open(path)
 			if err != nil {
@@ -181,7 +181,9 @@ func getPolicyReaders() ([]io.Reader, error) {
 			policyReaders = append(policyReaders, f)
 		}
 		return nil
-	})
+	}); err != nil {
+		return nil, errors.Wrap(err, "failed read policies")
+	}
 
 	return policyReaders, nil
 }
