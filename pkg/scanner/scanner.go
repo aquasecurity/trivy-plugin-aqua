@@ -32,7 +32,6 @@ import (
 )
 
 const aquaPath = "/tmp/aqua"
-const policiesPath = "/Users/tamirkiviti/Argon/trivy-plugin-aqua/pkg/pipelines/rules"
 
 //go:embed trivy-secret.yaml
 var secretsConfig string
@@ -156,24 +155,26 @@ func ScanPipelines(ctx context.Context, repositoryPipelines []*buildsecurity.Pip
 		return nil, errors.Wrap(err, "failed create memory fs")
 	}
 	pipelineScanner := pipelines.NewScanner()
-	policyReaders, err := getPolicyReaders(policiesPath)
+	policyReaders, err := getPolicyReaders()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed get policy readers")
 	}
 	pipelineScanner.SetPolicyReaders(policyReaders)
 
 	scanResults, err := pipelineScanner.ScanFS(context.WithValue(ctx, "sourcesMap", sourcesMap), memFs, "/")
-	fmt.Println(scanResults)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed scan pipelines")
+	}
 	results := misconfsToResults(resultsToMisconf("pipeline", pipelineScanner.Name(), scanResults))
 	return results, nil
 }
 
-func getPolicyReaders(policyDirPath string) ([]io.Reader, error) {
+func getPolicyReaders() ([]io.Reader, error) {
 	var policyReaders []io.Reader
 
-	filepath.WalkDir(policyDirPath, func(path string, d fs.DirEntry, err error) error {
+	fs.WalkDir(pipelines.PipelineRules, ".", func(path string, d fs.DirEntry, err error) error {
 		if !d.IsDir() && strings.HasSuffix(d.Name(), ".rego") && !strings.HasSuffix(d.Name(), "_test.rego") {
-			f, err := os.Open(filepath.ToSlash(path))
+			f, err := pipelines.PipelineRules.Open(path)
 			if err != nil {
 				return errors.Wrap(err, fmt.Sprintf("failed read policy %s", path))
 			}
