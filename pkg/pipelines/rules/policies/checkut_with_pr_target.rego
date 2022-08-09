@@ -1,15 +1,15 @@
-package builtin.pipeline.ID3
+package builtin.pipeline.CHECKOUT_WITH_PR_TARGET
 
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "ID3",
-	"avd_id": "AVD-ID-3",
+	"id": "CHECKOUT_WITH_PR_TARGET",
+	"avd_id": "",
 	"title": "checkout with pull_request_target",
-	"severity": "MEDIUM",
+	"severity": "HIGH",
 	"type": "Pipeline Yaml Security Check",
-	"description": "pull_request_target gives write permissions to the target repository. While it is good when automating PR labeling, performing chekout or build action can inject your source code in the original repository, instead of running in the merge commit like pull_request trigger. It is recommended to avoid checkout and build when triggering a workflow with pull_request_target.",
-	"recommended_actions": "",
+	"description": "pull_request_target gives write permissions to the target repository. While it is good when automating PR labeling, performing chekout or build action can inject your source code in the original repository, instead of running in the merge commit like pull_request trigger. It is recommended to avoid checkout and build when triggering a workflow with pull_request_target",
+	"recommended_actions": "Avoid using pull_request_target trigger for checkout and build actions",
 	"url": "",
 }
 
@@ -29,7 +29,7 @@ deny[msg] {
 	pipeline.contains_ref_value(input.jobs[i].steps[j].task.inputs[k].value)
 
 	msg := {
-		"msg": "pull_request_target: true",
+		"msg": "Consider removing pull_request_target trigger for checkout action",
 		"startline": input.triggers.triggers[a].file_reference.start_ref.line,
 		"endline": input.triggers.triggers[a].file_reference.end_ref.line,
 		"index": input.jobs[i].steps[j].file_reference.start_ref.line,

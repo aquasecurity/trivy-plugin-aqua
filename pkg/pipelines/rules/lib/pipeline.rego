@@ -118,11 +118,13 @@ persist_credentials_passing_check(task) {
 	i.value == false
 }
 
-result(msg, cmd) = result {
-	result := {
-		"msg": msg,
-		"startline": object.get(cmd, "StartLine", 0),
-		"endline": object.get(cmd, "EndLine", 0),
-		"filepath": object.get(cmd, "Path", ""),
-	}
+does_job_contain_one_of_tasks(job, regexes) {
+	job.steps[i].type == "task"
+	regex.match(regexes[_], job.steps[i].task.name)
+}
+
+does_job_contain_one_of_shell_commands(job, regexes) {
+	job.steps[i].type == "shell"
+	r := regexes[_]
+	regex.match(r, job.steps[i].shell.script)
 }

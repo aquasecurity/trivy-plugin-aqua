@@ -1,14 +1,14 @@
-package builtin.pipeline.ID6
+package builtin.pipeline.UNTRUSTED_INPUT_NO_ENV
 
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "ID6",
-	"avd_id": "AVD-ID-6",
+	"id": "UNTRUSTED_INPUT_NO_ENV",
+	"avd_id": "",
 	"title": "Potentially untrusted input",
-	"severity": "MEDIUM",
+	"severity": "HIGH",
 	"type": "Pipeline Yaml Security Check",
-	"description": "GitHub Actions workflows can be triggered by a variety of events. Every workflow trigger is provided with a GitHub context that contains information about the triggering event, such as which user triggered it, the branch name, and other event context details. Some of this event data, like the base repository name, hash value of a changeset, or pull request number, is unlikely to be controlled or used for injection by the user that triggered the event (e.g. a pull request).  However, there is a long list of event context data that might be attacker controlled and should be treated as potentially untrusted input. Developers should carefully handle potentially untrusted input and make sure it doesn't flow into API calls where the data could be interpreted as code.",
+	"description": "when defining environment variable inside step that runs a script, the variable is evaluated inside the shell, and as such can be exploited by script injection. The recommendation is to use an intermediate env variable, which is kept in memory as a variable and it's evaluation isn't happening in the same shell where the job runs, so the risk for script injection reduces",
 	"recommended_actions": "",
 	"url": "",
 }
@@ -29,7 +29,7 @@ deny[msg] {
 	}
 }
 
-# Check for untrusted inputs that are not inside env variables in a job
+# Check for untrusted inputs that are not inside env variables in a step
 deny[msg] {
 	fields := pipeline.get_step_fields(input.jobs[i].steps[j])
 	pipeline.contains_untrusted_inputs(fields[k])

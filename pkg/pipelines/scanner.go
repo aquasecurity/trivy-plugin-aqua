@@ -109,6 +109,7 @@ func (s *Scanner) ScanFS(ctx context.Context, fs fs.FS, path string) (scan.Resul
 	return results, nil
 }
 
+// This function is copied from defsec.
 func (s *Scanner) initRegoScanner(srcFS fs.FS) (*rego.Scanner, error) {
 	s.Lock()
 	defer s.Unlock()
@@ -124,6 +125,7 @@ func (s *Scanner) initRegoScanner(srcFS fs.FS) (*rego.Scanner, error) {
 	return regoScanner, nil
 }
 
+// This function is copied from defsec.
 func (s *Scanner) scanRego(ctx context.Context, srcFS fs.FS, inputs ...rego.Input) (scan.Results, error) {
 	regoScanner, err := s.initRegoScanner(srcFS)
 	if err != nil {

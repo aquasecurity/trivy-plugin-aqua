@@ -1,9 +1,9 @@
-package builtin.pipeline.ID5
+package builtin.pipeline.INSECURE_FETCHING
 
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "ID5",
+	"id": "INSECURE_FETCHING",
 	"avd_id": "AVD-ID-5",
 	"title": "insecure fetching",
 	"severity": "MEDIUM",

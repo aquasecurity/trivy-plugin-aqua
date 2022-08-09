@@ -84,13 +84,11 @@ func Scan(c *cli.Context, path string) (*trivyTypes.Report, []*buildsecurity.Pip
 
 		if c.Bool("pipelines") {
 			var files []types.File
-			var sourcesMap map[string]ppConsts.Platform
-			repositoryPipelines, files, sourcesMap, err = pipelines.GetPipelines(path)
+			repositoryPipelines, files, err = pipelines.GetPipelines(path)
 			if err != nil {
 				return nil, nil, errors.Wrap(err, "failed get pipelines")
 			}
-			pipelinesScanResults, err = ScanPipelines(ctx, repositoryPipelines, files, sourcesMap)
-			fmt.Println(pipelinesScanResults)
+			pipelinesScanResults, err = ScanPipelines(ctx, repositoryPipelines, files)
 			if err != nil {
 				return nil, nil, errors.Wrap(err, "failed scan pipelines")
 			}
@@ -133,27 +131,31 @@ func MatchTriggeredBy(triggeredBy string) buildsecurity.TriggeredByEnum {
 	return buildsecurity.TriggeredByEnum(index)
 }
 
-func CreateMemoryFs(files []types.File) (*memoryfs.FS, error) {
+// This function is copied from trivy.
+func CreateMemoryFs(files []types.File) (*memoryfs.FS, map[string]ppConsts.Platform, error) {
+	var sourcesMap = map[string]ppConsts.Platform{}
 	memFs := memoryfs.New()
 
 	for _, file := range files {
 		if filepath.Dir(file.Path) != "." {
 			if err := memFs.MkdirAll(filepath.Dir(file.Path), os.ModePerm); err != nil {
-				return nil, xerrors.Errorf("memoryfs mkdir error: %w", err)
+				return nil, nil, xerrors.Errorf("memoryfs mkdir error: %w", err)
 			}
 		}
 		if err := memFs.WriteFile(file.Path, file.Content, os.ModePerm); err != nil {
-			return nil, xerrors.Errorf("memoryfs write error: %w", err)
+			return nil, nil, xerrors.Errorf("memoryfs write error: %w", err)
 		}
+		sourcesMap[cleanse(file.Path)] = ppConsts.Platform(file.Type)
 	}
-	return memFs, nil
+	return memFs, sourcesMap, nil
 }
 
-func ScanPipelines(ctx context.Context, repositoryPipelines []*buildsecurity.Pipeline, files []types.File, sourcesMap map[string]ppConsts.Platform) (trivyTypes.Results, error) {
-	memFs, err := CreateMemoryFs(files)
+func ScanPipelines(ctx context.Context, repositoryPipelines []*buildsecurity.Pipeline, files []types.File) (trivyTypes.Results, error) {
+	memFs, sourcesMap, err := CreateMemoryFs(files)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed create memory fs")
 	}
+
 	pipelineScanner := pipelines.NewScanner()
 	policyReaders, err := getPolicyReaders()
 	if err != nil {
@@ -161,7 +163,7 @@ func ScanPipelines(ctx context.Context, repositoryPipelines []*buildsecurity.Pip
 	}
 	pipelineScanner.SetPolicyReaders(policyReaders)
 
-	scanResults, err := pipelineScanner.ScanFS(context.WithValue(ctx, "sourcesMap", sourcesMap), memFs, "/")
+	scanResults, err := pipelineScanner.ScanFS(context.WithValue(ctx, "sourcesMap", sourcesMap), memFs, ".")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed scan pipelines")
 	}
@@ -188,6 +190,7 @@ func getPolicyReaders() ([]io.Reader, error) {
 	return policyReaders, nil
 }
 
+// This function is copied from trivy.
 func resultsToMisconf(configType string, scannerName string, results scan.Results) []types.Misconfiguration {
 	misconfs := map[string]types.Misconfiguration{}
 
@@ -247,6 +250,7 @@ func resultsToMisconf(configType string, scannerName string, results scan.Result
 	return types.ToMisconfigurations(misconfs)
 }
 
+// This function is copied from trivy.
 func misconfsToResults(misconfs []types.Misconfiguration) trivyTypes.Results {
 	// log.Logger.Infof("Detected config files: %d", len(misconfs))
 	var results trivyTypes.Results
@@ -283,6 +287,7 @@ func misconfsToResults(misconfs []types.Misconfiguration) trivyTypes.Results {
 	return results
 }
 
+// This function is copied from trivy.
 func toDetectedMisconfiguration(res types.MisconfResult, defaultSeverity dbTypes.Severity,
 	status trivyTypes.MisconfStatus, layer types.Layer) trivyTypes.DetectedMisconfiguration {
 
@@ -332,4 +337,14 @@ func toDetectedMisconfiguration(res types.MisconfResult, defaultSeverity dbTypes
 			Code:      res.Code,
 		},
 	}
+}
+
+// This function is copied from memoryfs
+func cleanse(path string) string {
+	var separator = string(filepath.Separator)
+	path = strings.ReplaceAll(path, "/", separator)
+	path = filepath.Clean(path)
+	path = strings.TrimPrefix(path, ".")
+	path = strings.TrimPrefix(path, separator)
+	return path
 }

@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/fs"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 
 	ppConsts "github.com/argonsecurity/pipeline-parser/pkg/consts"
@@ -49,7 +48,7 @@ func (p *Parser) ParseFS(ctx context.Context, target fs.FS, path string) (map[st
 }
 
 func (p *Parser) ParseFile(ctx context.Context, fs fs.FS, path string) (*ppModels.Pipeline, error) {
-	f, err := os.Open(filepath.ToSlash(path))
+	f, err := fs.Open(filepath.ToSlash(path))
 	if err != nil {
 		return nil, err
 	}

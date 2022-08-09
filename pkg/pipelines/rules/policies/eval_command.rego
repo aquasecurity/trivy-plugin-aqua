@@ -1,15 +1,15 @@
-package builtin.pipeline.ID4
+package builtin.pipeline.EVAL_COMMAND
 
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "ID4",
-	"avd_id": "AVD-ID-4",
+	"id": "EVAL_COMMAND",
+	"avd_id": "",
 	"title": "eval command",
-	"severity": "MEDIUM",
+	"severity": "LOW",
 	"type": "Pipeline Yaml Security Check",
-	"description": "eval command",
-	"recommended_actions": "",
+	"description": "Evaluate command in pipeline(s)",
+	"recommended_actions": "Avoid using evaluate command during the pipeline",
 	"url": "",
 }
 
@@ -26,7 +26,7 @@ deny[result] {
 	pipeline.contains_eval(script)
 
 	result = {
-		"msg": script,
+		"msg": sprintf("Consider removing eval command from job %s, step %s", [input.jobs[i].name, input.jobs[i].steps[j].name]),
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
 		"endline": input.jobs[i].steps[j].file_reference.end_ref.line,
 	}
