@@ -55,7 +55,7 @@ func main() {
 }
 
 func newConfigCommand(globalFlags *flag.GlobalFlagGroup) *cobra.Command {
-	cmd := commands.NewFilesystemCommand(globalFlags)
+	cmd := commands.NewConfigCommand(globalFlags)
 	initCommand(cmd, globalFlags)
 	return cmd
 }
