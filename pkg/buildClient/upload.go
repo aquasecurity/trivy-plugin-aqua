@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/spf13/viper"
+
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
-
-	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
-
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
 )
 
 func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]string, avdUrlMap ResultIdToUrlMap, pipelines []*buildsecurity.Pipeline) error {
@@ -21,7 +21,7 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]s
 	}
 
 	gitUser := metadata.GetGitUser(bc.scanPath)
-	_, branch, err := metadata.GetRepositoryDetails(bc.scanPath, bc.c.Command.Name)
+	_, branch, err := metadata.GetRepositoryDetails(bc.scanPath, bc.cmdName)
 	if err != nil {
 		return err
 	}
@@ -31,7 +31,7 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]s
 
 	run, buildID := metadata.GetBuildInfo(buildSystem)
 
-	triggeredBy := bc.c.String("triggered-by")
+	triggeredBy := viper.GetString("triggered-by")
 	createScanReq := &buildsecurity.CreateScanReq{
 		RepositoryID: bc.repoId,
 		Results:      results,
