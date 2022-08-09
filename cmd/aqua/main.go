@@ -33,6 +33,7 @@ func main() {
 	root := newConfigCommand(globalFlags)
 	root.Version = "0.27.1"
 	root.Use = "aqua [global flags] command [flags] target"
+	globalFlags.AddFlags(root)
 
 	versionCmd := commands.NewVersionCommand(globalFlags)
 	versionCmd.Short = "Print the version of the trivy import library"
