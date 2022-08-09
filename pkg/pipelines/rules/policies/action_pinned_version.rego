@@ -19,10 +19,10 @@ __rego_input__ := {
 }
 
 # Pin actions to a full length commit SHA
-deny[msg] {
+deny[result] {
 	input.jobs[i].steps[j].type == "task"
 	input.jobs[i].steps[j].task.version_type != "commit"
-	msg := {
+	result := {
 		"msg": sprintf("Action %s version %s should be pinned to the commit sha", [input.jobs[i].steps[j].task.name, input.jobs[i].steps[j].task.version]),
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
 		"endline": input.jobs[i].steps[j].file_reference.end_ref.line,

@@ -19,12 +19,12 @@ __rego_input__ := {
 }
 
 # Check for untrusted inputs that are inside env variables
-deny[msg] {
+deny[result] {
 	envs := pipeline.get_all_envs[_]
 	[path, value] := walk(envs[i].environment_variables)
 	count(path) == 1
 	pipeline.contains_untrusted_inputs(value)
-	msg := {
+	result := {
 		"msg": value,
 		"startline": envs[i].file_reference.start_ref.line,
 		"endline": envs[i].file_reference.end_ref.line,

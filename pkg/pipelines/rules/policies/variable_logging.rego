@@ -19,13 +19,13 @@ __rego_input__ := {
 }
 
 # Check for variable logs
-deny[msg] {
+deny[result] {
 	input.jobs[i].steps[j].type == "shell"
 	script := input.jobs[i].steps[j].shell.script
 
 	pipeline.contains_log_functions(script)
 	pipeline.contains_variables(script)
-	msg := {
+	result := {
 		"msg": sprintf("Consider removing variable printing from job %s, step %s", [input.jobs[i].name, input.jobs[i].steps[j].name]),
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
 		"endline": input.jobs[i].steps[j].file_reference.end_ref.line,

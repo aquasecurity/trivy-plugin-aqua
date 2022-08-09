@@ -19,12 +19,12 @@ __rego_input__ := {
 }
 
 # Check for checkout action with persist credentials
-deny[msg] {
+deny[result] {
 	input.jobs[i].steps[j].type == "task"
 	input.jobs[i].steps[j].task.name == "actions/checkout"
 	not pipeline.persist_credentials_passing_check(input.jobs[i].steps[j].task)
 
-	msg := {
+	result := {
 		"msg": sprintf("Consider adding persist-credentials: false to the checkout action in job %s", [input.jobs[i].name]),
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
 		"endline": input.jobs[i].steps[j].file_reference.end_ref.line,

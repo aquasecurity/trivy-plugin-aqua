@@ -19,10 +19,10 @@ __rego_input__ := {
 }
 
 # Check for untrusted inputs that are not inside env variables in a job
-deny[msg] {
+deny[result] {
 	fields := pipeline.get_job_fields(input.jobs[i])
 	pipeline.contains_untrusted_inputs(fields[j])
-	msg := {
+	result := {
 		"msg": fields[j],
 		"startline": input.jobs[i].file_reference.start_ref.line,
 		"endline": input.jobs[i].file_reference.end_ref.line,
@@ -30,10 +30,10 @@ deny[msg] {
 }
 
 # Check for untrusted inputs that are not inside env variables in a step
-deny[msg] {
+deny[result] {
 	fields := pipeline.get_step_fields(input.jobs[i].steps[j])
 	pipeline.contains_untrusted_inputs(fields[k])
-	msg := {
+	result := {
 		"msg": fields[k],
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
 		"endline": input.jobs[i].steps[j].file_reference.end_ref.line,

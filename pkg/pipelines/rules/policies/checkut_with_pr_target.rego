@@ -19,7 +19,7 @@ __rego_input__ := {
 }
 
 # Check for checkout action with pull request target for 
-deny[msg] {
+deny[result] {
 	input.triggers.triggers[a].event == "pull_request_target"
 
 	input.jobs[i].steps[j].type == "task"
@@ -28,7 +28,7 @@ deny[msg] {
 
 	pipeline.contains_ref_value(input.jobs[i].steps[j].task.inputs[k].value)
 
-	msg := {
+	result := {
 		"msg": "Consider removing pull_request_target trigger for checkout action",
 		"startline": input.triggers.triggers[a].file_reference.start_ref.line,
 		"endline": input.triggers.triggers[a].file_reference.end_ref.line,
