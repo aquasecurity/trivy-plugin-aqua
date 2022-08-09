@@ -130,9 +130,9 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 	}
 
 	scanPath, _ := os.Getwd()
-	if len(args) > 1 {
+	if len(args) > 0 {
 		// when scan path provided, use that
-		scanPath = args[1]
+		scanPath = args[len(args)-1]
 	}
 	log.Logger.Debugf("Using scanPath %s", scanPath)
 
