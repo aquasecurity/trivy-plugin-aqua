@@ -8,6 +8,7 @@ const (
 	Azure               = "azure"
 	Github              = "github"
 	overrideBuildSystem = "OVERRIDE_BUILDSYSTEM"
+	overrideScmId       = "OVERRIDE_SCMID"
 )
 
 var possibleRepoEnvVars = []string{
