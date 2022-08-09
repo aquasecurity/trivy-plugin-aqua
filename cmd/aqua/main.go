@@ -64,6 +64,7 @@ func newConfigCommand(globalFlags *flag.GlobalFlagGroup) *cobra.Command {
 		},
 	}
 	cmd := commands.NewConfigCommand(globalFlags)
+	cmd.ResetFlags() // Do not use the OSS flags
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if err := configFlags.Bind(cmd); err != nil {
 			return xerrors.Errorf("flag bind error: %w", err)
@@ -101,6 +102,7 @@ func newFilesystemCommand(globalFlags *flag.GlobalFlagGroup) *cobra.Command {
 		},
 	}
 	cmd := commands.NewFilesystemCommand(globalFlags)
+	cmd.ResetFlags() // Do not use the OSS flags
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if err := fsFlags.Bind(cmd); err != nil {
 			return xerrors.Errorf("flag bind error: %w", err)
@@ -138,6 +140,7 @@ func newImageCommand(globalFlags *flag.GlobalFlagGroup) *cobra.Command {
 		},
 	}
 	cmd := commands.NewImageCommand(globalFlags)
+	cmd.ResetFlags() // Do not use the OSS flags
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if err := imageFlags.Bind(cmd); err != nil {
 			return xerrors.Errorf("flag bind error: %w", err)
