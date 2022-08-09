@@ -55,117 +55,62 @@ func main() {
 }
 
 func newConfigCommand(globalFlags *flag.GlobalFlagGroup) *cobra.Command {
-	configFlags := &flag.Flags{
-		ScanFlagGroup: &flag.ScanFlagGroup{
-			SecurityChecks: &flag.SecurityChecksFlag,
-		},
-		VulnerabilityFlagGroup: &flag.VulnerabilityFlagGroup{
-			VulnType: &flag.VulnTypeFlag,
-		},
-	}
-	cmd := commands.NewConfigCommand(globalFlags)
-	cmd.ResetFlags() // Do not use the OSS flags
-	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
-		if err := configFlags.Bind(cmd); err != nil {
-			return xerrors.Errorf("flag bind error: %w", err)
-		}
-		return nil
-	}
-	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		options, err := configFlags.ToOptions(cmd.Version, args, globalFlags, os.Stdout)
-		if err != nil {
-			return xerrors.Errorf("flag error: %w", err)
-		}
-		return runScan(cmd, args, options)
-	}
-
-	configFlags.AddFlags(cmd)
-
-	// Add custom flags for the aqua plugin
-	// TODO: refactor
-	cmd.Flags().Bool("skip-result-upload", false, "Add this flag if you want test failed policy locally before sending PR")
-	viper.BindPFlag("skip-result-upload", cmd.Flags().Lookup("skip-result-upload"))
-	viper.BindEnv("skip-result-upload", "TRIVY_SKIP_RESULT_UPLOAD")
-
-	// TODO: add skip-policy-exit-code and triggered-by
-
+	cmd := commands.NewFilesystemCommand(globalFlags)
+	initCommand(cmd, globalFlags)
 	return cmd
 }
 
 func newFilesystemCommand(globalFlags *flag.GlobalFlagGroup) *cobra.Command {
-	fsFlags := &flag.Flags{
-		ScanFlagGroup: &flag.ScanFlagGroup{
-			SecurityChecks: &flag.SecurityChecksFlag,
-		},
-		VulnerabilityFlagGroup: &flag.VulnerabilityFlagGroup{
-			VulnType: &flag.VulnTypeFlag,
-		},
-	}
 	cmd := commands.NewFilesystemCommand(globalFlags)
-	cmd.ResetFlags() // Do not use the OSS flags
-	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
-		if err := fsFlags.Bind(cmd); err != nil {
-			return xerrors.Errorf("flag bind error: %w", err)
-		}
-		return nil
-	}
-	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		options, err := fsFlags.ToOptions(cmd.Version, args, globalFlags, os.Stdout)
-		if err != nil {
-			return xerrors.Errorf("flag error: %w", err)
-		}
-		return runScan(cmd, args, options)
-	}
-
-	fsFlags.AddFlags(cmd)
-
-	// Add custom flags for the aqua plugin
-	// TODO: refactor
-	cmd.Flags().Bool("skip-result-upload", false, "Add this flag if you want test failed policy locally before sending PR")
-	viper.BindPFlag("skip-result-upload", cmd.Flags().Lookup("skip-result-upload"))
-	viper.BindEnv("skip-result-upload", "TRIVY_SKIP_RESULT_UPLOAD")
-
-	// TODO: add skip-policy-exit-code, triggered-by, pipelines and tags
-
+	initCommand(cmd, globalFlags)
 	return cmd
 }
 
 func newImageCommand(globalFlags *flag.GlobalFlagGroup) *cobra.Command {
-	imageFlags := &flag.Flags{
+	cmd := commands.NewImageCommand(globalFlags)
+	initCommand(cmd, globalFlags)
+	return cmd
+}
+
+func initCommand(cmd *cobra.Command, globalFlags *flag.GlobalFlagGroup) {
+	flags := &flag.Flags{
 		ScanFlagGroup: &flag.ScanFlagGroup{
 			SecurityChecks: &flag.SecurityChecksFlag,
+		},
+		DBFlagGroup: &flag.DBFlagGroup{
+			DBRepository: &flag.DBRepositoryFlag,
 		},
 		VulnerabilityFlagGroup: &flag.VulnerabilityFlagGroup{
 			VulnType: &flag.VulnTypeFlag,
 		},
 	}
-	cmd := commands.NewImageCommand(globalFlags)
+
 	cmd.ResetFlags() // Do not use the OSS flags
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
-		if err := imageFlags.Bind(cmd); err != nil {
+		if err := flags.Bind(cmd); err != nil {
 			return xerrors.Errorf("flag bind error: %w", err)
 		}
 		return nil
 	}
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		options, err := imageFlags.ToOptions(cmd.Version, args, globalFlags, os.Stdout)
+		options, err := flags.ToOptions(cmd.Version, args, globalFlags, os.Stdout)
 		if err != nil {
 			return xerrors.Errorf("flag error: %w", err)
 		}
 		return runScan(cmd, args, options)
 	}
+	flags.AddFlags(cmd)
+	addCustomFlags(cmd)
+}
 
-	imageFlags.AddFlags(cmd)
-
+func addCustomFlags(cmd *cobra.Command) {
 	// Add custom flags for the aqua plugin
 	// TODO: refactor
 	cmd.Flags().Bool("skip-result-upload", false, "Add this flag if you want test failed policy locally before sending PR")
-	viper.BindPFlag("skip-result-upload", cmd.Flags().Lookup("skip-result-upload"))
-	viper.BindEnv("skip-result-upload", "TRIVY_SKIP_RESULT_UPLOAD")
+	_ = viper.BindPFlag("skip-result-upload", cmd.Flags().Lookup("skip-result-upload"))
+	_ = viper.BindEnv("skip-result-upload", "TRIVY_SKIP_RESULT_UPLOAD")
 
 	// TODO: add skip-policy-exit-code, triggered-by, pipelines and tags
-
-	return cmd
 }
 
 func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
