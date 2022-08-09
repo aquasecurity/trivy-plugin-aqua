@@ -94,6 +94,11 @@ func main() {
 			Usage:   "Add this flag to determine where the scan is coming from (push, pr, offline)",
 			EnvVars: []string{"TRIGGERED_BY"},
 		},
+		&cli.StringFlag{
+			Name:    "cache-dir",
+			Usage:   "Add this flag to determine the cache dir",
+			EnvVars: []string{"TRIVY_CACHE_DIR"},
+		},
 		&cli.BoolFlag{
 			Name:    "pipelines",
 			Usage:   "Add this flag to fetch and scan pipelines",
