@@ -2,7 +2,6 @@ package pipelines
 
 import (
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -71,7 +70,7 @@ func getAzurePipelines(rootDir string) ([]string, error) {
 		if !isYamlFile(path, info) {
 			return nil
 		}
-		if buf, err := ioutil.ReadFile(path); err == nil && strings.Contains(string(buf), "pool:") {
+		if buf, err := os.ReadFile(path); err == nil && strings.Contains(string(buf), "pool:") {
 			pipelines = append(pipelines, path)
 		}
 

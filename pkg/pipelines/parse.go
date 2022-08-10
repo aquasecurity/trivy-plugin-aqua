@@ -1,7 +1,7 @@
 package pipelines
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
@@ -11,7 +11,7 @@ import (
 )
 
 func parsePipelineFile(path string, platform ppConsts.Platform) (*ppModels.Pipeline, error) {
-	fileData, err := ioutil.ReadFile(path)
+	fileData, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

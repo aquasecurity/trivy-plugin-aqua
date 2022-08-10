@@ -5,7 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -104,7 +104,7 @@ func enhancePipelines(rootDir string, pipelines []*buildsecurity.Pipeline) error
 func getPipelinesFiles(rootDir string, pipelinePaths []string, platform ppConsts.Platform) ([]types.File, error) {
 	var files []types.File
 	for _, pipelinePath := range pipelinePaths {
-		content, err := ioutil.ReadFile(pipelinePath)
+		content, err := os.ReadFile(pipelinePath)
 		if err != nil {
 			return nil, err
 		}
