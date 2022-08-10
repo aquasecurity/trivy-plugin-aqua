@@ -84,7 +84,7 @@ func Scan(c *cli.Context, path string) (*trivyTypes.Report, []*buildsecurity.Pip
 
 		if c.Bool("pipelines") {
 			var files []types.File
-			repositoryPipelines, files, err = pipelines.GetPipelines(path)
+			repositoryPipelines, files, err = pipelines.GetPipelines(opt.Target)
 			if err != nil {
 				return nil, nil, errors.Wrap(err, "failed get pipelines")
 			}

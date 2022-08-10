@@ -4,6 +4,7 @@ import (
 	// #nosec
 	"crypto/md5"
 	"encoding/hex"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -30,13 +31,16 @@ func getParsedGitHubPipelines(rootDir string) ([]*buildsecurity.Pipeline, []stri
 	return parsedGithubPipelines, gitHubWorkflows, nil
 }
 
-func getParsedGitLabPipelines(rootDir string) ([]*buildsecurity.Pipeline, []string) {
-	gitLabPipelines := getGitLabPipelines(rootDir)
+func getParsedGitLabPipelines(rootDir string) ([]*buildsecurity.Pipeline, []string, error) {
+	gitLabPipelines, err := getGitLabPipelines(rootDir)
+	if err != nil {
+		return nil, nil, err
+	}
 	parsedGitLabPipelines := lo.FilterMap(gitLabPipelines, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseGitLabPipelineFile(path)
 		return pipeline, err == nil
 	})
-	return parsedGitLabPipelines, gitLabPipelines
+	return parsedGitLabPipelines, gitLabPipelines, nil
 }
 
 func getParsedAzurePipelines(rootDir string) ([]*buildsecurity.Pipeline, []string, error) {
@@ -146,7 +150,10 @@ func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 	}
 	files = append(files, azureFiles...)
 
-	gitlabPipelines, gitlabPaths := getParsedGitLabPipelines(rootDir)
+	gitlabPipelines, gitlabPaths, err := getParsedGitLabPipelines(rootDir)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	pipelines = append(pipelines, gitlabPipelines...)
 	gitlabFiles, err := getPipelinesFiles(rootDir, gitlabPaths, ppConsts.GitLabPlatform)
@@ -160,8 +167,8 @@ func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 	}
 
 	if err := enhancePipelines(rootDir, pipelines); err != nil {
-		return nil, nil, err
+		fmt.Println("Failed to enhance pipelines:", err)
 	}
 
-	return pipelines, files, err
+	return pipelines, files, nil
 }
