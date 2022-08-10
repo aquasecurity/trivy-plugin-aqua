@@ -19,7 +19,7 @@ __rego_input__ := {
 }
 
 vendorToCommandRegexes = {
-	# "Trivy": [`trivy ?.* fs ?.* --security-checks .*\b(,?)secret\b(,?)`, `trivy ?.* image ?.* --security-checks .*\b(,?)secret\b(,?)`],
+	"Trivy": [`trivy ?.* fs ?.* --security-checks .*\b(,?)secret\b(,?)`, `trivy ?.* image ?.* --security-checks .*\b(,?)secret\b(,?)`],
 	"DetectSecrets": [`detect-secrets.* scan`],
 	"GitAllSecrets": [`docker run.* abhartiya/tools_gitallsecrets`],
 	"Whispers": [`whispers`],
@@ -33,7 +33,7 @@ vendorToTasks = {
 		"name": "argonsecurity/scanner-action",
 		"inputs": {"scanners": ["secrets"]},
 	}],
-	# "Trivy": [{"name": "aquasecurity/trivy-action", "inputs": {"security-checks": [`secret`]}}],
+	"Trivy": [{"name": "aquasecurity/trivy-action", "inputs": {"security-checks": [`secret`]}}],
 	"Gitleaks": [{"name": "zricethezav/gitleaks-action"}],
 	"ShiftLeft": [{"name": "ShiftLeftSecurity/scan-action"}],
 }
