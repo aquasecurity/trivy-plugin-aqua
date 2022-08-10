@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"io/ioutil"
+	"path/filepath"
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
@@ -96,7 +97,7 @@ func enhancePipelines(rootDir string, pipelines []*buildsecurity.Pipeline) error
 	return err
 }
 
-func getPipelinesFiles(pipelinePaths []string, platform ppConsts.Platform) ([]types.File, error) {
+func getPipelinesFiles(rootDir string, pipelinePaths []string, platform ppConsts.Platform) ([]types.File, error) {
 	var files []types.File
 	for _, pipelinePath := range pipelinePaths {
 		content, err := ioutil.ReadFile(pipelinePath)
@@ -104,8 +105,13 @@ func getPipelinesFiles(pipelinePaths []string, platform ppConsts.Platform) ([]ty
 			return nil, err
 		}
 
+		relPath, err := filepath.Rel(rootDir, pipelinePath)
+		if err != nil {
+			relPath = pipelinePath
+		}
+
 		files = append(files, types.File{
-			Path:    pipelinePath,
+			Path:    relPath,
 			Content: content,
 			Type:    string(platform),
 		})
@@ -122,7 +128,7 @@ func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 	}
 
 	pipelines = append(pipelines, githubPipelines...)
-	githubFiles, err := getPipelinesFiles(githubPaths, ppConsts.GitHubPlatform)
+	githubFiles, err := getPipelinesFiles(rootDir, githubPaths, ppConsts.GitHubPlatform)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -134,7 +140,7 @@ func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 	}
 
 	pipelines = append(pipelines, azurePipelines...)
-	azureFiles, err := getPipelinesFiles(azurePaths, ppConsts.AzurePlatform)
+	azureFiles, err := getPipelinesFiles(rootDir, azurePaths, ppConsts.AzurePlatform)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -143,7 +149,7 @@ func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 	gitlabPipelines, gitlabPaths := getParsedGitLabPipelines(rootDir)
 
 	pipelines = append(pipelines, gitlabPipelines...)
-	gitlabFiles, err := getPipelinesFiles(gitlabPaths, ppConsts.GitLabPlatform)
+	gitlabFiles, err := getPipelinesFiles(rootDir, gitlabPaths, ppConsts.GitLabPlatform)
 	if err != nil {
 		return nil, nil, err
 	}
