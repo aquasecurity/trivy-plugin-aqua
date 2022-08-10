@@ -1,7 +1,9 @@
-package builtin.pipeline.ID10
+package builtin.pipeline.SECRET_SCANNING
+
+import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "ID10",
+	"id": "SECRET_SCANNING",
 	"avd_id": "",
 	"title": "Ensure scanners are in place to identify and prevent sensitive data in pipeline files",
 	"severity": "HIGH",
@@ -16,31 +18,74 @@ __rego_input__ := {
 	"selector": [{"type": "pipeline"}],
 }
 
-# secret_scan_commands = [
-# 	`spectral.* scan`,
-# 	`git secrets --scan`,
-# 	`whispers`,
-# 	`docker run.* abhartiya/tools_gitallsecrets`,
-# 	`detect-secrets.* scan`,
-# ]
+vendorToCommandRegexes = {
+	# "Trivy": [`trivy ?.* fs ?.* --security-checks .*\b(,?)secret\b(,?)`, `trivy ?.* image ?.* --security-checks .*\b(,?)secret\b(,?)`],
+	"DetectSecrets": [`detect-secrets.* scan`],
+	"GitAllSecrets": [`docker run.* abhartiya/tools_gitallsecrets`],
+	"Whispers": [`whispers`],
+	"GitSecrets": [`git secrets --scan`],
+	"Spectral": [`spectral.* scan`],
+	"ShiftLeft": [`shiftleft code-scan`],
+}
 
-# does_job_contain_one_of_tasks(job, regexes) {
-# 	job.steps[i].type == "task"
-# 	regex.match(regexes[_], job.steps[i].task.name)
-# }
+vendorToTasks = {
+	"Aqua": [{
+		"name": "argonsecurity/scanner-action",
+		"inputs": {"scanners": ["secrets"]},
+	}],
+	# "Trivy": [{"name": "aquasecurity/trivy-action", "inputs": {"security-checks": [`secret`]}}],
+	"Gitleaks": [{"name": "zricethezav/gitleaks-action"}],
+	"ShiftLeft": [{"name": "ShiftLeftSecurity/scan-action"}],
+}
 
-# does_job_contain_one_of_shell_commands(job, regexes) {
-# 	job.steps[i].type == "shell"
-# 	r := regexes[_]
-# 	regex.match(r, job.steps[i].shell.script)
-# }
+# Checking if pipeline use argon scanner image with secrets scanner
+# Check if the job contains SCANNER env variable
+does_use_argon_secret_scanning {
+	job := input[_].contents.jobs[_]
+	pipeline.does_runner_match(job, "argonsecurity/scanner")
+	pipeline.does_contain_environment_variable(job, "SCANNERS", "secrets")
+}
 
-# is_repository_scanning_tasks_missing {
-# 	count({job | job := input.Pipelines[_].jobs[_]; does_job_contain_one_of_tasks(job, constsLib.secret_scan_tasks)}) == 0
-# 	count({job | job := input.Pipelines[_].jobs[_]; does_job_contain_one_of_shell_commands(job, secret_scan_commands)}) == 0
-# }
+# Check if the step runs scan and contains SCANNER env variable
+does_use_argon_secret_scanning {
+	job := input[_].contents.jobs[_]
+	pipeline.does_runner_match(job, "argonsecurity/scanner")
+	step := job.steps[_]
+	step.type == "shell"
+	step.shell.script == "scan"
+	pipeline.does_contain_environment_variable(step, "SCANNERS", "secrets")
+}
 
-# deny[msg] {
-# 	is_repository_scanning_tasks_missing
-# 	msg := sprintf("Pipeline file %v does not contain any scanning tasks", [input.Pipelines[_].path])
-# }
+does_use_argon_secret_scanning {
+	job := input[_].contents.jobs[_]
+	pipeline.does_runner_match(job, "argonsecurity/scanner")
+	not job.environment_variables.environment_variables.SCANNERS
+	step := job.steps[_]
+	step.type == "shell"
+	step.shell.script == "scan"
+	not step.environment_variables.environment_variables.SCANNERS
+}
+
+does_use_command {
+	job := input[_].contents.jobs[_]
+	regexes := vendorToCommandRegexes[vendor]
+	pipeline.does_contains_one_of_commands(job, regexes)
+}
+
+does_use_task {
+	job := input[_].contents.jobs[_]
+	step := job.steps[_]
+	step.type == "task"
+	pipeline.does_task_match(step.task, vendorToTasks)
+}
+
+deny[result] {
+	not does_use_argon_secret_scanning
+	not does_use_command
+	not does_use_task
+	result := {
+		"msg": "No secret scanning tool is used in pipeline",
+		"startline": 1,
+		"endline": 1,
+	}
+}

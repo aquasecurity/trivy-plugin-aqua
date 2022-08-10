@@ -1,7 +1,9 @@
-package builtin.pipeline.ID9
+package builtin.pipeline.VULN_SCANNING
+
+import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "ID9",
+	"id": "VULN_SCANNING",
 	"avd_id": "",
 	"title": "Ensure pipelines are automatically scanned for vulnerabilities",
 	"severity": "HIGH",
@@ -16,17 +18,69 @@ __rego_input__ := {
 	"selector": [{"type": "pipeline"}],
 }
 
-# does_job_contain_one_of_tasks(job, regexes) {
-# 	job.steps[i].type == "task"
-# 	regex.match(regexes[_], job.steps[i].task.name)
-# }
+vendorToCommandRegexes = {
+	"Trivy": [`trivy ?.* image ?.* --security-checks .*\b(,?)vuln\b(,?)`, `trivy ?.* fs ?.* --security-checks .*\b(,?)vuln\b(,?)`],
+	"Snyk": [`snyk container`, `snyk monitor`, `snyk test`],
+	"Sonatype": [`nancy`, `jake`, `ahab`],
+}
 
-# is_pipeline_scaning_tasks_missing {
-# 	count({job | job := input[_].Content.jobs[_]; does_job_contain_one_of_tasks(job, constsLib.pipeline_vulnerability_scan_tasks)}) == 0
-# }
+vendorToTasks = {
+	"Aqua": [{
+		"name": "argonsecurity/scanner-action",
+		"inputs": {"scanners": ["packages"]},
+	}],
+	"Trivy": [{"name": "aquasecurity/trivy-action", "inputs": {"security-checks": [`vuln`]}}],
+	"Snyk": [{"name": "snyk/actions"}],
+}
 
-# # Pin actions to a full length commit SHA
-# deny[result] {
-# 	is_pipeline_scaning_tasks_missing
-# 	result := {"msg": "Consider adding a pipeline task to scan for vulnerabilities"}
-# }
+# Checking if pipeline use argon scanner image with opensource scanner
+# Check if the job contains SCANNER env variable
+does_use_argon_vuln_scanning {
+	job := input.jobs[_]
+	pipeline.does_runner_match(job, "argonsecurity/scanner")
+	pipeline.does_contain_environment_variable(job, "SCANNERS", "packages")
+}
+
+# Check if the step runs scan and contains SCANNER env variable
+does_use_argon_vuln_scanning {
+	job := input.jobs[_]
+	pipeline.does_runner_match(job, "argonsecurity/scanner")
+	step := job.steps[_]
+	step.type == "shell"
+	step.shell.script == "scan"
+	pipeline.does_contain_environment_variable(step, "SCANNERS", "packages")
+}
+
+does_use_argon_vuln_scanning {
+	job := input.jobs[_]
+	pipeline.does_runner_match(job, "argonsecurity/scanner")
+	not job.environment_variables.environment_variables.SCANNERS
+	step := job.steps[_]
+	step.type == "shell"
+	step.shell.script == "scan"
+	not step.environment_variables.environment_variables.SCANNERS
+}
+
+does_use_command {
+	job := input.jobs[_]
+	regexes := vendorToCommandRegexes[vendor]
+	pipeline.does_contains_one_of_commands(job, regexes)
+}
+
+does_use_task {
+	job := input.jobs[_]
+	step := job.steps[_]
+	step.type == "task"
+	pipeline.does_task_match(step.task, vendorToTasks)
+}
+
+deny[result] {
+	not does_use_argon_vuln_scanning
+	not does_use_command
+	not does_use_task
+	result := {
+		"msg": "No vulnerabilities scanning tool is used in pipeline",
+		"startline": 1,
+		"endline": 1,
+	}
+}

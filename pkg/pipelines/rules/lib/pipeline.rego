@@ -1,5 +1,8 @@
 package lib.pipeline
 
+import future.keywords.every
+
+
 contains_fetching_commands(string) = result {
 	fetching_commands := [
 		`curl .*(-[a-zA-Z]*k|--insecure)`,
@@ -127,4 +130,59 @@ does_job_contain_one_of_shell_commands(job, regexes) {
 	job.steps[i].type == "shell"
 	r := regexes[_]
 	regex.match(r, job.steps[i].shell.script)
+}
+
+does_runner_match(job, runner) {
+	job.runner.docker_metadata.image == runner
+}
+
+does_contain_environment_variable(job, name, regexp) {
+	job.environment_variables.environment_variables[name]
+	regex.match(regexp, job.environment_variables.environment_variables[name])
+}
+
+does_contains_one_of_commands(job, regexes) {
+	job.steps[i].type == "shell"
+	count({j | regex.match(regexes[j], job.steps[i].shell.script)}) > 0
+}
+
+does_task_match(task, vendor_configs) {
+	vendor_config := vendor_configs[vendor]
+	task_config := vendor_config[_]
+	task.name == task_config.name
+	count(task_config.inputs) == 0
+}
+
+does_task_match(task, vendor_configs) {
+	vendor_config := vendor_configs[vendor]
+	task_config := vendor_config[_]
+	task.name == task_config.name
+	count(task.inputs) == 0
+}
+
+# Task exists, and its inputs pass all input filters
+does_task_match(task, vendor_configs) {
+	vendor_config := vendor_configs[vendor]
+	task_config := vendor_config[_]
+	task.name == task_config.name
+	every task_input in task.inputs {
+		does_task_input_match(task_input, task_config.inputs)
+	}
+}
+
+# Task input matches all filters for a string array
+does_task_input_match(task_input, task_config_inputs) {
+	task_config_inputs[task_input.name]
+	regex.match(task_config_inputs[task_input.name][i], task_input.value[j])
+}
+
+# Task input matches all filters for a single string
+does_task_input_match(task_input, task_config_inputs) {
+	task_config_inputs[task_input.name]
+	regex.match(task_config_inputs[task_input.name][i], task_input.value)
+}
+
+# Filtered input doesn't exist in task
+does_task_input_match(task_input, task_config_inputs) {
+	not task_config_inputs[task_input.name]
 }
