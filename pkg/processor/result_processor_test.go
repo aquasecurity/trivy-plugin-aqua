@@ -136,14 +136,14 @@ func TestPrDiffResults(t *testing.T) {
 			name: "happy path - modify file take only diff",
 			args: args{r: types.Results{
 				types.Result{Target: "base/cf/bucket.yaml",
-					Misconfigurations: []types.DetectedMisconfiguration{types.DetectedMisconfiguration{ID: "AVD-000"}}},
+					Misconfigurations: []types.DetectedMisconfiguration{{ID: "AVD-000"}}},
 				types.Result{Target: "head/cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{
-					types.DetectedMisconfiguration{ID: "AVD-000"},
-					types.DetectedMisconfiguration{ID: "AVD-001"}}}},
+					{ID: "AVD-000"},
+					{ID: "AVD-001"}}}},
 			},
 			wantReports: types.Results{types.Result{
 				Target: "cf/bucket.yaml", Misconfigurations: []types.DetectedMisconfiguration{
-					types.DetectedMisconfiguration{ID: "AVD-001"}}, Vulnerabilities: []types.DetectedVulnerability{}}},
+					{ID: "AVD-001"}}, Vulnerabilities: []types.DetectedVulnerability{}}},
 		},
 	}
 	for _, tt := range tests {
