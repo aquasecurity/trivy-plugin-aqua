@@ -80,7 +80,7 @@ deny[result] {
 	not does_use_task
 	result := {
 		"msg": "No vulnerabilities scanning tool is used in pipeline",
+		"filename": input[0].path,
 		"startline": 1,
-		"endline": 1,
 	}
 }

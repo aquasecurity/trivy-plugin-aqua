@@ -25,7 +25,6 @@ deny[result] {
 	result := {
 		"msg": fields[j],
 		"startline": input.jobs[i].file_reference.start_ref.line,
-		"endline": input.jobs[i].file_reference.end_ref.line,
 	}
 }
 
@@ -36,6 +35,5 @@ deny[result] {
 	result := {
 		"msg": fields[k],
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
-		"endline": input.jobs[i].steps[j].file_reference.end_ref.line,
 	}
 }

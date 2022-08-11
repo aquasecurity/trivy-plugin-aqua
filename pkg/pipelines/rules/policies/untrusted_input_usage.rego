@@ -27,6 +27,5 @@ deny[result] {
 	result := {
 		"msg": value,
 		"startline": envs[i].file_reference.start_ref.line,
-		"endline": envs[i].file_reference.end_ref.line,
 	}
 }

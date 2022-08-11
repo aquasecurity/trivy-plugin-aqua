@@ -28,6 +28,5 @@ deny[result] {
 	result = {
 		"msg": script,
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
-		"endline": input.jobs[i].steps[j].file_reference.end_ref.line,
 	}
 }

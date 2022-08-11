@@ -28,6 +28,5 @@ deny[result] {
 	result = {
 		"msg": sprintf("Consider removing eval command from job %s step %s", [input.jobs[i].name, input.jobs[i].steps[j].name]),
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
-		"endline": input.jobs[i].steps[j].file_reference.end_ref.line,
 	}
 }

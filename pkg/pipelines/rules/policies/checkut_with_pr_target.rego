@@ -31,6 +31,5 @@ deny[result] {
 	result := {
 		"msg": "Consider removing pull_request_target trigger for checkout action",
 		"startline": input.triggers.triggers[a].file_reference.start_ref.line,
-		"endline": input.triggers.triggers[a].file_reference.end_ref.line,
 	}
 }
