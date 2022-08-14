@@ -29,7 +29,7 @@ func isYamlFile(path string, info os.FileInfo) bool {
 func getGitHubPipelines(rootDir string) ([]string, error) {
 	workflowsDir := filepath.Join(rootDir, gitHubWorkflowsDir)
 	if _, err := os.Stat(workflowsDir); os.IsNotExist(err) {
-		return nil, err
+		return nil, nil
 	}
 
 	var pipelines []string
