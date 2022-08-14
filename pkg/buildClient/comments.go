@@ -66,7 +66,7 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 			case buildsecurity.Result_TYPE_TERRAFORM, buildsecurity.Result_TYPE_CLOUDFORMATION,
 				buildsecurity.Result_TYPE_KUBERNETES, buildsecurity.Result_TYPE_DOCKERFILE,
 				buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML:
-				err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r, avdUrlMap), int(r.StartLine)+1, int(r.EndLine)+1)
+				err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r, avdUrlMap), int(r.StartLine), int(r.EndLine))
 				if err != nil {
 					return fmt.Errorf("failed write misconfiguration comment: %w", err)
 				}
