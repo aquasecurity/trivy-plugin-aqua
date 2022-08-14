@@ -83,9 +83,14 @@ deny[result] {
 	not does_use_argon_secret_scanning
 	not does_use_command
 	not does_use_task
+
+	pipeline := input[i]
+	pipeline.contents.jobs[_].metadata.build == true
+	not startswith(pipeline.path, "base")
+
 	result := {
-		"msg": "No secret scanning tool is used in pipeline",
-		"filename": input[0].path,
-		"startline": 1,
+		"msg": "No vulnerabilities scanning tool is used in pipeline",
+		"filename": pipeline.path,
+		"startline": -1,
 	}
 }

@@ -36,14 +36,14 @@ vendorToTasks = {
 # Checking if pipeline use argon scanner image with opensource scanner
 # Check if the job contains SCANNER env variable
 does_use_argon_vuln_scanning {
-	job := input.jobs[_]
+	job := input[_].contents.jobs[_]
 	pipeline.does_runner_match(job, "argonsecurity/scanner")
 	pipeline.does_contain_environment_variable(job, "SCANNERS", "packages")
 }
 
 # Check if the step runs scan and contains SCANNER env variable
 does_use_argon_vuln_scanning {
-	job := input.jobs[_]
+	job := input[_].contents.jobs[_]
 	pipeline.does_runner_match(job, "argonsecurity/scanner")
 	step := job.steps[_]
 	step.type == "shell"
@@ -52,7 +52,7 @@ does_use_argon_vuln_scanning {
 }
 
 does_use_argon_vuln_scanning {
-	job := input.jobs[_]
+	job := input[_].contents.jobs[_]
 	pipeline.does_runner_match(job, "argonsecurity/scanner")
 	not job.environment_variables.environment_variables.SCANNERS
 	step := job.steps[_]
@@ -62,13 +62,13 @@ does_use_argon_vuln_scanning {
 }
 
 does_use_command {
-	job := input.jobs[_]
+	job := input[_].contents.jobs[_]
 	regexes := vendorToCommandRegexes[vendor]
 	pipeline.does_contains_one_of_commands(job, regexes)
 }
 
 does_use_task {
-	job := input.jobs[_]
+	job := input[_].contents.jobs[_]
 	step := job.steps[_]
 	step.type == "task"
 	pipeline.does_task_match(step.task, vendorToTasks)
@@ -78,9 +78,14 @@ deny[result] {
 	not does_use_argon_vuln_scanning
 	not does_use_command
 	not does_use_task
+
+	pipeline := input[i]
+	pipeline.contents.jobs[_].metadata.build == true
+	not startswith(pipeline.path, "base")
+
 	result := {
 		"msg": "No vulnerabilities scanning tool is used in pipeline",
-		"filename": input[0].path,
-		"startline": 1,
+		"filename": pipeline.path,
+		"startline": -1,
 	}
 }
