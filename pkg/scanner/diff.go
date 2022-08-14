@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
-	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/pkg/errors"
 )
 
@@ -53,7 +52,7 @@ func createDiffScanFs() error {
 		}
 	}
 
-	diffCmd := metadata.GetBaseRef()
+	diffCmd := "origin/main" // metadata.GetBaseRef()
 	out, err := git.GitExec("diff", "--name-status", diffCmd)
 	if err != nil {
 		return errors.Wrap(err, "failed git diff")
