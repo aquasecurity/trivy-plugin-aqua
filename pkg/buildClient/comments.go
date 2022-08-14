@@ -66,9 +66,16 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 			case buildsecurity.Result_TYPE_TERRAFORM, buildsecurity.Result_TYPE_CLOUDFORMATION,
 				buildsecurity.Result_TYPE_KUBERNETES, buildsecurity.Result_TYPE_DOCKERFILE,
 				buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML:
-				err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r, avdUrlMap), int(r.StartLine), int(r.EndLine))
+				err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r, avdUrlMap), int(r.StartLine)+1, int(r.EndLine)+1)
 				if err != nil {
 					return fmt.Errorf("failed write misconfiguration comment: %w", err)
+				}
+			case buildsecurity.Result_TYPE_VULNERABILITIES:
+				if !strings.Contains(r.Filename, "node_modules") {
+					err := c.WriteMultiLineComment(r.Filename, returnVulnfMsg(r, avdUrlMap), commenter.FIRST_AVAILABLE_LINE, commenter.FIRST_AVAILABLE_LINE)
+					if err != nil {
+						return fmt.Errorf("failed write vulnerability comment: %w", err)
+					}
 				}
 
 			case buildsecurity.Result_TYPE_SECRETS:
@@ -93,6 +100,7 @@ func returnSecretMsg(r *buildsecurity.Result) string {
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
 		r.Message)
 }
+
 func returnMisconfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string {
 	commentWithoutAvdUrl := fmt.Sprintf("### :warning: Aqua detected misconfiguration in your code"+
 		"  \n**Misconfiguration ID:** %s "+
@@ -102,6 +110,28 @@ func returnMisconfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) strin
 		r.AVDID,
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
+		r.Message)
+
+	if avdUrl := avdUrlMap[GenerateResultId(r)]; avdUrl != "" {
+		return commentWithoutAvdUrl +
+			fmt.Sprintf("  \n  \nRead more at %s",
+				avdUrl)
+	}
+
+	return commentWithoutAvdUrl
+}
+
+func returnVulnfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string {
+	commentWithoutAvdUrl := fmt.Sprintf("### :warning: Aqua detected vulnerability in your code"+
+		"  \n**Vulnerability ID:** %s "+
+		"  \n**Check Name:** %s "+
+		"  \n**Severity:** %s "+
+		"  \n**Fixed Version:** %s "+
+		"  \n**Description:** %s",
+		r.AVDID,
+		r.Title,
+		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
+		r.FixedVersion,
 		r.Message)
 
 	if avdUrl := avdUrlMap[GenerateResultId(r)]; avdUrl != "" {
