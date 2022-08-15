@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/aquasecurity/go-dep-parser v0.0.0-20220804071900-9f811a36efa3
-	github.com/aquasecurity/go-git-pr-commenter v0.4.0
+	github.com/aquasecurity/go-git-pr-commenter v0.5.0
 	github.com/aquasecurity/trivy v0.29.2
 	github.com/aquasecurity/trivy-db v0.0.0-20220602091213-39d8a6798e07
 	github.com/argonsecurity/pipeline-parser v0.1.15
@@ -317,8 +317,6 @@ require (
 
 // containerd main
 replace github.com/containerd/containerd => github.com/containerd/containerd v1.6.1-0.20220606171923-c1bcabb45419
-
-replace github.com/aquasecurity/go-git-pr-commenter => ../go-git-pr-commenter
 
 // See https://github.com/moby/moby/issues/42939#issuecomment-1114255529
 replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20220224222438-c78f6963a1c0+incompatible
