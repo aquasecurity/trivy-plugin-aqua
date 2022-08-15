@@ -17,7 +17,6 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
 	"github.com/aquasecurity/trivy/pkg/flag"
-	pkgReport "github.com/aquasecurity/trivy/pkg/report"
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
 )
 
@@ -82,8 +81,6 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string) (*trivyT
 		return nil, nil, xerrors.Errorf("filter error: %w", err)
 	}
 
-	opts.Format = pkgReport.FormatTable
-	opts.Output = os.Stdout
 	if err = r.Report(opts, report); err != nil {
 		return nil, nil, xerrors.Errorf("report error: %w", err)
 	}

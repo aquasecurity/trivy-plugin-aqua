@@ -84,12 +84,20 @@ func initCommand(cmd *cobra.Command, globalFlags *flag.GlobalFlagGroup) {
 		VulnerabilityFlagGroup: &flag.VulnerabilityFlagGroup{
 			VulnType: &flag.VulnTypeFlag,
 		},
+		ReportFlagGroup: &flag.ReportFlagGroup{
+			Format:   &flag.FormatFlag,
+			Output:   &flag.OutputFlag,
+			Severity: &flag.SeverityFlag,
+		},
 	}
 
 	cmd.ResetFlags() // Do not use the OSS flags
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if err := flags.Bind(cmd); err != nil {
 			return xerrors.Errorf("flag bind error: %w", err)
+		}
+		if err := globalFlags.Bind(cmd.Root()); err != nil {
+			return xerrors.Errorf("global flag bind error: %w", err)
 		}
 		return nil
 	}
@@ -104,14 +112,57 @@ func initCommand(cmd *cobra.Command, globalFlags *flag.GlobalFlagGroup) {
 	addCustomFlags(cmd)
 }
 
+func addBoolCustomFlag(cmd *cobra.Command,
+	name,
+	envName string,
+	defaultValue bool,
+	description string) {
+	cmd.Flags().Bool(name, defaultValue, description)
+	_ = viper.BindPFlag(name, cmd.Flags().Lookup(name))
+	_ = viper.BindEnv(name, envName)
+
+}
+
+func addStringCustomFlag(cmd *cobra.Command,
+	name,
+	envName,
+	defaultValue,
+	description string) {
+	cmd.Flags().String(name, defaultValue, description)
+	_ = viper.BindPFlag(name, cmd.Flags().Lookup(name))
+	_ = viper.BindEnv(name, envName)
+
+}
+
 func addCustomFlags(cmd *cobra.Command) {
 	// Add custom flags for the aqua plugin
-	// TODO: refactor
-	cmd.Flags().Bool("skip-result-upload", false, "Add this flag if you want test failed policy locally before sending PR")
-	_ = viper.BindPFlag("skip-result-upload", cmd.Flags().Lookup("skip-result-upload"))
-	_ = viper.BindEnv("skip-result-upload", "TRIVY_SKIP_RESULT_UPLOAD")
+	addBoolCustomFlag(cmd,
+		"skip-result-upload",
+		"TRIVY_SKIP_RESULT_UPLOAD",
+		false,
+		"Add this flag if you want test failed policy locally before sending PR")
+	addBoolCustomFlag(cmd,
+		"skip-policy-exit-code",
+		"TRIVY_SKIP_POLICY_EXIT_CODE",
+		false,
+		"Add this flag if you want skip policies exit code")
+	addBoolCustomFlag(cmd,
+		"pipelines",
+		"PIPELINES",
+		false,
+		"Add this flag to fetch and scan pipelines")
 
-	// TODO: add skip-policy-exit-code, triggered-by, pipelines and tags
+	addStringCustomFlag(cmd,
+		"triggered-by",
+		"TRIGGERED_BY",
+		"unknown",
+		"Add this flag to determine where the scan is coming from (push, pr, offline)")
+	addStringCustomFlag(cmd,
+		"tags",
+		"TAGS",
+		"",
+		"Add this flag for key:val pairs as scan metadata")
+
 }
 
 func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
@@ -160,7 +211,6 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 			return err
 		}
 	}
-
 
 	if viper.GetString("triggered-by") == "PR" {
 		report.Results, err = processor.PrDiffResults(report.Results)
