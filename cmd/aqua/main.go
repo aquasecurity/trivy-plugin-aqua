@@ -141,6 +141,11 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 		return err
 	}
 
+	report, pipelines, err := scanner.Scan(cmd.Context(), options, cmd.Name(), scanPath)
+	if err != nil {
+		return err
+	}
+
 	downloadedPolicies, err := client.GetPoliciesForRepository()
 	if err != nil {
 		log.Logger.Errorf("Could not download the repository policies. %#v", err)
@@ -155,10 +160,7 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 			return err
 		}
 	}
-	report, pipelines, err := scanner.Scan(cmd.Context(), options, cmd.Name(), scanPath)
-	if err != nil {
-		return err
-	}
+
 
 	if viper.GetString("triggered-by") == "PR" {
 		report.Results, err = processor.PrDiffResults(report.Results)
