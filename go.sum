@@ -190,8 +190,8 @@ github.com/aquasecurity/trivy-db v0.0.0-20220602091213-39d8a6798e07 h1:EZfv20xfe
 github.com/aquasecurity/trivy-db v0.0.0-20220602091213-39d8a6798e07/go.mod h1:/nULgnDeq/JMPMVwE1dmf4kWlYn++7VrM3O2naj4BHA=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220613131930-79b2cb425b18 h1:91lBgoQCfXpAV8UtyeNCh4fId4VuMDFz+++iO9zz2do=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220613131930-79b2cb425b18/go.mod h1:FOLJ8NtsB1vqrE1Nc6rROSPSHfdeqjF9FNnIoI7ZTnY=
-github.com/argonsecurity/pipeline-parser v0.1.15 h1:rFLUBqlDGhUXJpCxx+3wyzQKxjhfxGb3GJDh+8U/Tzk=
-github.com/argonsecurity/pipeline-parser v0.1.15/go.mod h1:MTiBd66r2j++hvQ8vWvqM8h1s/MZ4ghpIWrhto8Vv1M=
+github.com/argonsecurity/pipeline-parser v0.1.17 h1:FWmCUsoIq02rH16xumTW4iesFnQr7WDqSnKc8lwWvPY=
+github.com/argonsecurity/pipeline-parser v0.1.17/go.mod h1:MTiBd66r2j++hvQ8vWvqM8h1s/MZ4ghpIWrhto8Vv1M=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6/go.mod h1:grANhF5doyWs3UAsr3K4I6qtAmlQcZDesFNEHPZAzj8=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=

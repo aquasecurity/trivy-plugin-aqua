@@ -83,6 +83,10 @@ func GetImageDetails(imageName string) (prefix, repo, tag string) {
 
 // GetScmID extracts the git path from the config file
 func GetScmID(scanPath string) (string, error) {
+	envScmId := os.Getenv(overrideScmId)
+	if envScmId != "" {
+		return envScmId, nil
+	}
 	gitConfigFile := filepath.Join(scanPath, ".git", "config")
 	gitConfig, err := ioutil.ReadFile(gitConfigFile)
 	if err == nil {

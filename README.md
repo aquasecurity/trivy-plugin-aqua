@@ -61,13 +61,14 @@ Trivy will attempt to resolve the following details from the available environme
 
 There are some special case env vars;
 
-| Variable             | Purpose                                                                                 |
-| :------------------- |:--------------------------------------------------------------------------------------- |
-| OVERRIDE_REPOSITORY  | Use this environment variable to explicitly specify the repository used by Trivy        |
-| FALLBACK_REPOSITORY  | Use this environment variable as a backup if no other repository env vars can be found  |
-| OVERRIDE_BRANCH      | Use this environment variable to explicitly specify the branch used by Trivy            |
-| FALLBACK_BRANCH      | Use this environment variable as a backup if no other branch env vars can be found      |
-| OVERRIDE_BUILDSYSTEM | Use this environment variable to explicitly specify the build system                    |
+| Variable             | Purpose                                                                                |
+|:---------------------|:---------------------------------------------------------------------------------------|
+| OVERRIDE_REPOSITORY  | Use this environment variable to explicitly specify the repository used by Trivy       |
+| FALLBACK_REPOSITORY  | Use this environment variable as a backup if no other repository env vars can be found |
+| OVERRIDE_BRANCH      | Use this environment variable to explicitly specify the branch used by Trivy           |
+| FALLBACK_BRANCH      | Use this environment variable as a backup if no other branch env vars can be found     |
+| OVERRIDE_BUILDSYSTEM | Use this environment variable to explicitly specify the build system                   |
+| OVERRIDE_SCMID       | Use this environment variable to explicitly specify the scm id                         |
 
 # Deployment of a new version
 
