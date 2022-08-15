@@ -177,6 +177,11 @@ func runScan(c *cli.Context) error {
 		return err
 	}
 
+	report, pipelines, err := scanner.Scan(c, scanPath)
+	if err != nil {
+		return err
+	}
+
 	downloadedPolicies, err := client.GetPoliciesForRepository()
 	if err != nil {
 		log.Logger.Errorf("Could not download the repository policies. %#v", err)
@@ -190,10 +195,6 @@ func runScan(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-	}
-	report, pipelines, err := scanner.Scan(c, scanPath)
-	if err != nil {
-		return err
 	}
 
 	if c.String("triggered-by") == "PR" {
