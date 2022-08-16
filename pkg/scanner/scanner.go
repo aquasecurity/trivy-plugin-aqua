@@ -12,6 +12,8 @@ import (
 	"golang.org/x/exp/slices"
 	"golang.org/x/xerrors"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/oss"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/pipelines"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy/pkg/commands/artifact"
@@ -74,9 +76,21 @@ func Scan(c *cli.Context, path string) (*trivyTypes.Report, []*buildsecurity.Pip
 				return nil, nil, errors.Wrap(err, "failed get pipelines")
 			}
 		}
+
+		dir, fileMap, err := oss.GeneratePackageLockFiles(opt.Target)
+		if err != nil {
+			log.Logger.Errorf("failed to generate package-lock.json: %s", err)
+		} else {
+			defer os.RemoveAll(dir)
+		}
+
 		// Filesystem scanning
 		if report, err = r.ScanFilesystem(ctx, opt); err != nil {
 			return nil, nil, xerrors.Errorf("image scan error: %w", err)
+		}
+
+		if fileMap != nil {
+			fixPackageJsonPathes(&report, fileMap)
 		}
 	}
 
@@ -89,6 +103,15 @@ func Scan(c *cli.Context, path string) (*trivyTypes.Report, []*buildsecurity.Pip
 		return nil, nil, xerrors.Errorf("report error: %w", err)
 	}
 	return &report, repositoryPipelines, nil
+}
+
+func fixPackageJsonPathes(report *trivyTypes.Report, fileMap map[string]string) {
+	for i := range report.Results {
+		result := &report.Results[i]
+		if file, ok := fileMap[result.Target]; ok {
+			result.Target = file
+		}
+	}
 }
 
 func MatchResultSeverity(severity string) buildsecurity.SeverityEnum {
