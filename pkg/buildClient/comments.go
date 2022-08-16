@@ -3,7 +3,6 @@ package buildClient
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -158,7 +157,7 @@ func getGitHubRepositoryDetails() (owner, repo string, err error) {
 // extractGitHubActionPrNumber take the pull request number from the GitHub action run
 func extractGitHubActionPrNumber() (int, error) {
 	githubEventFile := os.Getenv("GITHUB_EVENT_PATH")
-	file, err := ioutil.ReadFile(githubEventFile)
+	file, err := os.ReadFile(githubEventFile)
 	if err != nil {
 		return 0, fmt.Errorf("failed gitHub event payload not found in %s", githubEventFile)
 	}

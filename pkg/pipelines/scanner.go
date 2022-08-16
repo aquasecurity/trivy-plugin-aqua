@@ -2,6 +2,8 @@ package pipelines
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"io"
 	"io/fs"
 	"sync"
@@ -100,6 +102,9 @@ func (s *Scanner) ScanFS(ctx context.Context, fs fs.FS, path string) (scan.Resul
 			Type:     "pipeline",
 		})
 	}
+
+	k, _ := json.MarshalIndent(inputs, "", "  ")
+	fmt.Println(string(k))
 
 	results, err := s.scanRego(ctx, fs, inputs...)
 	if err != nil {

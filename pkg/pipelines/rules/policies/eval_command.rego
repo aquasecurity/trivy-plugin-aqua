@@ -4,7 +4,7 @@ import data.lib.pipeline
 
 __rego_metadata__ := {
 	"id": "EVAL_COMMAND",
-	"avd_id": "",
+	"avd_id": "AVD-PIPELINE-0004",
 	"title": "eval command",
 	"severity": "LOW",
 	"type": "Pipeline Yaml Security Check",

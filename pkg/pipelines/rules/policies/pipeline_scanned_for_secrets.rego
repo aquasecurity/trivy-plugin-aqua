@@ -4,7 +4,7 @@ import data.lib.pipeline
 
 __rego_metadata__ := {
 	"id": "SECRET_SCANNING",
-	"avd_id": "",
+	"avd_id": "AVD-PIPELINE-0020",
 	"title": "Ensure scanners are in place to identify and prevent sensitive data in pipeline files",
 	"severity": "HIGH",
 	"type": "Pipeline Yaml Security Check",
@@ -89,7 +89,7 @@ deny[result] {
 	not startswith(pipeline.path, "base")
 
 	result := {
-		"msg": "No vulnerabilities scanning tool is used in pipeline",
+		"msg": "No secrets scanning tool is used in pipeline",
 		"filename": pipeline.path,
 		"startline": -1,
 	}

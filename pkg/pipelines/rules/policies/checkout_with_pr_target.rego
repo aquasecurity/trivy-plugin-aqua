@@ -4,7 +4,7 @@ import data.lib.pipeline
 
 __rego_metadata__ := {
 	"id": "CHECKOUT_WITH_PR_TARGET",
-	"avd_id": "",
+	"avd_id": "AVD-PIPELINE-0002",
 	"title": "checkout with pull_request_target",
 	"severity": "HIGH",
 	"type": "Pipeline Yaml Security Check",
@@ -29,7 +29,7 @@ deny[result] {
 	pipeline.contains_ref_value(input.jobs[i].steps[j].task.inputs[k].value)
 
 	result := {
-		"msg": "Consider removing pull_request_target trigger for checkout action",
+		"msg": sprintf("Consider removing pull_request_target trigger or checkout action in workflow '%s'", [input.name]),
 		"startline": input.triggers.triggers[a].file_reference.start_ref.line,
 	}
 }

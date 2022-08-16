@@ -171,6 +171,9 @@ func ScanPipelines(ctx context.Context, repositoryPipelines []*buildsecurity.Pip
 	return results, nil
 }
 
+// Trivy uses policies that are embedded into a file in defsec.
+// So in order to use our own policies we need to create a readers array that contains our policies,
+// and leverage defsec's capability to inject them to the scanner.
 func getPolicyReaders() ([]io.Reader, error) {
 	var policyReaders []io.Reader
 

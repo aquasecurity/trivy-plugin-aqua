@@ -4,7 +4,7 @@ import data.lib.pipeline
 
 __rego_metadata__ := {
 	"id": "VULN_SCANNING",
-	"avd_id": "",
+	"avd_id": "AVD-PIPELINE-0021",
 	"title": "Ensure pipelines are automatically scanned for vulnerabilities",
 	"severity": "HIGH",
 	"type": "Pipeline Yaml Security Check",

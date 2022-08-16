@@ -14,6 +14,10 @@ contains_fetching_commands(string) = result {
 	}) > 0
 }
 
+contains_pip_install_with_extra_index_url_flag(string) = result {
+	result := regex.match(`.*?pip install .*--extra-index-url .*`, lower(string))
+}
+
 contains_untrusted_inputs(string) = result {
 	untrusted_inputs_regex_patterns := [
 		`github\.event\.issue\.title`,
@@ -53,24 +57,11 @@ contains_variables(string) = result {
 
 contains_log_functions(string) = result {
 	log_functions_regex_patterns := [
-		`console\.log\(`,
-		`console\.info\(`,
-		`console\.error\(`,
-		`console\.warn\(`,
-		`console\.dir\(`,
-		`console\.time\(`,
-		`console\.timeEnd\(`,
-		`console\.trace\(`,
-		`console\.assert\(`,
+		`console\..*\(`,
 		`process\.stdout\.write\(`,
 		`echo`,
 		`print\(`,
-		`logging\.info\(`,
-		`logging\.warning\(`,
-		`logging\.error\(`,
-		`logging\.critical\(`,
-		`logging\.exception\(`,
-		`logging\.log\(`,
+		`logging\..*\(`,
 	]
 
 	result := count({x |

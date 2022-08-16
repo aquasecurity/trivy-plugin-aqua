@@ -4,7 +4,7 @@ import data.lib.pipeline
 
 __rego_metadata__ := {
 	"id": "VARIABLES_LOGGING",
-	"avd_id": "",
+	"avd_id": "AVD-PIPELINE-0003",
 	"title": "echo of variables",
 	"severity": "LOW",
 	"type": "Pipeline Yaml Security Check",

@@ -4,7 +4,7 @@ import data.lib.pipeline
 
 __rego_metadata__ := {
 	"id": "PERSIST_CREDENTIALS",
-	"avd_id": "AVD-ID-2",
+	"avd_id": "AVD-PIPELINE-0005",
 	"title": "persist-credentials is true",
 	"severity": "HIGH",
 	"type": "Pipeline Yaml Security Check",
@@ -25,7 +25,7 @@ deny[result] {
 	not pipeline.persist_credentials_passing_check(input.jobs[i].steps[j].task)
 
 	result := {
-		"msg": sprintf("Consider adding persist-credentials: false to the checkout action in job %s inputs", [input.jobs[i].name]),
+		"msg": sprintf("Consider adding persist-credentials: false to the checkout action in job '%s' inputs", [input.jobs[i].name]),
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
 	}
 }

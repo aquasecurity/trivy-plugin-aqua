@@ -4,7 +4,7 @@ import data.lib.pipeline
 
 __rego_metadata__ := {
 	"id": "INSECURE_FETCHING",
-	"avd_id": "",
+	"avd_id": "AVD-PIPELINE-0009",
 	"title": "insecure fetching",
 	"severity": "MEDIUM",
 	"type": "Pipeline Yaml Security Check",
@@ -26,7 +26,7 @@ deny[result] {
 	pipeline.contains_fetching_commands(script)
 
 	result = {
-		"msg": script,
+		"msg": sprintf("Avoid using usecured fetching commands in job '%s', step '%s'", [input.jobs[i].name, input.jobs[i].steps[j].name]),
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
 	}
 }

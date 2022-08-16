@@ -4,11 +4,11 @@ import data.lib.pipeline
 
 __rego_metadata__ := {
 	"id": "UNTRUSTED_INPUT_NO_ENV",
-	"avd_id": "",
-	"title": "Potentially untrusted input",
+	"avd_id": "AVD-PIPELINE-0006",
+	"title": "Potentially untrusted input - environment variable",
 	"severity": "HIGH",
 	"type": "Pipeline Yaml Security Check",
-	"description": "when defining environment variable inside step that runs a script, the variable is evaluated inside the shell, and as such can be exploited by script injection. The recommendation is to use an intermediate env variable, which is kept in memory as a variable and it's evaluation isn't happening in the same shell where the job runs, so the risk for script injection reduces",
+	"description": "When defining environment variable inside step that runs a script, the variable is evaluated inside the shell, and as such can be exploited by script injection. The recommendation is to use an intermediate env variable, which is kept in memory as a variable and it's evaluation isn't happening in the same shell where the job runs, so the risk for script injection reduces.",
 	"recommended_actions": "",
 	"url": "",
 }
@@ -33,7 +33,7 @@ deny[result] {
 	fields := pipeline.get_step_fields(input.jobs[i].steps[j])
 	pipeline.contains_untrusted_inputs(fields[k])
 	result := {
-		"msg": fields[k],
+		"msg": sprintf("Consider using an intermediate environment variable instead of defining it in the '%s' step shell", [input.jobs[i].steps[j]]),
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
 	}
 }
