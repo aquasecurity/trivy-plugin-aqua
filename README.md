@@ -44,10 +44,11 @@ Set Aqua plugin as Trivy's current default plugin by exporting an environment va
 
 The only explicitly required environment variables are
 
-| Variable    | Purpose                   |
-| :---------- | :-------------------------|
-| AQUA_KEY    | Generated through CSPM UI |
-| AQUA_SECRET | Generated through CSPM UI |
+| Variable    | Purpose                                                            |
+|:------------|:-------------------------------------------------------------------|
+| AQUA_KEY    | Generated through CSPM UI                                          |
+| AQUA_SECRET | Generated through CSPM UI                                          |
+| AWS_REGION  | Using Aqua Platform from your selected region (default: us-east-1) |
 
 ### Optional
 
