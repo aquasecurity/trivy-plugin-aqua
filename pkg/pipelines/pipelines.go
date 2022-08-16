@@ -4,15 +4,16 @@ import (
 	// #nosec
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
+
 	ppConsts "github.com/argonsecurity/pipeline-parser/pkg/consts"
 	"github.com/samber/lo"
 )
@@ -168,7 +169,7 @@ func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 	}
 
 	if err := enhancePipelines(rootDir, pipelines); err != nil {
-		fmt.Println("Failed to enhance pipelines:", err)
+		log.Logger.Errorf("Failed to enhance pipelines: %s", err)
 	}
 
 	return pipelines, files, nil
