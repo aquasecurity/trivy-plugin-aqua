@@ -76,20 +76,20 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 				buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML:
 				err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r, avdUrlMap), int(r.StartLine), int(r.EndLine))
 				if err != nil {
-					return fmt.Errorf("failed write misconfiguration comment: %w", err)
+					log.Logger.Infof("failed write misconfiguration comment: %w", err)
 				}
 			case buildsecurity.Result_TYPE_VULNERABILITIES:
 				if !strings.Contains(r.Filename, "node_modules") {
 					err := c.WriteMultiLineComment(r.Filename, returnVulnfMsg(r, avdUrlMap), commenter.FIRST_AVAILABLE_LINE, commenter.FIRST_AVAILABLE_LINE)
 					if err != nil {
-						return fmt.Errorf("failed write vulnerability comment: %w", err)
+						log.Logger.Infof("failed write vulnerability comment: %w", err)
 					}
 				}
 
 			case buildsecurity.Result_TYPE_SECRETS:
 				err := c.WriteMultiLineComment(r.Filename, returnSecretMsg(r), int(r.StartLine), int(r.EndLine))
 				if err != nil {
-					return fmt.Errorf("failed write secret findings comment: %w", err)
+					log.Logger.Infof("failed write secret findings comment: %w", err)
 				}
 			}
 		}
