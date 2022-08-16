@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/azure"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/bitbucket"
@@ -16,6 +18,8 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
+
+const aquaMsg = "[This comment was created by Aqua Pipeline]"
 
 // prComments send results PR comments
 func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap ResultIdToUrlMap) error {
@@ -59,6 +63,10 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 	default:
 		return nil
 	}
+	err := c.RemovePreviousAquaComments(aquaMsg)
+	if err != nil {
+		log.Logger.Infof("failed removing old comments with error: %s", err)
+	}
 
 	for _, r := range result {
 		if r.SuppressionID == "" {
@@ -94,11 +102,13 @@ func returnSecretMsg(r *buildsecurity.Result) string {
 		"  \n**Category:** %s "+
 		"  \n**Description:** %s "+
 		"  \n**Severity:** %s "+
-		"  \n**Match:** %s",
+		"  \n**Match:** %s"+
+		"  \n%s",
 		r.Resource,
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
-		r.Message)
+		r.Message,
+		aquaMsg)
 }
 
 func returnMisconfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string {
@@ -106,11 +116,13 @@ func returnMisconfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) strin
 		"  \n**Misconfiguration ID:** %s "+
 		"  \n**Check Name:** %s "+
 		"  \n**Severity:** %s "+
-		"  \n**Message:** %s",
+		"  \n**Message:** %s"+
+		"  \n%s",
 		r.AVDID,
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
-		r.Message)
+		r.Message,
+		aquaMsg)
 
 	if avdUrl := avdUrlMap[GenerateResultId(r)]; avdUrl != "" {
 		return commentWithoutAvdUrl +
@@ -127,12 +139,14 @@ func returnVulnfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string 
 		"  \n**Check Name:** %s "+
 		"  \n**Severity:** %s "+
 		"  \n**Fixed Version:** %s "+
-		"  \n**Description:** %s",
+		"  \n**Description:** %s"+
+		"  \n%s",
 		r.AVDID,
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
 		r.FixedVersion,
-		r.Message)
+		r.Message,
+		aquaMsg)
 
 	if avdUrl := avdUrlMap[GenerateResultId(r)]; avdUrl != "" {
 		return commentWithoutAvdUrl +
