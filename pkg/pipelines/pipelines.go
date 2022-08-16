@@ -57,6 +57,13 @@ func getParsedAzurePipelines(rootDir string) ([]*buildsecurity.Pipeline, []strin
 }
 
 func enhancePipeline(pipeline *buildsecurity.Pipeline, rootDir string) error {
+	var err error
+	pipeline.Path = strings.TrimPrefix(pipeline.Path, rootDir+"/")
+	pipeline.ID, err = getPipelineId(rootDir, pipeline.Path)
+	if err != nil {
+		return err
+	}
+
 	firstCommit, err := git.GetFirstCommit(pipeline.Path)
 	if err != nil {
 		return err
@@ -71,12 +78,6 @@ func enhancePipeline(pipeline *buildsecurity.Pipeline, rootDir string) error {
 	pipeline.UpdatedBy = lastCommit.Author
 	pipeline.LastCommitDate = lastCommit.Date
 	pipeline.LastCommitSha = lastCommit.SHA
-
-	pipeline.Path = strings.TrimPrefix(pipeline.Path, rootDir+"/")
-	pipeline.ID, err = getPipelineId(rootDir, pipeline.Path)
-	if err != nil {
-		return err
-	}
 
 	return nil
 }
