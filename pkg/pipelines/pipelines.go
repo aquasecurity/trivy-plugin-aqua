@@ -1,16 +1,11 @@
 package pipelines
 
 import (
-	// #nosec
-	"crypto/md5"
-	"encoding/hex"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
-	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
 
@@ -25,7 +20,7 @@ func getParsedGitHubPipelines(rootDir string) ([]*buildsecurity.Pipeline, []stri
 	}
 
 	parsedGithubPipelines := lo.FilterMap(gitHubWorkflows, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
-		pipeline, err := parseGitHubWorkflow(path)
+		pipeline, err := parseGitHubWorkflow(rootDir, path)
 		return pipeline, err == nil
 	})
 
@@ -38,7 +33,7 @@ func getParsedGitLabPipelines(rootDir string) ([]*buildsecurity.Pipeline, []stri
 		return nil, nil, err
 	}
 	parsedGitLabPipelines := lo.FilterMap(gitLabPipelines, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
-		pipeline, err := parseGitLabPipelineFile(path)
+		pipeline, err := parseGitLabPipelineFile(rootDir, path)
 		return pipeline, err == nil
 	})
 	return parsedGitLabPipelines, gitLabPipelines, nil
@@ -51,28 +46,22 @@ func getParsedAzurePipelines(rootDir string) ([]*buildsecurity.Pipeline, []strin
 	}
 
 	parsedAzurePipelines := lo.FilterMap(azurePipelines, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
-		pipeline, err := parseAzurePipelineFile(path)
+		pipeline, err := parseAzurePipelineFile(rootDir, path)
 		return pipeline, err == nil
 	})
 	return parsedAzurePipelines, azurePipelines, nil
 }
 
 func enhancePipeline(pipeline *buildsecurity.Pipeline, rootDir string) error {
-	var err error
-	pipeline.Path = strings.TrimPrefix(pipeline.Path, rootDir+"/")
-	pipeline.ID, err = getPipelineId(rootDir, pipeline.Path)
-	if err != nil {
-		return err
-	}
-
-	firstCommit, err := git.GetFirstCommit(pipeline.Path)
+	pipelineFullPath := filepath.Join(rootDir, pipeline.Path)
+	firstCommit, err := git.GetFirstCommit(pipelineFullPath)
 	if err != nil {
 		return err
 	}
 	pipeline.CreatedBy = firstCommit.Author
 	pipeline.CreatedDate = firstCommit.Date
 
-	lastCommit, err := git.GetLastCommit(pipeline.Path)
+	lastCommit, err := git.GetLastCommit(pipelineFullPath)
 	if err != nil {
 		return err
 	}
@@ -83,24 +72,12 @@ func enhancePipeline(pipeline *buildsecurity.Pipeline, rootDir string) error {
 	return nil
 }
 
-func getPipelineId(rootDir, path string) (string, error) {
-	scmId, err := metadata.GetScmID(rootDir)
-	if err != nil {
-		return "", err
-	}
-	// #nosec - MD5 is used to generate a unique ID
-	hash := md5.Sum([]byte(scmId + path))
-	return hex.EncodeToString(hash[:]), nil
-}
-
-func enhancePipelines(rootDir string, pipelines []*buildsecurity.Pipeline) error {
-	var err error
+func enhancePipelines(rootDir string, pipelines []*buildsecurity.Pipeline) {
 	lo.ForEach(pipelines, func(pipeline *buildsecurity.Pipeline, _ int) {
-		if err == nil {
-			err = enhancePipeline(pipeline, rootDir)
+		if err := enhancePipeline(pipeline, rootDir); err != nil {
+			log.Logger.Errorf("Failed to enhance pipeline: %s", err)
 		}
 	})
-	return err
 }
 
 func getPipelinesFiles(rootDir string, pipelinePaths []string, platform ppConsts.Platform) ([]types.File, error) {
@@ -163,14 +140,7 @@ func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 		return nil, nil, err
 	}
 	files = append(files, gitlabFiles...)
-
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if err := enhancePipelines(rootDir, pipelines); err != nil {
-		log.Logger.Errorf("Failed to enhance pipelines: %s", err)
-	}
+	enhancePipelines(rootDir, pipelines)
 
 	return pipelines, files, nil
 }

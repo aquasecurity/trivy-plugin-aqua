@@ -81,10 +81,10 @@ func GetImageDetails(imageName string) (prefix, repo, tag string) {
 }
 
 // GetScmID extracts the git path from the config file
-func GetScmID(scanPath string) (string, error) {
+func GetScmID(scanPath string) string {
 	envScmId := os.Getenv(overrideScmId)
 	if envScmId != "" {
-		return envScmId, nil
+		return envScmId
 	}
 	gitConfigFile := filepath.Join(scanPath, ".git", "config")
 	gitConfig, err := os.ReadFile(gitConfigFile)
@@ -94,11 +94,11 @@ func GetScmID(scanPath string) (string, error) {
 			scmID := re.FindStringSubmatch(string(gitConfig))[1]
 			scmID = sanitiseScmId(scmID)
 
-			return scmID, nil
+			return scmID
 		}
 	}
 
-	return filepath.Base(scanPath), nil
+	return filepath.Base(scanPath)
 }
 
 // This function is the formula on the DB, on Atlas side and on Argon side,
@@ -137,10 +137,7 @@ func getFsRepositoryDetails(scanPath string) (repoName, branch string, err error
 
 	inferredRepoName := filepath.Base(abs)
 	repoRegex := regexp.MustCompile(`^(?i).+[:/](.+/.+)`)
-	scmID, err := GetScmID(scanPath)
-	if err != nil {
-		return inferredRepoName, "", err
-	}
+	scmID := GetScmID(scanPath)
 	if repoRegex.MatchString(scmID) {
 		inferredRepoName = repoRegex.FindStringSubmatch(scmID)[1]
 		log.Logger.Debugf("Extracted repo name from scmID: %s", inferredRepoName)
