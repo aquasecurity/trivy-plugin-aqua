@@ -59,7 +59,9 @@ func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
 			continue
 		}
 
-		if lockpath, err := createPackageLockFile(fileDir, packageJson); err == nil {
+		if lockpath, err := createPackageLockFile(fileDir, packageJson); err != nil {
+			log.Logger.Errorf("Error occurred while creating package-lock.json file: %s", err.Error())
+		} else {
 			pathToRemove := path
 			if !strings.HasSuffix(pathToRemove, "/") {
 				pathToRemove = fmt.Sprintf("%s/", pathToRemove)
@@ -149,7 +151,9 @@ func createPackageLockFile(dir string, packageJson PackageJson) (string, error) 
 			errorStr := errb.String()
 			matches := packageRegexp.FindStringSubmatch(errorStr)
 
-			if len(matches) > 1 {
+			if len(matches) < 2 {
+				return "", err
+			} else {
 				unfoundPackage, err := url.QueryUnescape(matches[1])
 
 				if err != nil {
