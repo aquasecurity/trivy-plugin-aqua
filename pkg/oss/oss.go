@@ -159,6 +159,20 @@ func createPackageLockFile(dir string, packageJson PackageJson) (string, error) 
 
 				delete(packageJson.Dependencies, unfoundPackage)
 
+				packagePrefixRegexp := regexp.MustCompile(`(@[^\/]*)\/.*`)
+
+				matches = packagePrefixRegexp.FindStringSubmatch(unfoundPackage)
+
+				if len(matches) > 1 {
+					packagePrefix := matches[1]
+
+					for key := range packageJson.Dependencies {
+						if strings.HasPrefix(key, packagePrefix+"/") {
+							delete(packageJson.Dependencies, key)
+						}
+					}
+				}
+
 				shouldRetry = true
 			}
 		}
