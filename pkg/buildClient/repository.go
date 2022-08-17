@@ -1,8 +1,6 @@
 package buildClient
 
 import (
-	"fmt"
-
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
@@ -65,10 +63,7 @@ func (bc *TwirpClient) getScmID() (scmID string, err error) {
 		prefix, repo, _ := metadata.GetImageDetails(bc.scanPath)
 		scmID = metadata.GetRepositoryUrl(prefix, repo)
 	default:
-		scmID, err = metadata.GetScmID(bc.scanPath)
-		if err != nil {
-			return "", fmt.Errorf("failed get scm id: %w", err)
-		}
+		scmID = metadata.GetScmID(bc.scanPath)
 	}
 
 	return scmID, nil

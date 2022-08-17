@@ -60,10 +60,7 @@ func getParsedAzurePipelines(rootDir string) ([]*buildsecurity.Pipeline, []strin
 func enhancePipeline(pipeline *buildsecurity.Pipeline, rootDir string) error {
 	var err error
 	pipeline.Path = strings.TrimPrefix(pipeline.Path, rootDir+"/")
-	pipeline.ID, err = getPipelineId(rootDir, pipeline.Path)
-	if err != nil {
-		return err
-	}
+	pipeline.ID = getPipelineId(rootDir, pipeline.Path)
 
 	firstCommit, err := git.GetFirstCommit(pipeline.Path)
 	if err != nil {
@@ -83,24 +80,20 @@ func enhancePipeline(pipeline *buildsecurity.Pipeline, rootDir string) error {
 	return nil
 }
 
-func getPipelineId(rootDir, path string) (string, error) {
-	scmId, err := metadata.GetScmID(rootDir)
-	if err != nil {
-		return "", err
-	}
+func getPipelineId(rootDir, path string) string {
+	scmId := metadata.GetScmID(rootDir)
+
 	// #nosec - MD5 is used to generate a unique ID
 	hash := md5.Sum([]byte(scmId + path))
-	return hex.EncodeToString(hash[:]), nil
+	return hex.EncodeToString(hash[:])
 }
 
-func enhancePipelines(rootDir string, pipelines []*buildsecurity.Pipeline) error {
-	var err error
+func enhancePipelines(rootDir string, pipelines []*buildsecurity.Pipeline) {
 	lo.ForEach(pipelines, func(pipeline *buildsecurity.Pipeline, _ int) {
-		if err == nil {
-			err = enhancePipeline(pipeline, rootDir)
+		if err := enhancePipeline(pipeline, rootDir); err != nil {
+			log.Logger.Errorf("Failed to enhance pipeline: %s", err)
 		}
 	})
-	return err
 }
 
 func getPipelinesFiles(rootDir string, pipelinePaths []string, platform ppConsts.Platform) ([]types.File, error) {
@@ -168,9 +161,7 @@ func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 		return nil, nil, err
 	}
 
-	if err := enhancePipelines(rootDir, pipelines); err != nil {
-		log.Logger.Errorf("Failed to enhance pipelines: %s", err)
-	}
+	enhancePipelines(rootDir, pipelines)
 
 	return pipelines, files, nil
 }
