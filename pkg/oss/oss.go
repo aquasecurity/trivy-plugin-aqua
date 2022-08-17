@@ -75,6 +75,7 @@ func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
 func findPackageJsonFiles(dirPath string) []string {
 	files := []string{}
 
+	//nolint:errcheck
 	filepath.Walk(dirPath, func(path string, f os.FileInfo, err error) error {
 		f, err = os.Stat(path)
 
