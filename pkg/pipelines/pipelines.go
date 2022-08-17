@@ -156,11 +156,6 @@ func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 		return nil, nil, err
 	}
 	files = append(files, gitlabFiles...)
-
-	if err != nil {
-		return nil, nil, err
-	}
-
 	enhancePipelines(rootDir, pipelines)
 
 	return pipelines, files, nil
