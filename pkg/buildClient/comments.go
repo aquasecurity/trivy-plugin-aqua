@@ -3,10 +3,11 @@ package buildClient
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/azure"
@@ -16,6 +17,8 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
+
+const aquaMsg = "[This comment was created by Aqua Pipeline]"
 
 // prComments send results PR comments
 func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap ResultIdToUrlMap) error {
@@ -59,29 +62,33 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 	default:
 		return nil
 	}
+	err := c.RemovePreviousAquaComments(aquaMsg)
+	if err != nil {
+		log.Logger.Infof("failed removing old comments with error: %s", err)
+	}
 
 	for _, r := range result {
 		if r.SuppressionID == "" {
 			switch r.Type {
 			case buildsecurity.Result_TYPE_TERRAFORM, buildsecurity.Result_TYPE_CLOUDFORMATION,
 				buildsecurity.Result_TYPE_KUBERNETES, buildsecurity.Result_TYPE_DOCKERFILE,
-				buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML:
+				buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML, buildsecurity.Result_TYPE_PIPELINE:
 				err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r, avdUrlMap), int(r.StartLine), int(r.EndLine))
 				if err != nil {
-					return fmt.Errorf("failed write misconfiguration comment: %w", err)
+					log.Logger.Infof("failed write misconfiguration comment: %w", err)
 				}
 			case buildsecurity.Result_TYPE_VULNERABILITIES:
 				if !strings.Contains(r.Filename, "node_modules") {
 					err := c.WriteMultiLineComment(r.Filename, returnVulnfMsg(r, avdUrlMap), commenter.FIRST_AVAILABLE_LINE, commenter.FIRST_AVAILABLE_LINE)
 					if err != nil {
-						return fmt.Errorf("failed write vulnerability comment: %w", err)
+						log.Logger.Infof("failed write vulnerability comment: %w", err)
 					}
 				}
 
 			case buildsecurity.Result_TYPE_SECRETS:
 				err := c.WriteMultiLineComment(r.Filename, returnSecretMsg(r), int(r.StartLine), int(r.EndLine))
 				if err != nil {
-					return fmt.Errorf("failed write secret findings comment: %w", err)
+					log.Logger.Infof("failed write secret findings comment: %w", err)
 				}
 			}
 		}
@@ -94,11 +101,13 @@ func returnSecretMsg(r *buildsecurity.Result) string {
 		"  \n**Category:** %s "+
 		"  \n**Description:** %s "+
 		"  \n**Severity:** %s "+
-		"  \n**Match:** %s",
+		"  \n**Match:** %s"+
+		"  \n%s",
 		r.Resource,
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
-		r.Message)
+		r.Message,
+		aquaMsg)
 }
 
 func returnMisconfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string {
@@ -106,11 +115,13 @@ func returnMisconfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) strin
 		"  \n**Misconfiguration ID:** %s "+
 		"  \n**Check Name:** %s "+
 		"  \n**Severity:** %s "+
-		"  \n**Message:** %s",
+		"  \n**Message:** %s"+
+		"  \n%s",
 		r.AVDID,
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
-		r.Message)
+		r.Message,
+		aquaMsg)
 
 	if avdUrl := avdUrlMap[GenerateResultId(r)]; avdUrl != "" {
 		return commentWithoutAvdUrl +
@@ -127,12 +138,14 @@ func returnVulnfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string 
 		"  \n**Check Name:** %s "+
 		"  \n**Severity:** %s "+
 		"  \n**Fixed Version:** %s "+
-		"  \n**Description:** %s",
+		"  \n**Description:** %s"+
+		"  \n%s",
 		r.AVDID,
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
 		r.FixedVersion,
-		r.Message)
+		r.Message,
+		aquaMsg)
 
 	if avdUrl := avdUrlMap[GenerateResultId(r)]; avdUrl != "" {
 		return commentWithoutAvdUrl +
@@ -158,7 +171,7 @@ func getGitHubRepositoryDetails() (owner, repo string, err error) {
 // extractGitHubActionPrNumber take the pull request number from the GitHub action run
 func extractGitHubActionPrNumber() (int, error) {
 	githubEventFile := os.Getenv("GITHUB_EVENT_PATH")
-	file, err := ioutil.ReadFile(githubEventFile)
+	file, err := os.ReadFile(githubEventFile)
 	if err != nil {
 		return 0, fmt.Errorf("failed gitHub event payload not found in %s", githubEventFile)
 	}

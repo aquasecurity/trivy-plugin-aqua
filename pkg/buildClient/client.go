@@ -43,15 +43,7 @@ func Get(scanPath string, c *cli.Context) (Client, error) {
 		return buildClient, nil
 	}
 
-	cspmURL, ok := os.LookupEnv("CSPM_URL")
-	if !ok {
-		cspmURL = "https://api.cloudsploit.com/v2/tokens"
-	}
-
-	aquaURL, ok := os.LookupEnv("AQUA_URL")
-	if !ok {
-		aquaURL = "https://api.aquasec.com/v2/build"
-	}
+	cspmURL, aquaURL := getCspmAndAquaUrl()
 
 	aquaKey, ok := os.LookupEnv("AQUA_KEY")
 	if !ok {
@@ -84,6 +76,32 @@ func Get(scanPath string, c *cli.Context) (Client, error) {
 	}
 
 	return buildClient, nil
+}
+
+func getCspmAndAquaUrl() (string, string) {
+	var urlPrefix string
+	awsRegion, _ := os.LookupEnv("AWS_REGION")
+	switch awsRegion {
+	case "eu-central-1":
+		urlPrefix = "eu-1."
+	case "ap-southeast-1":
+		urlPrefix = "asia-1."
+	// us-east-1, or any unknown
+	default:
+		urlPrefix = ""
+	}
+
+	cspmURL, ok := os.LookupEnv("CSPM_URL")
+	if !ok {
+		cspmURL = fmt.Sprintf("https://%sapi.cloudsploit.com/v2/tokens", urlPrefix)
+	}
+
+	aquaURL, ok := os.LookupEnv("AQUA_URL")
+	if !ok {
+		aquaURL = fmt.Sprintf("https://%sapi.aquasec.com/v2/build", urlPrefix)
+	}
+
+	return cspmURL, aquaURL
 }
 
 func (bc *TwirpClient) createContext() (context.Context, error) {
