@@ -5,10 +5,10 @@ import data.lib.pipeline
 __rego_metadata__ := {
 	"id": "EVAL_COMMAND",
 	"avd_id": "AVD-PIPELINE-0004",
-	"title": "eval command",
+	"title": "Using eval command",
 	"severity": "LOW",
 	"type": "Pipeline Yaml Security Check",
-	"description": "Evaluate command in pipeline(s)",
+	"description": "Evaluate command in pipeline(s).",
 	"recommended_actions": "Avoid using evaluate command during the pipeline",
 	"url": "",
 }

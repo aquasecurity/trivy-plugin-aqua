@@ -5,10 +5,10 @@ import data.lib.pipeline
 __rego_metadata__ := {
 	"id": "VARIABLES_LOGGING",
 	"avd_id": "AVD-PIPELINE-0003",
-	"title": "echo of variables",
+	"title": "Echo of variables",
 	"severity": "LOW",
 	"type": "Pipeline Yaml Security Check",
-	"description": "Avoid printing variables. These contain sensitive data, secrets, credentials, and keys. printing them would result in them exposed and printed in plain text. In addition, avoid printing untrusted input that can be manipulated by attacker",
+	"description": "Avoid printing variables. These contain sensitive data, secrets, credentials, and keys. printing them would result in them exposed and printed in plain text. In addition, avoid printing untrusted input that can be manipulated by attacker.",
 	"recommended_actions": "Avoid printing variables",
 	"url": "",
 }

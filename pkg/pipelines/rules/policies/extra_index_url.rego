@@ -5,7 +5,7 @@ import data.lib.pipeline
 __rego_metadata__ := {
 	"id": "EXTRA_INDEX_URL",
 	"avd_id": "AVD-PIPELINE-0001",
-	"title": " using extra-index-url",
+	"title": " Using extra-index-url",
 	"severity": "MEDIUM",
 	"type": "Pipeline Yaml Security Check",
 	"description": "Dependency confusion is a common attack, which happens when ci systems or developers confuses between internal packages and external packages which has the same name or one that's very similiar. In that case an attacker can publish a malicious package with the same name as your private package and at some point someone might confuse and pull the malicious one. The --extra-index-url flag works in a way that might install external packages instead of private if their version is higher. It is recommended to use the flag --index-url while installing and also avoid having internal packages in the same name as external ones.",

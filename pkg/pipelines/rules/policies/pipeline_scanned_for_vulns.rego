@@ -8,7 +8,7 @@ __rego_metadata__ := {
 	"title": "Ensure pipelines are automatically scanned for vulnerabilities",
 	"severity": "HIGH",
 	"type": "Pipeline Yaml Security Check",
-	"description": "Scan pipelines for vulnerabilities. It is recommended to do that automatically",
+	"description": "Scan pipelines for vulnerabilities. It is recommended to do that automatically.",
 	"recommended_actions": "",
 	"url": "",
 }

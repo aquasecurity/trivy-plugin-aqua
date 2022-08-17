@@ -25,7 +25,7 @@ deny[result] {
 	count(path) == 1
 	pipeline.contains_untrusted_inputs(value)
 	result := {
-		"msg": sprintf("consider evaluating user inputs in intermediate environment variables instead of using them right in '%s' step shell", [input.jobs[i].steps[j]]),
+		"msg": sprintf("Consider evaluating user inputs in intermediate environment variables instead of using them right in '%s' step shell", [input.jobs[i].steps[j]]),
 		"startline": envs[i].file_reference.start_ref.line,
 	}
 }

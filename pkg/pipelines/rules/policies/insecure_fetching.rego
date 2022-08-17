@@ -5,10 +5,10 @@ import data.lib.pipeline
 __rego_metadata__ := {
 	"id": "INSECURE_FETCHING",
 	"avd_id": "AVD-PIPELINE-0009",
-	"title": "insecure fetching",
+	"title": "Insecure fetching",
 	"severity": "MEDIUM",
 	"type": "Pipeline Yaml Security Check",
-	"description": "Unencrypted fetching request",
+	"description": "Unencrypted fetching request.",
 	"recommended_actions": "",
 	"url": "",
 }

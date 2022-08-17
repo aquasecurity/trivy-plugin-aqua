@@ -8,7 +8,7 @@ __rego_metadata__ := {
 	"title": "Ensure scanners are in place to identify and prevent sensitive data in pipeline files",
 	"severity": "HIGH",
 	"type": "Pipeline Yaml Security Check",
-	"description": "Detect and prevent sensitive data, such as confidential ID numbers, passwords, etc. in pipelines",
+	"description": "Detect and prevent sensitive data, such as confidential ID numbers, passwords, etc. in pipelines.",
 	"recommended_actions": "",
 	"url": "",
 }
