@@ -1,6 +1,7 @@
 package pipelines
 
 import (
+	// #nosec
 	"crypto/md5"
 	"encoding/hex"
 	"os"

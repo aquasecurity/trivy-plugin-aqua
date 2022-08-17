@@ -1,8 +1,6 @@
 package pipelines
 
 import (
-	// #nosec
-
 	"os"
 	"path/filepath"
 
