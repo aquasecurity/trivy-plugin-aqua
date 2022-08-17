@@ -77,11 +77,18 @@ func Scan(c *cli.Context, path string) (*trivyTypes.Report, []*buildsecurity.Pip
 			}
 		}
 
-		dir, fileMap, err := oss.GeneratePackageLockFiles(opt.Target)
-		if err != nil {
-			log.Logger.Errorf("failed to generate package-lock.json: %s", err)
-		} else {
-			defer os.RemoveAll(dir)
+		var (
+			fileMap map[string]string = nil
+			dir     string
+		)
+
+		if c.Bool("package-json") {
+			dir, fileMap, err = oss.GeneratePackageLockFiles(opt.Target)
+			if err != nil {
+				log.Logger.Errorf("failed to generate package-lock.json: %s", err)
+			} else {
+				defer os.RemoveAll(dir)
+			}
 		}
 
 		// Filesystem scanning
@@ -92,6 +99,7 @@ func Scan(c *cli.Context, path string) (*trivyTypes.Report, []*buildsecurity.Pip
 		if fileMap != nil {
 			fixPackageJsonPathes(&report, fileMap)
 		}
+
 	}
 
 	report, err = r.Filter(ctx, opt, report)

@@ -108,6 +108,11 @@ func main() {
 			Name:  "tags",
 			Usage: "Add this flag for key:val pairs as scan metadata",
 		},
+		&cli.BoolFlag{
+			Name:    "package-json",
+			Usage:   "Add this flag to detect vulnerabilities in package.json",
+			EnvVars: []string{"PACKAGE_JSON"},
+		},
 	)
 
 	imageCmd := commands.NewImageCommand()
