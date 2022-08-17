@@ -3,7 +3,6 @@ package buildClient
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -73,7 +72,7 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 			switch r.Type {
 			case buildsecurity.Result_TYPE_TERRAFORM, buildsecurity.Result_TYPE_CLOUDFORMATION,
 				buildsecurity.Result_TYPE_KUBERNETES, buildsecurity.Result_TYPE_DOCKERFILE,
-				buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML:
+				buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML, buildsecurity.Result_TYPE_PIPELINE:
 				err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r, avdUrlMap), int(r.StartLine), int(r.EndLine))
 				if err != nil {
 					log.Logger.Infof("failed write misconfiguration comment: %w", err)
@@ -172,7 +171,7 @@ func getGitHubRepositoryDetails() (owner, repo string, err error) {
 // extractGitHubActionPrNumber take the pull request number from the GitHub action run
 func extractGitHubActionPrNumber() (int, error) {
 	githubEventFile := os.Getenv("GITHUB_EVENT_PATH")
-	file, err := ioutil.ReadFile(githubEventFile)
+	file, err := os.ReadFile(githubEventFile)
 	if err != nil {
 		return 0, fmt.Errorf("failed gitHub event payload not found in %s", githubEventFile)
 	}
