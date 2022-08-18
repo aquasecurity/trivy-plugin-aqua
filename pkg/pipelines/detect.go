@@ -2,7 +2,6 @@ package pipelines
 
 import (
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,18 +26,13 @@ func isYamlFile(path string, info os.FileInfo) bool {
 }
 
 func getGitHubPipelines(rootDir string) ([]string, error) {
-	workflowsDir := filepath.Join(rootDir, gitHubWorkflowsDir)
-	if _, err := os.Stat(workflowsDir); os.IsNotExist(err) {
-		return nil, nil
-	}
-
 	var pipelines []string
-	if err := filepath.Walk(workflowsDir, func(path string, info fs.FileInfo, err error) error {
+	if err := filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if isYamlFile(path, info) {
+		if strings.Contains(path, gitHubWorkflowsDir) && isYamlFile(path, info) {
 			pipelines = append(pipelines, path)
 		}
 		return nil
@@ -49,12 +43,22 @@ func getGitHubPipelines(rootDir string) ([]string, error) {
 	return pipelines, nil
 }
 
-func getGitLabPipelines(rootDir string) []string {
-	gitLabPipelineFilename := filepath.Join(rootDir, gitLabPipelineFile)
-	if _, err := os.Stat(gitLabPipelineFilename); os.IsNotExist(err) {
+func getGitLabPipelines(rootDir string) ([]string, error) {
+	var pipelines []string
+	if err := filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if strings.Contains(path, gitLabPipelineFile) && isYamlFile(path, info) {
+			pipelines = append(pipelines, path)
+		}
 		return nil
+	}); err != nil {
+		return nil, err
 	}
-	return []string{gitLabPipelineFilename}
+
+	return pipelines, nil
 }
 
 func getAzurePipelines(rootDir string) ([]string, error) {
@@ -66,7 +70,7 @@ func getAzurePipelines(rootDir string) ([]string, error) {
 		if !isYamlFile(path, info) {
 			return nil
 		}
-		if buf, err := ioutil.ReadFile(path); err == nil && strings.Contains(string(buf), "pool:") {
+		if buf, err := os.ReadFile(path); err == nil && strings.Contains(string(buf), "pool:") {
 			pipelines = append(pipelines, path)
 		}
 

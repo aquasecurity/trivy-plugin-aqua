@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -82,24 +81,24 @@ func GetImageDetails(imageName string) (prefix, repo, tag string) {
 }
 
 // GetScmID extracts the git path from the config file
-func GetScmID(scanPath string) (string, error) {
+func GetScmID(scanPath string) string {
 	envScmId := os.Getenv(overrideScmId)
 	if envScmId != "" {
-		return envScmId, nil
+		return envScmId
 	}
 	gitConfigFile := filepath.Join(scanPath, ".git", "config")
-	gitConfig, err := ioutil.ReadFile(gitConfigFile)
+	gitConfig, err := os.ReadFile(gitConfigFile)
 	if err == nil {
 		re := regexp.MustCompile(`(?m)^\s*url\s?=\s*(.*)\s*$`)
 		if re.Match(gitConfig) {
 			scmID := re.FindStringSubmatch(string(gitConfig))[1]
 			scmID = sanitiseScmId(scmID)
 
-			return scmID, nil
+			return scmID
 		}
 	}
 
-	return filepath.Base(scanPath), nil
+	return filepath.Base(scanPath)
 }
 
 // This function is the formula on the DB, on Atlas side and on Argon side,
@@ -138,10 +137,7 @@ func getFsRepositoryDetails(scanPath string) (repoName, branch string, err error
 
 	inferredRepoName := filepath.Base(abs)
 	repoRegex := regexp.MustCompile(`^(?i).+[:/](.+/.+)`)
-	scmID, err := GetScmID(scanPath)
-	if err != nil {
-		return inferredRepoName, "", err
-	}
+	scmID := GetScmID(scanPath)
 	if repoRegex.MatchString(scmID) {
 		inferredRepoName = repoRegex.FindStringSubmatch(scmID)[1]
 		log.Logger.Debugf("Extracted repo name from scmID: %s", inferredRepoName)
@@ -149,7 +145,7 @@ func getFsRepositoryDetails(scanPath string) (repoName, branch string, err error
 
 	headFile := filepath.Join(workingDir, ".git", "HEAD")
 	if _, err := os.Stat(headFile); err == nil {
-		contents, err := ioutil.ReadFile(headFile)
+		contents, err := os.ReadFile(headFile)
 		if err == nil {
 			re := regexp.MustCompile("([^/]+$)")
 			if re.Match(contents) {
@@ -231,7 +227,7 @@ func GetGitUser(scanPath string) (gitUser string) {
 	re := regexp.MustCompile(`(?m)^.*<(.+?)>`)
 	logsHeadFile := filepath.Join(scanPath, ".git", "logs", "HEAD")
 	if _, err := os.Stat(logsHeadFile); err == nil {
-		contents, err := ioutil.ReadFile(logsHeadFile)
+		contents, err := os.ReadFile(logsHeadFile)
 		if err == nil {
 			matches := re.FindAllSubmatch(contents, -1)
 			if len(matches) >= 1 {
@@ -250,7 +246,7 @@ func GetGitUser(scanPath string) (gitUser string) {
 func lastLogsHead(scanPath string) (s []string, err error) {
 	logsHeadFile := filepath.Join(scanPath, ".git", "logs", "HEAD")
 	if _, err := os.Stat(logsHeadFile); err == nil {
-		contents, err := ioutil.ReadFile(logsHeadFile)
+		contents, err := os.ReadFile(logsHeadFile)
 		if err != nil {
 			return s, fmt.Errorf("failed to read %s err: %s", logsHeadFile, err)
 		}
