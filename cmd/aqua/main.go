@@ -27,12 +27,36 @@ var (
 	tags map[string]string
 )
 
+type PluginStringFlag struct {
+	Name         string
+	EnvName      string
+	DefaultValue string
+	Description  string
+}
+
+type PluginBoolFlag struct {
+	Name         string
+	EnvName      string
+	DefaultValue bool
+	Description  string
+}
+
+var pluginStringFlags []PluginStringFlag
+var pluginBoolFlags []PluginBoolFlag
+
 func main() {
 	globalFlags := flag.NewGlobalFlagGroup()
 
+	initPluginStringFlags()
+	initPluginBoolFlags()
+
 	root := newConfigCommand(globalFlags)
-	root.Version = "0.27.1"
-	root.Use = "aqua [global flags] command [flags] target"
+	root.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		root.Version = "0.30.4"
+		root.Use = "aqua [global flags] command [flags] target"
+		return nil
+	}
+
 	globalFlags.AddFlags(root)
 
 	versionCmd := commands.NewVersionCommand(globalFlags)
@@ -52,6 +76,48 @@ func main() {
 	if err := root.Execute(); err != nil {
 		log.Logger.Error(err)
 		os.Exit(1)
+	}
+}
+
+func initPluginStringFlags() {
+	pluginStringFlags = []PluginStringFlag{
+
+		{
+			Name:         "triggered-by",
+			EnvName:      "TRIGGERED_BY",
+			DefaultValue: "unknown",
+			Description:  "Add this flag to determine where the scan is coming from (push, pr, offline)",
+		},
+		{
+			Name:         "tags",
+			EnvName:      "TAGS",
+			DefaultValue: "",
+			Description:  "Add this flag for key:val pairs as scan metadata",
+		},
+	}
+}
+
+func initPluginBoolFlags() {
+
+	pluginBoolFlags = []PluginBoolFlag{
+		{
+			Name:         "skip-result-upload",
+			EnvName:      "TRIVY_SKIP_RESULT_UPLOAD",
+			DefaultValue: false,
+			Description:  "Add this flag if you want test failed policy locally before sending PR",
+		},
+		{
+			Name:         "skip-policy-exit-code",
+			EnvName:      "TRIVY_SKIP_POLICY_EXIT_CODE",
+			DefaultValue: false,
+			Description:  "Add this flag if you want skip policies exit code",
+		},
+		{
+			Name:         "pipelines",
+			EnvName:      "PIPELINES",
+			DefaultValue: false,
+			Description:  "Add this flag to fetch and scan pipelines",
+		},
 	}
 }
 
@@ -92,12 +158,27 @@ func initCommand(cmd *cobra.Command, globalFlags *flag.GlobalFlagGroup) {
 	}
 
 	cmd.ResetFlags() // Do not use the OSS flags
+	cmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if err := globalFlags.Bind(cmd.Root()); err != nil {
+			return xerrors.Errorf("global flag bind error: %w", err)
+		}
+
+		for _, boolFlag := range pluginBoolFlags {
+			if err := viper.BindPFlag(boolFlag.Name, cmd.Flags().Lookup(boolFlag.Name)); err != nil {
+				return xerrors.Errorf("binding plugin bool flag failed with error: %w", err)
+			}
+		}
+
+		for _, stringFlag := range pluginStringFlags {
+			if err := viper.BindPFlag(stringFlag.Name, cmd.Flags().Lookup(stringFlag.Name)); err != nil {
+				return xerrors.Errorf("binding plugin string flag failed with error: %w", err)
+			}
+		}
+		return nil
+	}
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if err := flags.Bind(cmd); err != nil {
 			return xerrors.Errorf("flag bind error: %w", err)
-		}
-		if err := globalFlags.Bind(cmd.Root()); err != nil {
-			return xerrors.Errorf("global flag bind error: %w", err)
 		}
 		return nil
 	}
@@ -129,39 +210,20 @@ func addStringCustomFlag(cmd *cobra.Command,
 	defaultValue,
 	description string) {
 	cmd.Flags().String(name, defaultValue, description)
-	_ = viper.BindPFlag(name, cmd.Flags().Lookup(name))
+
 	_ = viper.BindEnv(name, envName)
 
 }
 
 func addCustomFlags(cmd *cobra.Command) {
 	// Add custom flags for the aqua plugin
-	addBoolCustomFlag(cmd,
-		"skip-result-upload",
-		"TRIVY_SKIP_RESULT_UPLOAD",
-		false,
-		"Add this flag if you want test failed policy locally before sending PR")
-	addBoolCustomFlag(cmd,
-		"skip-policy-exit-code",
-		"TRIVY_SKIP_POLICY_EXIT_CODE",
-		false,
-		"Add this flag if you want skip policies exit code")
-	addBoolCustomFlag(cmd,
-		"pipelines",
-		"PIPELINES",
-		false,
-		"Add this flag to fetch and scan pipelines")
+	for _, boolFlag := range pluginBoolFlags {
+		addBoolCustomFlag(cmd, boolFlag.Name, boolFlag.EnvName, boolFlag.DefaultValue, boolFlag.Description)
+	}
 
-	addStringCustomFlag(cmd,
-		"triggered-by",
-		"TRIGGERED_BY",
-		"unknown",
-		"Add this flag to determine where the scan is coming from (push, pr, offline)")
-	addStringCustomFlag(cmd,
-		"tags",
-		"TAGS",
-		"",
-		"Add this flag for key:val pairs as scan metadata")
+	for _, stringFlag := range pluginStringFlags {
+		addStringCustomFlag(cmd, stringFlag.Name, stringFlag.EnvName, stringFlag.DefaultValue, stringFlag.Description)
+	}
 
 }
 
