@@ -88,11 +88,14 @@ func Scan(c *cli.Context, path string) (*trivyTypes.Report, []*buildsecurity.Pip
 			var files []types.File
 			repositoryPipelines, files, err = pipelines.GetPipelines(opt.Target)
 			if err != nil {
-				return nil, nil, errors.Wrap(err, "failed get pipelines")
+				log.Logger.Errorf("failed to get pipelines: %v", err)
 			}
-			pipelinesScanResults, err = ScanPipelines(ctx, repositoryPipelines, files)
-			if err != nil {
-				return nil, nil, errors.Wrap(err, "failed scan pipelines")
+
+			if len(repositoryPipelines) > 0 {
+				pipelinesScanResults, err = ScanPipelines(ctx, repositoryPipelines, files)
+				if err != nil {
+					log.Logger.Errorf("failed scan pipelines: %s", err)
+				}
 			}
 		}
 
