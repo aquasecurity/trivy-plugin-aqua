@@ -76,7 +76,7 @@ func createDiffScanFs() error {
 			dirName = filepath.Dir(name)
 			fileName = name
 
-			if status != gitStatusDeleted && status != gitStatusRenamedOnly && status != "" {
+			if status != gitStatusDeleted && status != gitStatusRenamedOnly && status != "" && fileName != "" {
 				// Create base
 				if status != gitStatusAdded {
 					err = os.MkdirAll(fmt.Sprintf("%s/base/%s", aquaPath, dirName), os.ModePerm)
