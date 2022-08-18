@@ -83,9 +83,9 @@ func getCspmAndAquaUrl() (string, string) {
 	awsRegion, _ := os.LookupEnv("AWS_REGION")
 	switch awsRegion {
 	case "eu-central-1":
-		urlPrefix = "eu-1."
+		urlPrefix = "eu-1.supply-chain."
 	case "ap-southeast-1":
-		urlPrefix = "asia-1."
+		urlPrefix = "asia-1.supply-chain."
 	// us-east-1, or any unknown
 	default:
 		urlPrefix = ""
