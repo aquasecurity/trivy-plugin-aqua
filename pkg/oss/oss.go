@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"os"
 	"os/exec"
@@ -17,6 +16,7 @@ import (
 
 const PACKAGE_JSON_FILE_NAME = "package.json"
 const PACKAGE_LOCK_FILE_NAME = "package-lock.json"
+const YARN_LOCK_FILE_NAME = "yarn.lock"
 
 func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
 	files := findPackageJsonFiles(path)
@@ -27,16 +27,16 @@ func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
 		fileDir string
 	)
 
-	tmpDir, err = ioutil.TempDir(path, "")
+	tmpDir, err = os.MkdirTemp(path, "")
 
 	if err != nil {
 		return "", nil, err
 	}
 
-	fileMap := make(map[string]string)
+	packageLockToPackageJsonMap := make(map[string]string)
 
 	for _, file := range files {
-		bs, err := ioutil.ReadFile(file)
+		bs, err := os.ReadFile(file)
 
 		if err != nil {
 			log.Logger.Errorf("Error occurred while reading file %s: %s", file, err.Error())
@@ -52,7 +52,7 @@ func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
 			continue
 		}
 
-		fileDir, err = ioutil.TempDir(tmpDir, "")
+		fileDir, err = os.MkdirTemp(tmpDir, "")
 		if err != nil {
 			log.Logger.Errorf("Error occurred while creating temp directory: %s", err.Error())
 
@@ -62,16 +62,13 @@ func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
 		if lockpath, err := createPackageLockFile(fileDir, packageJson); err != nil {
 			log.Logger.Errorf("Error occurred while creating package-lock.json file: %s", err.Error())
 		} else {
-			pathToRemove := path
-			if !strings.HasSuffix(pathToRemove, "/") {
-				pathToRemove = fmt.Sprintf("%s/", pathToRemove)
-			}
-
-			fileMap[strings.TrimPrefix(lockpath, pathToRemove)] = strings.TrimPrefix(file, pathToRemove)
+			target, _ := filepath.Rel(path, file)
+			source, _ := filepath.Rel(path, lockpath)
+			packageLockToPackageJsonMap[source] = target
 		}
 	}
 
-	return tmpDir, fileMap, nil
+	return tmpDir, packageLockToPackageJsonMap, nil
 }
 
 func findPackageJsonFiles(dirPath string) []string {
@@ -94,13 +91,17 @@ func findPackageJsonFiles(dirPath string) []string {
 		}
 
 		if f.Name() == PACKAGE_JSON_FILE_NAME {
-			packageLockPath := fmt.Sprintf(
-				"%s%s",
-				strings.TrimSuffix(path, PACKAGE_JSON_FILE_NAME),
-				PACKAGE_LOCK_FILE_NAME)
-			if _, err := os.Stat(packageLockPath); os.IsNotExist(err) {
-				files = append(files, path)
+			packageLockPath := filepath.Join(filepath.Dir(path), PACKAGE_LOCK_FILE_NAME)
+			if _, err := os.Stat(packageLockPath); !os.IsNotExist(err) {
+				return nil
 			}
+
+			yarnLockPath := filepath.Join(filepath.Dir(path), YARN_LOCK_FILE_NAME)
+			if _, err := os.Stat(yarnLockPath); !os.IsNotExist(err) {
+				return nil
+			}
+
+			files = append(files, path)
 		}
 
 		return nil
@@ -110,14 +111,14 @@ func findPackageJsonFiles(dirPath string) []string {
 }
 
 func createPackageJsonFile(dir string, packageJson PackageJson) error {
-	filePath := fmt.Sprintf("%s/%s", dir, PACKAGE_JSON_FILE_NAME)
+	filePath := filepath.Join(dir, PACKAGE_JSON_FILE_NAME)
 
 	bs, err := json.Marshal(packageJson)
 	if err != nil {
 		return fmt.Errorf("Error occurred while marshalling file: %s", err.Error())
 	}
 
-	err = ioutil.WriteFile(filePath, bs, 0600)
+	err = os.WriteFile(filePath, bs, 0600)
 	if err != nil {
 		return fmt.Errorf("Error occurred while writing file %s", err.Error())
 	}
@@ -181,6 +182,5 @@ func createPackageLockFile(dir string, packageJson PackageJson) (string, error) 
 			}
 		}
 	}
-
-	return fmt.Sprintf("%s/%s", dir, PACKAGE_LOCK_FILE_NAME), nil
+	return filepath.Join(dir, PACKAGE_LOCK_FILE_NAME), nil
 }
