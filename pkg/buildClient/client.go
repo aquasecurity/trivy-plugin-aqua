@@ -105,7 +105,7 @@ func getCspmAndAquaUrl() (string, string) {
 
 	aquaURL, ok := os.LookupEnv("AQUA_URL")
 	if !ok {
-		aquaURL = fmt.Sprintf("https://%sapi.aquasec.com/v2/build", urlPrefix)
+		aquaURL = fmt.Sprintf("https://%saquasec.com/v2/build", urlPrefix)
 	}
 
 	return cspmURL, aquaURL
