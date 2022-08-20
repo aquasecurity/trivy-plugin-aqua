@@ -83,9 +83,9 @@ func getCspmAndAquaUrl() (string, string) {
 	awsRegion, _ := os.LookupEnv("AWS_REGION")
 	switch awsRegion {
 	case "eu-central-1":
-		urlPrefix = "eu-1.supply-chain."
+		urlPrefix = "eu-1."
 	case "ap-southeast-1":
-		urlPrefix = "asia-1.supply-chain."
+		urlPrefix = "asia-1."
 	// us-east-1, or any unknown
 	default:
 		urlPrefix = ""
@@ -94,6 +94,13 @@ func getCspmAndAquaUrl() (string, string) {
 	cspmURL, ok := os.LookupEnv("CSPM_URL")
 	if !ok {
 		cspmURL = fmt.Sprintf("https://%sapi.cloudsploit.com/v2/tokens", urlPrefix)
+	}
+
+	// New APIs need supply-chain included in prefix instead of api.
+	if urlPrefix != "" {
+		urlPrefix = urlPrefix + "supply-chain."
+	} else {
+		urlPrefix = "api."
 	}
 
 	aquaURL, ok := os.LookupEnv("AQUA_URL")
