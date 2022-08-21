@@ -39,7 +39,7 @@ func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
 		bs, err := os.ReadFile(file)
 
 		if err != nil {
-			log.Logger.Errorf("Error occurred while reading file %s: %s", file, err.Error())
+			log.Logger.Warnf("Error occurred while reading file %s: %s", file, err.Error())
 
 			continue
 		}
@@ -47,20 +47,20 @@ func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
 		var packageJson PackageJson
 		err = json.Unmarshal(bs, &packageJson)
 		if err != nil {
-			log.Logger.Errorf("Error occurred while unmarshalling file %s: %s", file, err.Error())
+			log.Logger.Warnf("Error occurred while unmarshalling file %s: %s", file, err.Error())
 
 			continue
 		}
 
 		fileDir, err = os.MkdirTemp(tmpDir, "")
 		if err != nil {
-			log.Logger.Errorf("Error occurred while creating temp directory: %s", err.Error())
+			log.Logger.Warnf("Error occurred while creating temp directory: %s", err.Error())
 
 			continue
 		}
 
 		if lockpath, err := createPackageLockFile(fileDir, packageJson); err != nil {
-			log.Logger.Errorf("Error occurred while creating package-lock.json file: %s", err.Error())
+			log.Logger.Warnf("Error occurred while creating package-lock.json file: %s", err.Error())
 		} else {
 			target, _ := filepath.Rel(path, file)
 			source, _ := filepath.Rel(path, lockpath)
@@ -79,12 +79,16 @@ func findPackageJsonFiles(dirPath string) []string {
 		f, err = os.Stat(path)
 
 		if err != nil {
-			log.Logger.Errorf("Error occurred while scanning path %s: %s", path, err)
+			log.Logger.Warnf("Error occurred while scanning path %s: %s", path, err)
 
 			return nil
 		}
 
 		f_mode := f.Mode()
+
+		if f.IsDir() && f.Name() == "node_modules" {
+			return filepath.SkipDir
+		}
 
 		if f_mode.IsDir() || !f_mode.IsRegular() {
 			return nil
@@ -112,6 +116,12 @@ func findPackageJsonFiles(dirPath string) []string {
 
 func createPackageJsonFile(dir string, packageJson PackageJson) error {
 	filePath := filepath.Join(dir, PACKAGE_JSON_FILE_NAME)
+
+	for key, version := range packageJson.Dependencies {
+		if strings.HasPrefix(version, "link") {
+			delete(packageJson.Dependencies, key)
+		}
+	}
 
 	bs, err := json.Marshal(packageJson)
 	if err != nil {
