@@ -40,7 +40,7 @@ var (
 	TriggeredByEnum_value = map[string]int32{
 		"TRIGGERED_BY_UNKNOWN":      0,
 		"TRIGGERED_BY_PUSH":         1,
-		"TRIGGERED_BY_PULL_REQUEST": 2,
+		"TRIGGERED_BY_PR": 2,
 		"TRIGGERED_BY_OFFLINE":      3,
 	}
 )
