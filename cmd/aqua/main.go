@@ -57,8 +57,6 @@ func main() {
 		return nil
 	}
 
-	log.Logger.Debugf("version %s", root.Version)
-
 	globalFlags.AddFlags(root)
 
 	versionCmd := commands.NewVersionCommand(globalFlags)
@@ -230,8 +228,6 @@ func addCustomFlags(cmd *cobra.Command) {
 }
 
 func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
-	log.Logger.Debugf("version root double %s", cmd.Root().Root().Version)
-	log.Logger.Debugf("root %v", cmd.Root())
 	if cmd.Name() == "aqua" {
 		viper.Set("security-checks", "config")
 		viper.Set("vuln-type", "os,library")
@@ -253,7 +249,6 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 	}
 	log.Logger.Debugf("Using scanPath %s", scanPath)
 
-	log.Logger.Debugf("Using scanPath %s", cmd.Root().Version)
 	client, err := buildClient.Get(scanPath, cmd.Name(), options)
 	if err != nil {
 		return err
