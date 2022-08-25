@@ -142,19 +142,33 @@ func newImageCommand(globalFlags *flag.GlobalFlagGroup) *cobra.Command {
 func initCommand(cmd *cobra.Command, globalFlags *flag.GlobalFlagGroup) {
 	flags := &flag.Flags{
 		ScanFlagGroup: &flag.ScanFlagGroup{
+			SkipDirs:       &flag.SkipDirsFlag,
+			SkipFiles:      &flag.SkipFilesFlag,
+			OfflineScan:    &flag.OfflineScanFlag,
 			SecurityChecks: &flag.SecurityChecksFlag,
 		},
 		DBFlagGroup: &flag.DBFlagGroup{
-			DBRepository: &flag.DBRepositoryFlag,
+			Reset:          &flag.ResetFlag,
+			DownloadDBOnly: &flag.DownloadDBOnlyFlag,
+			SkipDBUpdate:   &flag.SkipDBUpdateFlag,
+			NoProgress:     &flag.NoProgressFlag,
+			DBRepository:   &flag.DBRepositoryFlag,
 		},
 		VulnerabilityFlagGroup: &flag.VulnerabilityFlagGroup{
-			VulnType: &flag.VulnTypeFlag,
+			VulnType:      &flag.VulnTypeFlag,
+			IgnoreUnfixed: &flag.IgnoreUnfixedFlag,
 		},
 		ReportFlagGroup: &flag.ReportFlagGroup{
-			Format:      &flag.FormatFlag,
-			Output:      &flag.OutputFlag,
-			Severity:    &flag.SeverityFlag,
-			ListAllPkgs: &flag.ListAllPkgsFlag,
+			Format:         &flag.FormatFlag,
+			ReportFormat:   &flag.ReportFormatFlag,
+			Template:       &flag.TemplateFlag,
+			DependencyTree: &flag.DependencyTreeFlag,
+			ListAllPkgs:    &flag.ListAllPkgsFlag,
+			IgnoreFile:     &flag.IgnoreFileFlag,
+			IgnorePolicy:   &flag.IgnorePolicyFlag,
+			ExitCode:       &flag.ExitCodeFlag,
+			Output:         &flag.OutputFlag,
+			Severity:       &flag.SeverityFlag,
 		},
 	}
 
