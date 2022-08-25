@@ -5,184 +5,256 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
-	"github.com/aquasecurity/trivy-plugin-aqua/pkg/export"
-
-	"github.com/aquasecurity/trivy/pkg/types"
-
-	"strings"
-
-	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
-
-	"github.com/urfave/cli/v2"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"golang.org/x/xerrors"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/buildClient"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/export"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/processor"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/uploader"
 	"github.com/aquasecurity/trivy/pkg/commands"
+	"github.com/aquasecurity/trivy/pkg/flag"
 )
 
 var (
 	tags map[string]string
 )
 
+type PluginStringFlag struct {
+	Name         string
+	EnvName      string
+	DefaultValue string
+	Description  string
+}
+
+type PluginBoolFlag struct {
+	Name         string
+	EnvName      string
+	DefaultValue bool
+	Description  string
+}
+
+var pluginStringFlags []PluginStringFlag
+var pluginBoolFlags []PluginBoolFlag
+
 func main() {
-	app := cli.NewApp()
-	app.Name = "aqua"
-	app.Version = "0.27.1"
-	app.ArgsUsage = "target"
-	app.Usage = "A simple and comprehensive vulnerability scanner for containers"
-	app.EnableBashCompletion = true
+	globalFlags := flag.NewGlobalFlagGroup()
 
-	configCmd := commands.NewConfigCommand()
-	configCmd.Action = runScan
-	configCmd.Flags = append(configCmd.Flags,
-		&cli.BoolFlag{
-			Name:    "skip-result-upload",
-			Usage:   "Add this flag if you want test failed policy locally before sending PR",
-			EnvVars: []string{"TRIVY_SKIP_RESULT_UPLOAD"},
-		},
-		&cli.BoolFlag{
-			Name:    "skip-policy-exit-code",
-			Usage:   "Add this flag if you want skip policies exit code",
-			EnvVars: []string{"TRIVY_SKIP_POLICY_EXIT_CODE"},
-		},
-		&cli.StringFlag{
-			Name:    "vuln-type",
-			Value:   strings.Join([]string{types.VulnTypeOS, types.VulnTypeLibrary}, ","),
-			Usage:   "comma-separated list of vulnerability types (os,library)",
-			EnvVars: []string{"TRIVY_VULN_TYPE"},
-			Hidden:  true,
-		},
-		&cli.StringFlag{
-			Name:    "security-checks",
-			Value:   types.SecurityCheckConfig,
-			Usage:   "comma-separated list of what security issues to detect (vuln,config,secret)",
-			EnvVars: []string{"TRIVY_SECURITY_CHECKS"},
-			Hidden:  true,
-		},
-		&cli.StringFlag{
-			Name:    "triggered-by",
-			Usage:   "Add this flag to determine where the scan is coming from (push, pr, offline)",
-			EnvVars: []string{"TRIGGERED_BY"},
-		},
-	)
+	initPluginStringFlags()
+	initPluginBoolFlags()
 
-	fsCmd := commands.NewFilesystemCommand()
-	fsCmd.Action = runScan
-	fsCmd.Flags = append(fsCmd.Flags,
-		&cli.BoolFlag{
-			Name:    "skip-result-upload",
-			Usage:   "Add this flag if you want test failed policy locally before sending PR",
-			EnvVars: []string{"TRIVY_SKIP_RESULT_UPLOAD"},
-		},
-		&cli.BoolFlag{
-			Name:    "skip-policy-exit-code",
-			Usage:   "Add this flag if you want skip policies exit code",
-			EnvVars: []string{"TRIVY_SKIP_POLICY_EXIT_CODE"},
-		},
-		&cli.BoolFlag{
-			Name:    "debug",
-			Usage:   "Add this flag if you want run in debug mode",
-			EnvVars: []string{"DEBUG"},
-		},
-		&cli.StringFlag{
-			Name:    "triggered-by",
-			Usage:   "Add this flag to determine where the scan is coming from (push, pr, offline)",
-			EnvVars: []string{"TRIGGERED_BY"},
-		},
-		&cli.StringFlag{
-			Name:    "cache-dir",
-			Usage:   "Add this flag to determine the cache dir",
-			EnvVars: []string{"TRIVY_CACHE_DIR"},
-		},
-		&cli.BoolFlag{
-			Name:    "pipelines",
-			Usage:   "Add this flag to fetch and scan pipelines",
-			EnvVars: []string{"PIPELINES"},
-		},
-		&cli.StringSliceFlag{
-			Name:  "tags",
-			Usage: "Add this flag for key:val pairs as scan metadata",
-		},
-		&cli.BoolFlag{
-			Name:    "package-json",
-			Usage:   "Add this flag to detect vulnerabilities in package.json",
-			EnvVars: []string{"PACKAGE_JSON"},
-		},
-	)
-
-	imageCmd := commands.NewImageCommand()
-	imageCmd.Action = runScan
-
-	app.Action = runScan
-	app.Flags = fsCmd.Flags
-
-	app.Flags = append(app.Flags,
-		&cli.BoolFlag{
-			Name:    "quiet",
-			Usage:   "suppress progress bar and log output (default: false)",
-			EnvVars: []string{"TRIVY_QUIET"},
-		})
-
-	versionCmd := commands.NewVersionCommand()
-	versionCmd.Usage = "print the version of the trivy import library"
-
-	app.Commands = []*cli.Command{
-		fsCmd,
-		configCmd,
-		imageCmd,
-		commands.NewPluginCommand(),
-		commands.NewClientCommand(),
-		commands.NewRepositoryCommand(),
-		commands.NewRootfsCommand(),
-		commands.NewServerCommand(),
-		versionCmd,
+	root := newConfigCommand(globalFlags)
+	root.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		root.Version = "0.30.4"
+		root.Use = "aqua [global flags] command [flags] target"
+		return nil
 	}
-	if err := app.Run(os.Args); err != nil {
+
+	globalFlags.AddFlags(root)
+
+	versionCmd := commands.NewVersionCommand(globalFlags)
+	versionCmd.Short = "Print the version of the trivy import library"
+
+	root.AddCommand(
+		newConfigCommand(globalFlags),
+		newFilesystemCommand(globalFlags),
+		newImageCommand(globalFlags),
+		commands.NewPluginCommand(),
+		commands.NewClientCommand(globalFlags),
+		commands.NewServerCommand(globalFlags),
+		commands.NewRepositoryCommand(globalFlags),
+		commands.NewRootfsCommand(globalFlags),
+	)
+
+	if err := root.Execute(); err != nil {
 		log.Logger.Error(err)
 		os.Exit(1)
 	}
 }
 
-func runScan(c *cli.Context) error {
+func initPluginStringFlags() {
+	pluginStringFlags = []PluginStringFlag{
 
-	if c.Command.Name == "" {
-		if err := c.Set("security-checks", "config"); err != nil {
-			return err
-		}
-		if err := c.Set("vuln-type", "os,library"); err != nil {
-			return err
-		}
+		{
+			Name:         "triggered-by",
+			EnvName:      "TRIGGERED_BY",
+			DefaultValue: "unknown",
+			Description:  "Add this flag to determine where the scan is coming from (push, pr, offline)",
+		},
+		{
+			Name:         "tags",
+			EnvName:      "TAGS",
+			DefaultValue: "",
+			Description:  "Add this flag for key:val pairs as scan metadata",
+		},
 	}
-	if c.String("triggered-by") != "" {
-		if err := c.Set("triggered-by", strings.ToUpper(c.String("triggered-by"))); err != nil {
-			return err
-		}
+}
+
+func initPluginBoolFlags() {
+
+	pluginBoolFlags = []PluginBoolFlag{
+		{
+			Name:         "skip-result-upload",
+			EnvName:      "TRIVY_SKIP_RESULT_UPLOAD",
+			DefaultValue: false,
+			Description:  "Add this flag if you want test failed policy locally before sending PR",
+		},
+		{
+			Name:         "skip-policy-exit-code",
+			EnvName:      "TRIVY_SKIP_POLICY_EXIT_CODE",
+			DefaultValue: false,
+			Description:  "Add this flag if you want skip policies exit code",
+		},
+		{
+			Name:         "pipelines",
+			EnvName:      "PIPELINES",
+			DefaultValue: false,
+			Description:  "Add this flag to fetch and scan pipelines",
+		},
+	}
+}
+
+func newConfigCommand(globalFlags *flag.GlobalFlagGroup) *cobra.Command {
+	cmd := commands.NewConfigCommand(globalFlags)
+	initCommand(cmd, globalFlags)
+	return cmd
+}
+
+func newFilesystemCommand(globalFlags *flag.GlobalFlagGroup) *cobra.Command {
+	cmd := commands.NewFilesystemCommand(globalFlags)
+	initCommand(cmd, globalFlags)
+	return cmd
+}
+
+func newImageCommand(globalFlags *flag.GlobalFlagGroup) *cobra.Command {
+	cmd := commands.NewImageCommand(globalFlags)
+	initCommand(cmd, globalFlags)
+	return cmd
+}
+
+func initCommand(cmd *cobra.Command, globalFlags *flag.GlobalFlagGroup) {
+	flags := &flag.Flags{
+		ScanFlagGroup: &flag.ScanFlagGroup{
+			SecurityChecks: &flag.SecurityChecksFlag,
+		},
+		DBFlagGroup: &flag.DBFlagGroup{
+			DBRepository: &flag.DBRepositoryFlag,
+		},
+		VulnerabilityFlagGroup: &flag.VulnerabilityFlagGroup{
+			VulnType: &flag.VulnTypeFlag,
+		},
+		ReportFlagGroup: &flag.ReportFlagGroup{
+			Format:   &flag.FormatFlag,
+			Output:   &flag.OutputFlag,
+			Severity: &flag.SeverityFlag,
+		},
 	}
 
-	debug := c.Bool("debug")
+	cmd.ResetFlags() // Do not use the OSS flags
+	cmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if err := globalFlags.Bind(cmd.Root()); err != nil {
+			return xerrors.Errorf("global flag bind error: %w", err)
+		}
+
+		for _, boolFlag := range pluginBoolFlags {
+			if err := viper.BindPFlag(boolFlag.Name, cmd.Flags().Lookup(boolFlag.Name)); err != nil {
+				return xerrors.Errorf("binding plugin bool flag failed with error: %w", err)
+			}
+		}
+
+		for _, stringFlag := range pluginStringFlags {
+			if err := viper.BindPFlag(stringFlag.Name, cmd.Flags().Lookup(stringFlag.Name)); err != nil {
+				return xerrors.Errorf("binding plugin string flag failed with error: %w", err)
+			}
+		}
+		return nil
+	}
+	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		if err := flags.Bind(cmd); err != nil {
+			return xerrors.Errorf("flag bind error: %w", err)
+		}
+		return nil
+	}
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		options, err := flags.ToOptions(cmd.Version, args, globalFlags, os.Stdout)
+		if err != nil {
+			return xerrors.Errorf("flag error: %w", err)
+		}
+		return runScan(cmd, args, options)
+	}
+	flags.AddFlags(cmd)
+	addCustomFlags(cmd)
+}
+
+func addBoolCustomFlag(cmd *cobra.Command,
+	name,
+	envName string,
+	defaultValue bool,
+	description string) {
+	cmd.Flags().Bool(name, defaultValue, description)
+	_ = viper.BindPFlag(name, cmd.Flags().Lookup(name))
+	_ = viper.BindEnv(name, envName)
+
+}
+
+func addStringCustomFlag(cmd *cobra.Command,
+	name,
+	envName,
+	defaultValue,
+	description string) {
+	cmd.Flags().String(name, defaultValue, description)
+
+	_ = viper.BindEnv(name, envName)
+
+}
+
+func addCustomFlags(cmd *cobra.Command) {
+	// Add custom flags for the aqua plugin
+	for _, boolFlag := range pluginBoolFlags {
+		addBoolCustomFlag(cmd, boolFlag.Name, boolFlag.EnvName, boolFlag.DefaultValue, boolFlag.Description)
+	}
+
+	for _, stringFlag := range pluginStringFlags {
+		addStringCustomFlag(cmd, stringFlag.Name, stringFlag.EnvName, stringFlag.DefaultValue, stringFlag.Description)
+	}
+
+}
+
+func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
+	if cmd.Name() == "aqua" {
+		viper.Set("security-checks", "config")
+		viper.Set("vuln-type", "os,library")
+	}
+	if triggeredBy := viper.GetString("triggered-by"); triggeredBy != "" {
+		viper.Set("triggered-by", strings.ToUpper(triggeredBy))
+	}
+
+	debug := options.Debug
 
 	if err := log.InitLogger(debug, false); err != nil {
 		return err
 	}
 
 	scanPath, _ := os.Getwd()
-	if c.Args().Len() > 0 {
+	if len(args) > 0 {
 		// when scan path provided, use that
-		scanPath = c.Args().First()
+		scanPath = args[len(args)-1]
 	}
 	log.Logger.Debugf("Using scanPath %s", scanPath)
 
-	client, err := buildClient.Get(scanPath, c)
+	client, err := buildClient.Get(scanPath, cmd.Name(), options)
 	if err != nil {
 		return err
 	}
 
-	report, pipelines, err := scanner.Scan(c, scanPath)
+	report, pipelines, err := scanner.Scan(cmd.Context(), options, cmd.Name(), scanPath)
 	if err != nil {
 		return err
 	}
@@ -195,14 +267,14 @@ func runScan(c *cli.Context) error {
 	policies, checkSupIDMap := processor.DistinguishPolicies(downloadedPolicies)
 	if len(checkSupIDMap) > 0 {
 		fileName := fmt.Sprintf("ignoreIds_%s", time.Now().Format("20060102150405"))
-		err = createIgnoreFile(c, checkSupIDMap, fileName)
+		err = createIgnoreFile(checkSupIDMap, fileName)
 		defer os.Remove(fileName)
 		if err != nil {
 			return err
 		}
 	}
 
-	if c.String("triggered-by") == "PR" {
+	if viper.GetString("triggered-by") == "PR" {
 		report.Results, err = processor.PrDiffResults(report.Results)
 		if err != nil {
 			return err
@@ -214,9 +286,9 @@ func runScan(c *cli.Context) error {
 		return err
 	}
 
-	if !c.Bool("skip-result-upload") {
-		if c.String("tags") != "" {
-			tags = convertToTags(c.StringSlice("tags"))
+	if !viper.GetBool("skip-result-upload") {
+		if len(viper.GetStringSlice("tags")) > 0 {
+			tags = convertToTags(viper.GetStringSlice("tags"))
 		}
 		if err := uploader.Upload(client, processedResults, tags, avdUrlMap, pipelines); err != nil {
 			return err
@@ -229,7 +301,7 @@ func runScan(c *cli.Context) error {
 		}
 	}
 
-	return checkPolicyResults(c, processedResults)
+	return checkPolicyResults(processedResults)
 }
 
 func convertToTags(t []string) (tags map[string]string) {
@@ -245,7 +317,7 @@ func convertToTags(t []string) (tags map[string]string) {
 	return tags
 }
 
-func createIgnoreFile(c *cli.Context, checkSupIDMap map[string]string, fileName string) error {
+func createIgnoreFile(checkSupIDMap map[string]string, fileName string) error {
 	log.Logger.Debugf("%d IDs are suppressed", len(checkSupIDMap))
 	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
@@ -267,13 +339,11 @@ func createIgnoreFile(c *cli.Context, checkSupIDMap map[string]string, fileName 
 		return err
 	}
 
-	if err := c.Set("ignorefile", fileName); err != nil {
-		return err
-	}
+	viper.Set("ignorefile", fileName)
 	return nil
 }
 
-func checkPolicyResults(c *cli.Context, results []*buildsecurity.Result) error {
+func checkPolicyResults(results []*buildsecurity.Result) error {
 	uniqCount := 0
 
 	var warns []string
@@ -324,7 +394,7 @@ func checkPolicyResults(c *cli.Context, results []*buildsecurity.Result) error {
 		_, _ = fmt.Fprintf(os.Stderr, "\n")
 	}
 
-	if uniqCount == 0 || c.Bool("skip-policy-exit-code") {
+	if uniqCount == 0 || viper.GetBool("skip-policy-exit-code") {
 		return nil
 	}
 
