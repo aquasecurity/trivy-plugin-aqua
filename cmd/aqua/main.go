@@ -151,9 +151,10 @@ func initCommand(cmd *cobra.Command, globalFlags *flag.GlobalFlagGroup) {
 			VulnType: &flag.VulnTypeFlag,
 		},
 		ReportFlagGroup: &flag.ReportFlagGroup{
-			Format:   &flag.FormatFlag,
-			Output:   &flag.OutputFlag,
-			Severity: &flag.SeverityFlag,
+			Format:      &flag.FormatFlag,
+			Output:      &flag.OutputFlag,
+			Severity:    &flag.SeverityFlag,
+			ListAllPkgs: &flag.ListAllPkgsFlag,
 		},
 	}
 
