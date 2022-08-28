@@ -47,6 +47,7 @@ message CreateScanReq {
   string Run = 10;
   string BuildID = 11;
   repeated Pipeline Pipelines = 12;
+  repeated PackageDependency PackageDependencies = 13;
 }
 
 enum TriggeredByEnum {
@@ -157,4 +158,16 @@ message Pipeline {
   string LastCommitDate = 10;
   string UpdatedBy = 11;
   string Link = 12;
+}
+
+message PackageDependency {
+  string ID = 1;
+  string Name = 2;
+  string Version = 3;
+  repeated string DependsOnIDs = 4;
+  bool Indirect = 5;
+  string Target = 6;
+  string Type = 7;
+  string ParentID = 8;
+
 }

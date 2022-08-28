@@ -15,7 +15,7 @@ import (
 )
 
 type Client interface {
-	Upload([]*buildsecurity.Result, map[string]string, ResultIdToUrlMap, []*buildsecurity.Pipeline) error
+	Upload([]*buildsecurity.Result, map[string]string, ResultIdToUrlMap, []*buildsecurity.Pipeline, []*buildsecurity.PackageDependency) error
 	GetPoliciesForRepository() ([]*buildsecurity.Policy, error)
 	GetOrCreateRepository() (string, error)
 }

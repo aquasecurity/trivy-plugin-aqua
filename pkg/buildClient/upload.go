@@ -12,7 +12,11 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
 )
 
-func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]string, avdUrlMap ResultIdToUrlMap, pipelines []*buildsecurity.Pipeline) error {
+func (bc *TwirpClient) Upload(results []*buildsecurity.Result,
+	tags map[string]string,
+	avdUrlMap ResultIdToUrlMap,
+	pipelines []*buildsecurity.Pipeline,
+	dependencies []*buildsecurity.PackageDependency) error {
 	client := buildsecurity.NewBuildSecurityProtobufClient(bc.aquaUrl, &http.Client{})
 
 	ctx, err := bc.createContext()
@@ -33,17 +37,18 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result, tags map[string]s
 
 	triggeredBy := viper.GetString("triggered-by")
 	createScanReq := &buildsecurity.CreateScanReq{
-		RepositoryID: bc.repoId,
-		Results:      results,
-		User:         gitUser,
-		Branch:       branch,
-		Commit:       commitId,
-		System:       buildSystem,
-		Tags:         tags,
-		TriggeredBy:  scanner.MatchTriggeredBy(triggeredBy),
-		Run:          run,
-		BuildID:      buildID,
-		Pipelines:    pipelines,
+		RepositoryID:        bc.repoId,
+		Results:             results,
+		User:                gitUser,
+		Branch:              branch,
+		Commit:              commitId,
+		System:              buildSystem,
+		Tags:                tags,
+		TriggeredBy:         scanner.MatchTriggeredBy(triggeredBy),
+		Run:                 run,
+		BuildID:             buildID,
+		Pipelines:           pipelines,
+		PackageDependencies: dependencies,
 	}
 
 	_, err = client.CreateScan(ctx, createScanReq)

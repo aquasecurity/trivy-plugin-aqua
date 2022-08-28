@@ -86,12 +86,20 @@ func ProcessResults(reports types.Results,
 	policies []*buildsecurity.Policy,
 	checkSupIDMap map[string]string) (
 	results []*buildsecurity.Result,
+	dependencies []*buildsecurity.PackageDependency,
 	avdUrlMap buildClient.ResultIdToUrlMap) {
 	avdUrlMap = make(buildClient.ResultIdToUrlMap)
+	childToParentMap := make(map[string][]string)
+
+	// For any deps, that have 2 "parents" we will duplicate
+	var duplicatedDependencies []*buildsecurity.PackageDependency
 
 	for _, rep := range reports {
 		switch rep.Class {
 		case types.ClassLangPkg, types.ClassOSPkg:
+			pkgDependencies := addPackageDependenciesResults(rep, rep.Target, rep.Type, childToParentMap)
+			dependencies = append(dependencies, pkgDependencies...)
+
 			reportResults := addVulnerabilitiesResults(rep, policies, avdUrlMap)
 			results = append(results, reportResults...)
 		case types.ClassConfig:
@@ -103,7 +111,33 @@ func ProcessResults(reports types.Results,
 		}
 	}
 
-	return results, avdUrlMap
+	duplicatedDependencies = setDependenciesParents(dependencies, childToParentMap, duplicatedDependencies)
+
+	return results, append(dependencies, duplicatedDependencies...), avdUrlMap
+}
+
+func setDependenciesParents(dependencies []*buildsecurity.PackageDependency, childToParentMap map[string][]string, duplicatedDependencies []*buildsecurity.PackageDependency) []*buildsecurity.PackageDependency {
+	for _, dependency := range dependencies {
+		if parents, ok := childToParentMap[dependency.ID]; ok {
+			if len(parents) > 0 {
+				dependency.ParentID = parents[0]
+				// For the rest of the parents, duplicate dependency, and set the new parentId
+				for _, parent := range parents[1:] {
+					duplicatedDependency := &buildsecurity.PackageDependency{
+						ID:       dependency.ID,
+						Name:     dependency.Name,
+						Version:  dependency.Version,
+						Indirect: dependency.Indirect,
+						Target:   dependency.Target,
+						Type:     dependency.Type,
+					}
+					duplicatedDependency.ParentID = parent
+					duplicatedDependencies = append(duplicatedDependencies, duplicatedDependency)
+				}
+			}
+		}
+	}
+	return duplicatedDependencies
 }
 
 func DistinguishPolicies(
@@ -172,6 +206,33 @@ func addVulnerabilitiesResults(rep types.Result,
 	}
 
 	return results
+}
+
+func addPackageDependenciesResults(rep types.Result, target string, pkgType string, childToParentMap map[string][]string) (
+	dependencies []*buildsecurity.PackageDependency) {
+
+	for _, pkg := range rep.Packages {
+		var dependency buildsecurity.PackageDependency
+
+		if pkg.ID == "" {
+			dependency.ID = fmt.Sprintf("%s@%s", pkg.Name, pkg.Version)
+		} else {
+			dependency.ID = pkg.ID
+		}
+		dependency.Name = pkg.Name
+		dependency.Version = pkg.Version
+		dependency.Indirect = pkg.Indirect
+		dependency.Target = target
+		dependency.Type = pkgType
+
+		for _, child := range pkg.DependsOn {
+			childToParentMap[child] = append(childToParentMap[child], dependency.ID)
+		}
+
+		dependencies = append(dependencies, &dependency)
+	}
+
+	return dependencies
 }
 
 func contains(slice []string, value string) bool {
