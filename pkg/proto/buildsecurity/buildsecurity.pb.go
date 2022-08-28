@@ -25,7 +25,7 @@ type TriggeredByEnum int32
 const (
 	TriggeredByEnum_TRIGGERED_BY_UNKNOWN      TriggeredByEnum = 0
 	TriggeredByEnum_TRIGGERED_BY_PUSH         TriggeredByEnum = 1
-	TriggeredByEnum_TRIGGERED_BY_PULL_REQUEST TriggeredByEnum = 2
+	TriggeredByEnum_TRIGGERED_BY_PR TriggeredByEnum = 2
 	TriggeredByEnum_TRIGGERED_BY_OFFLINE      TriggeredByEnum = 3
 )
 
@@ -34,13 +34,13 @@ var (
 	TriggeredByEnum_name = map[int32]string{
 		0: "TRIGGERED_BY_UNKNOWN",
 		1: "TRIGGERED_BY_PUSH",
-		2: "TRIGGERED_BY_PULL_REQUEST",
+		2: "TRIGGERED_BY_PR",
 		3: "TRIGGERED_BY_OFFLINE",
 	}
 	TriggeredByEnum_value = map[string]int32{
 		"TRIGGERED_BY_UNKNOWN":      0,
 		"TRIGGERED_BY_PUSH":         1,
-		"TRIGGERED_BY_PULL_REQUEST": 2,
+		"TRIGGERED_BY_PR": 2,
 		"TRIGGERED_BY_OFFLINE":      3,
 	}
 )
