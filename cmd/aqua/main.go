@@ -299,7 +299,7 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 		}
 	}
 
-	processedResults, avdUrlMap := processor.ProcessResults(report.Results, policies, checkSupIDMap)
+	processedResults, dependencies, avdUrlMap := processor.ProcessResults(report.Results, policies, checkSupIDMap)
 	if err != nil {
 		return err
 	}
@@ -308,7 +308,7 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 		if len(viper.GetStringSlice("tags")) > 0 {
 			tags = convertToTags(viper.GetStringSlice("tags"))
 		}
-		if err := uploader.Upload(client, processedResults, tags, avdUrlMap, pipelines); err != nil {
+		if err := uploader.Upload(client, processedResults, tags, avdUrlMap, pipelines, dependencies); err != nil {
 			return err
 		}
 	}
