@@ -17,6 +17,7 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/processor"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/runenv"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/scanner"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/uploader"
 	"github.com/aquasecurity/trivy/pkg/commands"
@@ -247,9 +248,13 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 		viper.Set("security-checks", "config")
 		viper.Set("vuln-type", "os,library")
 	}
-	if triggeredBy := viper.GetString("triggered-by"); triggeredBy != "" {
-		viper.Set("triggered-by", strings.ToUpper(triggeredBy))
+
+	var triggeredByVal = "OFFLINE"
+	if triggeredBy := strings.ToLower(viper.GetString("triggered-by")); triggeredBy != "offline" {
+		triggeredByVal = runenv.DetectTriggeredBy()
 	}
+
+	viper.Set("triggered-by", triggeredByVal)
 
 	debug := options.Debug
 
