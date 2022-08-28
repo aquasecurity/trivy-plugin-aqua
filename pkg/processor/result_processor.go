@@ -91,9 +91,6 @@ func ProcessResults(reports types.Results,
 	avdUrlMap = make(buildClient.ResultIdToUrlMap)
 	childToParentMap := make(map[string][]string)
 
-	// For any deps, that have 2 "parents" we will duplicate
-	var duplicatedDependencies []*buildsecurity.PackageDependency
-
 	for _, rep := range reports {
 		switch rep.Class {
 		case types.ClassLangPkg, types.ClassOSPkg:
@@ -111,33 +108,13 @@ func ProcessResults(reports types.Results,
 		}
 	}
 
-	duplicatedDependencies = setDependenciesParents(dependencies, childToParentMap, duplicatedDependencies)
-
-	return results, append(dependencies, duplicatedDependencies...), avdUrlMap
-}
-
-func setDependenciesParents(dependencies []*buildsecurity.PackageDependency, childToParentMap map[string][]string, duplicatedDependencies []*buildsecurity.PackageDependency) []*buildsecurity.PackageDependency {
 	for _, dependency := range dependencies {
 		if parents, ok := childToParentMap[dependency.ID]; ok {
-			if len(parents) > 0 {
-				dependency.ParentID = parents[0]
-				// For the rest of the parents, duplicate dependency, and set the new parentId
-				for _, parent := range parents[1:] {
-					duplicatedDependency := &buildsecurity.PackageDependency{
-						ID:       dependency.ID,
-						Name:     dependency.Name,
-						Version:  dependency.Version,
-						Indirect: dependency.Indirect,
-						Target:   dependency.Target,
-						Type:     dependency.Type,
-					}
-					duplicatedDependency.ParentID = parent
-					duplicatedDependencies = append(duplicatedDependencies, duplicatedDependency)
-				}
-			}
+			dependency.ParentIDs = parents
 		}
 	}
-	return duplicatedDependencies
+
+	return results, dependencies, avdUrlMap
 }
 
 func DistinguishPolicies(
@@ -224,6 +201,7 @@ func addPackageDependenciesResults(rep types.Result, target string, pkgType stri
 		dependency.Indirect = pkg.Indirect
 		dependency.Target = target
 		dependency.Type = pkgType
+		dependency.ChildIDs = pkg.DependsOn
 
 		for _, child := range pkg.DependsOn {
 			childToParentMap[child] = append(childToParentMap[child], dependency.ID)

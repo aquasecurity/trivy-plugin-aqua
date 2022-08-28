@@ -164,10 +164,10 @@ message PackageDependency {
   string ID = 1;
   string Name = 2;
   string Version = 3;
-  repeated string DependsOnIDs = 4;
-  bool Indirect = 5;
-  string Target = 6;
-  string Type = 7;
-  string ParentID = 8;
+  bool Indirect = 4;
+  string Target = 5;
+  string Type = 6;
+  repeated string ChildIDs = 7;
+  repeated string ParentIDs = 8;
 
 }
