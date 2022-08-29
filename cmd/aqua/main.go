@@ -202,7 +202,9 @@ func runScan(c *cli.Context) error {
 		}
 	}
 
-	if c.String("triggered-by") == "PR" {
+	a := c.String("triggered-by")
+	fmt.Println(a)
+	if a == "PR" {
 		report.Results, err = processor.PrDiffResults(report.Results)
 		if err != nil {
 			return err

@@ -78,6 +78,7 @@ func Scan(c *cli.Context, path string) (*trivyTypes.Report, []*buildsecurity.Pip
 		}
 	default:
 		if c.String("triggered-by") == "PR" {
+			fmt.Println("create diff")
 			if err = createDiffScanFs(); err != nil {
 				return nil, nil, errors.Wrap(err, "failed create diff scan system")
 			}
