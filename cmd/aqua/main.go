@@ -209,6 +209,8 @@ func runScan(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
+
+		fmt.Println("results: %s", report.Results)
 	}
 
 	processedResults, avdUrlMap := processor.ProcessResults(report.Results, policies, checkSupIDMap)
