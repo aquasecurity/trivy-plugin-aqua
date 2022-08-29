@@ -30,6 +30,7 @@ func fileInBase(target string, r types.Results) bool {
 }
 
 func PrDiffResults(r types.Results) (reports types.Results, err error) {
+	fmt.Printf("PrDiffResults - %s", r)
 	for _, v := range r {
 		// is head file and not exist in base
 		inBase := false
@@ -65,6 +66,8 @@ func PrDiffResults(r types.Results) (reports types.Results, err error) {
 			}
 		}
 	}
+
+	fmt.Printf("reports:%s", reports)
 
 	// Cleanup tmp file names
 	for k, v := range reports {
