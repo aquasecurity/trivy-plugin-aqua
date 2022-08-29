@@ -256,8 +256,6 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 
 	viper.Set("triggered-by", triggeredByVal)
 
-	fmt.Println("triggered-by", triggeredByVal)
-
 	debug := options.Debug
 
 	if err := log.InitLogger(debug, false); err != nil {

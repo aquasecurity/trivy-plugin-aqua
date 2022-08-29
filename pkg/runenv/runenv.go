@@ -7,16 +7,19 @@ import (
 )
 
 func DetectTriggeredBy() string {
-	isCi := checkEnvValueExistence(ciEnvs...)
-	isPr := checkEnvValueExistence(prEnvs...)
+	isCi := checkEnvValuesExistence(ciEnvs)
+	isPr := isCi && checkEnvValuesExistence(prEnvs)
 
-	if !isCi {
-		return mapTriggeredByToString(buildsecurity.TriggeredByEnum_TRIGGERED_BY_UNKNOWN)
-	} else if isPr {
-		return mapTriggeredByToString(buildsecurity.TriggeredByEnum_TRIGGERED_BY_PR)
+	triggeredBy := buildsecurity.TriggeredByEnum_TRIGGERED_BY_UNKNOWN
+
+	if isPr {
+		triggeredBy = buildsecurity.TriggeredByEnum_TRIGGERED_BY_PR
+	} else if isCi {
+		triggeredBy = buildsecurity.TriggeredByEnum_TRIGGERED_BY_PUSH
+
 	}
 
-	return mapTriggeredByToString(buildsecurity.TriggeredByEnum_TRIGGERED_BY_PUSH)
+	return mapTriggeredByToString(triggeredBy)
 }
 
 func mapTriggeredByToString(triggerBy buildsecurity.TriggeredByEnum) string {
@@ -31,7 +34,7 @@ func mapTriggeredByToString(triggerBy buildsecurity.TriggeredByEnum) string {
 
 }
 
-func checkEnvValueExistence(envs ...string) bool {
+func checkEnvValuesExistence(envs []string) bool {
 	for _, env := range envs {
 		if val, ok := os.LookupEnv(env); ok {
 			return val != ""
