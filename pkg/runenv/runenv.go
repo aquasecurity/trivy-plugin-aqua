@@ -33,8 +33,8 @@ func mapTriggeredByToString(triggerBy buildsecurity.TriggeredByEnum) string {
 
 func checkEnvValueExistence(envs ...string) bool {
 	for _, env := range envs {
-		if _, ok := os.LookupEnv(env); ok {
-			return true
+		if val, ok := os.LookupEnv(env); ok {
+			return val != ""
 		}
 	}
 
