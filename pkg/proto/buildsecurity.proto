@@ -162,12 +162,9 @@ message Pipeline {
 
 message PackageDependency {
   string ID = 1;
-  string Name = 2;
-  string Version = 3;
-  bool Indirect = 4;
-  string Target = 5;
-  string Type = 6;
-  repeated string ChildIDs = 7;
-  repeated string ParentIDs = 8;
+  string Target = 2;
+  string Type = 3;
+  repeated string ChildIDs = 4;
+  repeated string ParentIDs = 5;
 
 }

@@ -196,9 +196,6 @@ func addPackageDependenciesResults(rep types.Result, target string, pkgType stri
 		} else {
 			dependency.ID = pkg.ID
 		}
-		dependency.Name = pkg.Name
-		dependency.Version = pkg.Version
-		dependency.Indirect = pkg.Indirect
 		dependency.Target = target
 		dependency.Type = pkgType
 		dependency.ChildIDs = pkg.DependsOn
