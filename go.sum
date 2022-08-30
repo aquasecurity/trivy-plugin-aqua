@@ -178,6 +178,8 @@ github.com/aquasecurity/go-git-pr-commenter v0.5.1-beta h1:NaU6g8+bwq2W6Bq+LgPQw
 github.com/aquasecurity/go-git-pr-commenter v0.5.1-beta/go.mod h1:cHPlBrSN+KFsiZEetv3cckCTpCC01GQ/I5D8UPIEokY=
 github.com/aquasecurity/go-git-pr-commenter v0.5.2-beta h1:lPKhSWStl6dagMs7ZiXM30XpXTxCJVEMQEP7WvmDwn8=
 github.com/aquasecurity/go-git-pr-commenter v0.5.2-beta/go.mod h1:cHPlBrSN+KFsiZEetv3cckCTpCC01GQ/I5D8UPIEokY=
+github.com/aquasecurity/go-git-pr-commenter v0.5.3-beta h1:6zogdhmNn9q4R/cnpU+BuYjy5WCyNIsa+38HF/dVwRg=
+github.com/aquasecurity/go-git-pr-commenter v0.5.3-beta/go.mod h1:cHPlBrSN+KFsiZEetv3cckCTpCC01GQ/I5D8UPIEokY=
 github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798 h1:eveqE9ivrt30CJ7dOajOfBavhZ4zPqHcZe/4tKp0alc=
 github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798/go.mod h1:hxbJZtKlO4P8sZ9nztizR6XLoE33O+BkPmuYQ4ACyz0=
 github.com/aquasecurity/go-pep440-version v0.0.0-20210121094942-22b2f8951d46 h1:vmXNl+HDfqqXgr0uY1UgK1GAhps8nbAAtqHNBcgyf+4=
