@@ -249,12 +249,10 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 		viper.Set("vuln-type", "os,library")
 	}
 
-	var triggeredByVal = "OFFLINE"
-	if triggeredBy := strings.ToLower(viper.GetString("triggered-by")); triggeredBy != "offline" {
-		triggeredByVal = runenv.DetectTriggeredBy()
-	}
+	triggeredByInput := viper.GetString("triggered-by")
+	triggeredBy := runenv.DetectTriggeredBy(triggeredByInput)
 
-	viper.Set("triggered-by", triggeredByVal)
+	viper.Set("triggered-by", triggeredBy)
 
 	debug := options.Debug
 
