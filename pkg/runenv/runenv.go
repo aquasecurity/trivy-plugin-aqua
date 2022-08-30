@@ -2,11 +2,16 @@ package runenv
 
 import (
 	"os"
+	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
 
-func DetectTriggeredBy() string {
+func DetectTriggeredBy(input string) string {
+	if strings.ToLower(input) == "offline" {
+		return "OFFLINE"
+	}
+
 	isCi := checkEnvValuesExistence(ciEnvs)
 	isPr := isCi && checkEnvValuesExistence(prEnvs)
 
