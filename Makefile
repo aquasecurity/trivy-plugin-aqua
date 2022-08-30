@@ -4,9 +4,7 @@ SHELL=/usr/bin/env bash
 .PHONY: test
 test:
 	cat ./plugin.yaml | grep uri: | cut -c 10-200 > plugin_artifacts_urls.txt
-	#if 
-	wget -i ./plugin_artifacts_urls.txt --server-response --quiet "${url}" 2>&1 | grep "404"
-	#| grep -q "404"; then echo 'Artifacts links are broken'; exit 1;else echo 'Artifacts links are valid';fi  
+	if wget -i ./plugin_artifacts_urls.txt --server-response --quiet "${url}" 2>&1 | grep -q "HTTP/1.1 404 Not Found"; then echo 'Artifacts links are broken'; exit 1;else echo 'Artifacts links are valid';fi  
 	go test -v ./...
 
 .PHONY: integration-test
