@@ -41,6 +41,7 @@ var possibleCommitIdsEnvVars = []string{
 }
 
 var possibleUserEnvVars = []string{
+	"BITBUCKET_ACTOR",
 	"GITHUB_ACTOR",
 	"CODEBUILD_GIT_AUTHOR",
 }
