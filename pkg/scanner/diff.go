@@ -10,6 +10,7 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
 )
 
 const (
@@ -61,64 +62,62 @@ func createDiffScanFs() error {
 	}
 
 	if out != "" {
-		fmt.Println("Output of git diff:")
-		fmt.Println(out)
-		diffFiles := strings.Split(out, "\n")
+		diffFiles := lo.Filter(strings.Split(out, "\n"), func(diffFile string, _ int) bool {
+			return diffFile != ""
+		})
 		for _, v := range diffFiles {
-			fmt.Printf("DIFF: %s", v)
-			fmt.Println("")
-			var status, name, newName, dirName string
-			diffFile := strings.Fields(v)
-			fmt.Printf("diffFile: %s", diffFile)
-			fmt.Println("")
-			status = strings.TrimSpace(diffFile[0])
-			switch len(diffFile) {
-			case 2:
-				name = strings.TrimSpace(diffFile[1])
-			case 3:
-				name = strings.TrimSpace(diffFile[1])
-				newName = strings.TrimSpace(diffFile[2])
-			default:
-				log.Logger.Debugf("Unknown git diff file format: %s", v)
-				continue
-			}
+			if v != "" {
+				var status, name, newName, dirName string
+				diffFile := strings.Fields(v)
+				status = strings.TrimSpace(diffFile[0])
+				switch len(diffFile) {
+				case 2:
+					name = strings.TrimSpace(diffFile[1])
+				case 3:
+					name = strings.TrimSpace(diffFile[1])
+					newName = strings.TrimSpace(diffFile[2])
+				default:
+					log.Logger.Debugf("Unknown git diff file format: %s", v)
+					continue
+				}
 
-			dirName = filepath.Dir(name)
-			fileName = name
+				dirName = filepath.Dir(name)
+				fileName = name
 
-			if status != gitStatusDeleted && status != gitStatusRenamedOnly && status != "" && fileName != "" {
-				// Create base
-				if status != gitStatusAdded {
-					err = os.MkdirAll(fmt.Sprintf("%s/base/%s", aquaPath, dirName), os.ModePerm)
+				if status != gitStatusDeleted && status != gitStatusRenamedOnly && status != "" && fileName != "" {
+					// Create base
+					if status != gitStatusAdded {
+						err = os.MkdirAll(fmt.Sprintf("%s/base/%s", aquaPath, dirName), os.ModePerm)
+						if err != nil {
+							return errors.Wrap(err, "failed mkdir aqua tmp path")
+						}
+						out, err = git.GitExec("show", fmt.Sprintf("%s:%s", diffCmd, fileName))
+						if err != nil {
+							return errors.Wrap(err, "failed git show origin:"+fileName)
+						}
+						err = writeFile(fmt.Sprintf("%s/base/%s", aquaPath, fileName), out)
+						if err != nil {
+							return errors.Wrap(err, "failed write base file")
+						}
+					}
+					if newName != "" {
+						dirName = filepath.Dir(newName)
+						fileName = newName
+					}
+					// Create head
+					err = os.MkdirAll(fmt.Sprintf("%s/head/%s", aquaPath, dirName), os.ModePerm)
 					if err != nil {
 						return errors.Wrap(err, "failed mkdir aqua tmp path")
 					}
-					out, err = git.GitExec("show", fmt.Sprintf("%s:%s", diffCmd, fileName))
-					if err != nil {
-						return errors.Wrap(err, "failed git show origin:"+fileName)
-					}
-					err = writeFile(fmt.Sprintf("%s/base/%s", aquaPath, fileName), out)
-					if err != nil {
-						return errors.Wrap(err, "failed write base file")
-					}
-				}
-				if newName != "" {
-					dirName = filepath.Dir(newName)
-					fileName = newName
-				}
-				// Create head
-				err = os.MkdirAll(fmt.Sprintf("%s/head/%s", aquaPath, dirName), os.ModePerm)
-				if err != nil {
-					return errors.Wrap(err, "failed mkdir aqua tmp path")
-				}
 
-				out, err = git.GitExec("show", fmt.Sprintf(":%s", fileName))
-				if err != nil {
-					return errors.Wrap(err, "failed git show")
-				}
-				err = writeFile(fmt.Sprintf("%s/head/%s", aquaPath, fileName), out)
-				if err != nil {
-					return errors.Wrap(err, "failed write head file")
+					out, err = git.GitExec("show", fmt.Sprintf(":%s", fileName))
+					if err != nil {
+						return errors.Wrap(err, "failed git show")
+					}
+					err = writeFile(fmt.Sprintf("%s/head/%s", aquaPath, fileName), out)
+					if err != nil {
+						return errors.Wrap(err, "failed write head file")
+					}
 				}
 			}
 		}
