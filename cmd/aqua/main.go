@@ -203,14 +203,11 @@ func runScan(c *cli.Context) error {
 	}
 
 	a := c.String("triggered-by")
-	fmt.Println(a)
 	if a == "PR" {
 		report.Results, err = processor.PrDiffResults(report.Results)
 		if err != nil {
 			return err
 		}
-
-		fmt.Printf("results: %s", report.Results)
 	}
 
 	processedResults, avdUrlMap := processor.ProcessResults(report.Results, policies, checkSupIDMap)
