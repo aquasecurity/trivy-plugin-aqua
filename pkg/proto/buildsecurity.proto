@@ -47,8 +47,10 @@ message CreateScanReq {
   string Run = 10;
   string BuildID = 11;
   repeated Pipeline Pipelines = 12;
-  repeated PackageDependency PackageDependencies = 13;
+  map<string, PackageDependencies> PackageDependencies = 13;
 }
+
+
 
 enum TriggeredByEnum {
     TRIGGERED_BY_UNKNOWN = 0;
@@ -160,11 +162,15 @@ message Pipeline {
   string Link = 12;
 }
 
+message PackageDependencies {
+
+ repeated PackageDependency PackageDependencies = 1;
+}
+
 message PackageDependency {
   string ID = 1;
   string Target = 2;
   string Type = 3;
   repeated string ChildIDs = 4;
-  repeated string ParentIDs = 5;
 
 }

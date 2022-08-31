@@ -16,7 +16,7 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result,
 	tags map[string]string,
 	avdUrlMap ResultIdToUrlMap,
 	pipelines []*buildsecurity.Pipeline,
-	dependencies []*buildsecurity.PackageDependency) error {
+	dependencies map[string]*buildsecurity.PackageDependencies) error {
 	client := buildsecurity.NewBuildSecurityProtobufClient(bc.aquaUrl, &http.Client{})
 
 	ctx, err := bc.createContext()

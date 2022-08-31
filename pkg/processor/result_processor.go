@@ -86,17 +86,19 @@ func ProcessResults(reports types.Results,
 	policies []*buildsecurity.Policy,
 	checkSupIDMap map[string]string) (
 	results []*buildsecurity.Result,
-	dependencies []*buildsecurity.PackageDependency,
+	_ map[string]*buildsecurity.PackageDependencies,
 	avdUrlMap buildClient.ResultIdToUrlMap) {
 	avdUrlMap = make(buildClient.ResultIdToUrlMap)
-	childToParentMap := make(map[string][]string)
+
+	dependencies := make(map[string]*buildsecurity.PackageDependencies)
 
 	for _, rep := range reports {
 		switch rep.Class {
 		case types.ClassLangPkg, types.ClassOSPkg:
-			pkgDependencies := addPackageDependenciesResults(rep, rep.Target, rep.Type, childToParentMap)
-			dependencies = append(dependencies, pkgDependencies...)
-
+			pkgDependencies := addPackageDependenciesResults(rep)
+			if len(pkgDependencies) > 0 {
+				dependencies[rep.Target] = &buildsecurity.PackageDependencies{PackageDependencies: pkgDependencies}
+			}
 			reportResults := addVulnerabilitiesResults(rep, policies, avdUrlMap)
 			results = append(results, reportResults...)
 		case types.ClassConfig:
@@ -105,12 +107,6 @@ func ProcessResults(reports types.Results,
 		case types.ClassSecret:
 			reportResults := addSecretsResults(rep, policies)
 			results = append(results, reportResults...)
-		}
-	}
-
-	for _, dependency := range dependencies {
-		if parents, ok := childToParentMap[dependency.ID]; ok {
-			dependency.ParentIDs = parents
 		}
 	}
 
@@ -185,25 +181,19 @@ func addVulnerabilitiesResults(rep types.Result,
 	return results
 }
 
-func addPackageDependenciesResults(rep types.Result, target string, pkgType string, childToParentMap map[string][]string) (
-	dependencies []*buildsecurity.PackageDependency) {
-
+func addPackageDependenciesResults(rep types.Result) (dependencies []*buildsecurity.PackageDependency) {
+	if rep.Class == types.ClassOSPkg {
+		return dependencies
+	}
 	for _, pkg := range rep.Packages {
 		var dependency buildsecurity.PackageDependency
-
 		if pkg.ID == "" {
 			dependency.ID = fmt.Sprintf("%s@%s", pkg.Name, pkg.Version)
 		} else {
 			dependency.ID = pkg.ID
 		}
-		dependency.Target = target
-		dependency.Type = pkgType
+		dependency.Type = rep.Type
 		dependency.ChildIDs = pkg.DependsOn
-
-		for _, child := range pkg.DependsOn {
-			childToParentMap[child] = append(childToParentMap[child], dependency.ID)
-		}
-
 		dependencies = append(dependencies, &dependency)
 	}
 

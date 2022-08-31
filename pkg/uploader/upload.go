@@ -12,7 +12,7 @@ func Upload(client buildClient.Client,
 	tags map[string]string,
 	avdUrlMap buildClient.ResultIdToUrlMap,
 	pipelines []*buildsecurity.Pipeline,
-	dependencies []*buildsecurity.PackageDependency) error {
+	dependencies map[string]*buildsecurity.PackageDependencies) error {
 	log.Logger.Debugf("Uploading scan with tags. %v", tags)
 	return client.Upload(results, tags, avdUrlMap, pipelines, dependencies)
 }
