@@ -61,11 +61,16 @@ func createDiffScanFs() error {
 	}
 
 	if out != "" {
+		fmt.Println("Output of git diff:")
+		fmt.Println(out)
 		diffFiles := strings.Split(out, "\n")
 		for _, v := range diffFiles {
 			fmt.Printf("DIFF: %s", v)
+			fmt.Println("")
 			var status, name, newName, dirName string
 			diffFile := strings.Fields(v)
+			fmt.Printf("diffFile: %s", diffFile)
+			fmt.Println("")
 			status = strings.TrimSpace(diffFile[0])
 			switch len(diffFile) {
 			case 2:
