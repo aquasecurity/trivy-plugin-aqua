@@ -28,3 +28,18 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update plugin Links
+        run: |
+          sed  -e "s/PLACEHOLDERVERSION/${{github.ref_name}}/g" .github/plugin_template.yaml > plugin.yaml
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v4
+        with:
+          branch: "update-plugin-links-${{github.ref_name}}"
+          title: "Update Plugin Artifacts Links for ${{github.ref_name}}"
+          delete-branch: true
+          base: master
+          add-paths: |
+            plugin.yaml

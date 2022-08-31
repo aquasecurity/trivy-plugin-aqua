@@ -14,9 +14,9 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 )
 
-const PACKAGE_JSON_FILE_NAME = "package.json"
-const PACKAGE_LOCK_FILE_NAME = "package-lock.json"
-const YARN_LOCK_FILE_NAME = "yarn.lock"
+const packageJsonFileName = "package.json"
+const packageLockFileName = "package-lock.json"
+const yarnLockFileName = "yarn.lock"
 
 func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
 	files := findPackageJsonFiles(path)
@@ -94,13 +94,13 @@ func findPackageJsonFiles(dirPath string) []string {
 			return nil
 		}
 
-		if f.Name() == PACKAGE_JSON_FILE_NAME {
-			packageLockPath := filepath.Join(filepath.Dir(path), PACKAGE_LOCK_FILE_NAME)
+		if f.Name() == packageJsonFileName {
+			packageLockPath := filepath.Join(filepath.Dir(path), packageLockFileName)
 			if _, err := os.Stat(packageLockPath); !os.IsNotExist(err) {
 				return nil
 			}
 
-			yarnLockPath := filepath.Join(filepath.Dir(path), YARN_LOCK_FILE_NAME)
+			yarnLockPath := filepath.Join(filepath.Dir(path), yarnLockFileName)
 			if _, err := os.Stat(yarnLockPath); !os.IsNotExist(err) {
 				return nil
 			}
@@ -115,7 +115,7 @@ func findPackageJsonFiles(dirPath string) []string {
 }
 
 func createPackageJsonFile(dir string, packageJson PackageJson) error {
-	filePath := filepath.Join(dir, PACKAGE_JSON_FILE_NAME)
+	filePath := filepath.Join(dir, packageJsonFileName)
 
 	for key, version := range packageJson.Dependencies {
 		if strings.HasPrefix(version, "link") {
@@ -192,5 +192,5 @@ func createPackageLockFile(dir string, packageJson PackageJson) (string, error) 
 			}
 		}
 	}
-	return filepath.Join(dir, PACKAGE_LOCK_FILE_NAME), nil
+	return filepath.Join(dir, packageLockFileName), nil
 }
