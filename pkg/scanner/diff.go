@@ -63,6 +63,7 @@ func createDiffScanFs() error {
 	if out != "" {
 		diffFiles := strings.Split(out, "\n")
 		for _, v := range diffFiles {
+			fmt.Printf("DIFF: %s", v)
 			var status, name, newName, dirName string
 			diffFile := strings.Fields(v)
 			status = strings.TrimSpace(diffFile[0])
