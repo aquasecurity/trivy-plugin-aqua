@@ -31,7 +31,6 @@ jobs:
 
       - name: Update plugin Links
         run: |
-          BRANCH_NAME="plugin-update-${{github.ref_name}}"
           sed  -e "s/PLACEHOLDERVERSION/${{github.ref_name}}/g" .github/plugin_template.yaml > plugin.yaml
 
       - name: Create Pull Request
