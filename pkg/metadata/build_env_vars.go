@@ -49,6 +49,7 @@ var possibleUserEnvVars = []string{
 var possibleBuildSystems = map[string]string{
 	"BITBUCKET_COMMIT":     Bitbucket,
 	"GIT_COMMIT":           Jenkins,
+	"JENKINS_HOME":         Jenkins,
 	"CI_COMMIT_SHA":        Gitlab,
 	"CODEBUILD_GIT_COMMIT": Codebuild,
 	"BUILD_SOURCEBRANCH":   Azure,
