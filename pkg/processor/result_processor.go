@@ -89,12 +89,21 @@ func ProcessResults(reports types.Results,
 	policies []*buildsecurity.Policy,
 	checkSupIDMap map[string]string) (
 	results []*buildsecurity.Result,
+	_ map[string]*buildsecurity.PackageDependencies,
 	avdUrlMap buildClient.ResultIdToUrlMap) {
 	avdUrlMap = make(buildClient.ResultIdToUrlMap)
+
+	dependencies := make(map[string]*buildsecurity.PackageDependencies)
 
 	for _, rep := range reports {
 		switch rep.Class {
 		case types.ClassLangPkg, types.ClassOSPkg:
+			targetPackageDependencies := getTargetPackageDependencies(rep)
+			if len(targetPackageDependencies) > 0 {
+				dependencies[rep.Target] = &buildsecurity.PackageDependencies{
+					PackageDependencies: targetPackageDependencies,
+				}
+			}
 			reportResults := addVulnerabilitiesResults(rep, policies, avdUrlMap)
 			results = append(results, reportResults...)
 		case types.ClassConfig:
@@ -106,7 +115,7 @@ func ProcessResults(reports types.Results,
 		}
 	}
 
-	return results, avdUrlMap
+	return results, dependencies, avdUrlMap
 }
 
 func DistinguishPolicies(
@@ -175,6 +184,25 @@ func addVulnerabilitiesResults(rep types.Result,
 	}
 
 	return results
+}
+
+func getTargetPackageDependencies(rep types.Result) (dependencies []*buildsecurity.PackageDependency) {
+	if rep.Class == types.ClassOSPkg {
+		return dependencies
+	}
+	for _, pkg := range rep.Packages {
+		var dependency buildsecurity.PackageDependency
+		if pkg.ID == "" {
+			dependency.ID = fmt.Sprintf("%s@%s", pkg.Name, pkg.Version)
+		} else {
+			dependency.ID = pkg.ID
+		}
+		dependency.Type = rep.Type
+		dependency.ChildIDs = pkg.DependsOn
+		dependencies = append(dependencies, &dependency)
+	}
+
+	return dependencies
 }
 
 func contains(slice []string, value string) bool {

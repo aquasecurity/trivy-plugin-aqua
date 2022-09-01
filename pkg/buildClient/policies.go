@@ -18,7 +18,7 @@ func (bc *TwirpClient) GetPoliciesForRepository() ([]*buildsecurity.Policy, erro
 		return nil, err
 	}
 
-	_, branch, err := metadata.GetRepositoryDetails(bc.scanPath, bc.c.Command.Name)
+	_, branch, err := metadata.GetRepositoryDetails(bc.scanPath, bc.cmdName)
 	if err != nil {
 		return nil, err
 	}

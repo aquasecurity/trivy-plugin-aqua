@@ -6,6 +6,8 @@ import (
 	"io/fs"
 	"sync"
 
+	"github.com/aquasecurity/defsec/pkg/framework"
+
 	"github.com/aquasecurity/defsec/pkg/debug"
 	"github.com/aquasecurity/defsec/pkg/rego"
 	"github.com/aquasecurity/defsec/pkg/scanners/options"
@@ -23,6 +25,7 @@ type Scanner struct {
 	skipRequired  bool
 	options       []options.ScannerOption
 	loadEmbedded  bool
+	frameworks    []framework.Framework
 	sync.Mutex
 }
 
@@ -68,6 +71,10 @@ func (s *Scanner) SetPolicyNamespaces(_ ...string) {
 
 func (s *Scanner) SetPolicyFilesystem(_ fs.FS) {
 	// handled by rego when option is passed on
+}
+
+func (s *Scanner) SetFrameworks(frameworks []framework.Framework) {
+	s.frameworks = frameworks
 }
 
 func NewScanner(opts ...options.ScannerOption) *Scanner {

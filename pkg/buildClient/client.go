@@ -6,23 +6,23 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/urfave/cli/v2"
+	"github.com/pkg/errors"
+	"github.com/twitchtv/twirp"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
-	"github.com/pkg/errors"
-	"github.com/twitchtv/twirp"
+	"github.com/aquasecurity/trivy/pkg/flag"
 )
 
 type Client interface {
-	Upload([]*buildsecurity.Result, map[string]string, ResultIdToUrlMap, []*buildsecurity.Pipeline) error
+	Upload([]*buildsecurity.Result, map[string]string, ResultIdToUrlMap, []*buildsecurity.Pipeline, map[string]*buildsecurity.PackageDependencies) error
 	GetPoliciesForRepository() ([]*buildsecurity.Policy, error)
 	GetOrCreateRepository() (string, error)
 }
 
 type TwirpClient struct {
 	client   buildsecurity.BuildSecurity
-	c        *cli.Context
+	cmdName  string
 	scanPath string
 	jwtToken string
 	aquaUrl  string
@@ -37,7 +37,7 @@ func GenerateResultId(r *buildsecurity.Result) string {
 
 var buildClient Client
 
-func Get(scanPath string, c *cli.Context) (Client, error) {
+func Get(scanPath, cmdName string, opts flag.Options) (Client, error) {
 	if buildClient != nil {
 		log.Logger.Debugf("Valid client found, re-using...")
 		return buildClient, nil
@@ -72,7 +72,7 @@ func Get(scanPath string, c *cli.Context) (Client, error) {
 		scanPath: scanPath,
 		jwtToken: jwtToken,
 		aquaUrl:  aquaURL,
-		c:        c,
+		cmdName:  cmdName,
 	}
 
 	return buildClient, nil
@@ -96,9 +96,16 @@ func getCspmAndAquaUrl() (string, string) {
 		cspmURL = fmt.Sprintf("https://%sapi.cloudsploit.com/v2/tokens", urlPrefix)
 	}
 
+	// New APIs need supply-chain included in prefix instead of api.
+	if urlPrefix != "" {
+		urlPrefix += "supply-chain."
+	} else {
+		urlPrefix = "api."
+	}
+
 	aquaURL, ok := os.LookupEnv("AQUA_URL")
 	if !ok {
-		aquaURL = fmt.Sprintf("https://%sapi.aquasec.com/v2/build", urlPrefix)
+		aquaURL = fmt.Sprintf("https://%saquasec.com/v2/build", urlPrefix)
 	}
 
 	return cspmURL, aquaURL

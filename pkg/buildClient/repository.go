@@ -58,7 +58,7 @@ func (bc *TwirpClient) GetOrCreateRepository() (string, error) {
 }
 
 func (bc *TwirpClient) getScmID() (scmID string, err error) {
-	switch bc.c.Command.Name {
+	switch bc.cmdName {
 	case "image":
 		prefix, repo, _ := metadata.GetImageDetails(bc.scanPath)
 		scmID = metadata.GetRepositoryUrl(prefix, repo)
@@ -70,7 +70,7 @@ func (bc *TwirpClient) getScmID() (scmID string, err error) {
 }
 
 func (bc *TwirpClient) getRepoName() (repoName string, err error) {
-	switch bc.c.Command.Name {
+	switch bc.cmdName {
 	case "image":
 		prefix, repo, _ := metadata.GetImageDetails(bc.scanPath)
 		repoName = metadata.GetRepositoryUrl(prefix, repo)
