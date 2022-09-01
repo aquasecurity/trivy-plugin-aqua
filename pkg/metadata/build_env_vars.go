@@ -42,16 +42,17 @@ var possibleCommitIdsEnvVars = []string{
 
 var possibleUserEnvVars = []string{
 	"BITBUCKET_ACTOR",
-	"GITHUB_ACTOR",
 	"CODEBUILD_GIT_AUTHOR",
+	"GITHUB_ACTOR",
 }
 
 var possibleBuildSystems = map[string]string{
 	"BITBUCKET_COMMIT":     Bitbucket,
 	"GIT_COMMIT":           Jenkins,
-	"JENKINS_HOME":         Jenkins,
 	"CI_COMMIT_SHA":        Gitlab,
 	"CODEBUILD_GIT_COMMIT": Codebuild,
 	"BUILD_SOURCEBRANCH":   Azure,
+	"ADDED1":               Azure,
+	"ADDED2":               Azure,
 	"GITHUB_SHA":           Github,
 }
