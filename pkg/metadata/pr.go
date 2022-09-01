@@ -26,7 +26,7 @@ func GetBaseRef() (r string) {
 		}
 		changeTarget := os.Getenv("CHANGE_TARGET")
 		if changeTarget != "" {
-			return fmt.Sprintf("origin/%s", os.Getenv("CHANGE_TARGET"))
+			return fmt.Sprintf("origin/%s", changeTarget)
 		}
 		return "origin/master"
 	default:
