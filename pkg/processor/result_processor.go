@@ -95,9 +95,11 @@ func ProcessResults(reports types.Results,
 	for _, rep := range reports {
 		switch rep.Class {
 		case types.ClassLangPkg, types.ClassOSPkg:
-			pkgDependencies := addPackageDependenciesResults(rep)
-			if len(pkgDependencies) > 0 {
-				dependencies[rep.Target] = &buildsecurity.PackageDependencies{PackageDependencies: pkgDependencies}
+			targetPackageDependencies := getTargetPackageDependencies(rep)
+			if len(targetPackageDependencies) > 0 {
+				dependencies[rep.Target] = &buildsecurity.PackageDependencies{
+					PackageDependencies: targetPackageDependencies,
+				}
 			}
 			reportResults := addVulnerabilitiesResults(rep, policies, avdUrlMap)
 			results = append(results, reportResults...)
@@ -181,7 +183,7 @@ func addVulnerabilitiesResults(rep types.Result,
 	return results
 }
 
-func addPackageDependenciesResults(rep types.Result) (dependencies []*buildsecurity.PackageDependency) {
+func getTargetPackageDependencies(rep types.Result) (dependencies []*buildsecurity.PackageDependency) {
 	if rep.Class == types.ClassOSPkg {
 		return dependencies
 	}

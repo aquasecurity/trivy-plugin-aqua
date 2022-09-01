@@ -37,18 +37,18 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result,
 
 	triggeredBy := viper.GetString("triggered-by")
 	createScanReq := &buildsecurity.CreateScanReq{
-		RepositoryID:        bc.repoId,
-		Results:             results,
-		User:                gitUser,
-		Branch:              branch,
-		Commit:              commitId,
-		System:              buildSystem,
-		Tags:                tags,
-		TriggeredBy:         scanner.MatchTriggeredBy(triggeredBy),
-		Run:                 run,
-		BuildID:             buildID,
-		Pipelines:           pipelines,
-		PackageDependencies: dependencies,
+		RepositoryID:                 bc.repoId,
+		Results:                      results,
+		User:                         gitUser,
+		Branch:                       branch,
+		Commit:                       commitId,
+		System:                       buildSystem,
+		Tags:                         tags,
+		TriggeredBy:                  scanner.MatchTriggeredBy(triggeredBy),
+		Run:                          run,
+		BuildID:                      buildID,
+		Pipelines:                    pipelines,
+		TargetPackageDependenciesMap: dependencies,
 	}
 
 	_, err = client.CreateScan(ctx, createScanReq)

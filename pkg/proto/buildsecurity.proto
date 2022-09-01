@@ -47,7 +47,7 @@ message CreateScanReq {
   string Run = 10;
   string BuildID = 11;
   repeated Pipeline Pipelines = 12;
-  map<string, PackageDependencies> PackageDependencies = 13;
+  map<string, PackageDependencies> TargetPackageDependenciesMap = 13;
 }
 
 
@@ -163,7 +163,6 @@ message Pipeline {
 }
 
 message PackageDependencies {
-
  repeated PackageDependency PackageDependencies = 1;
 }
 
@@ -172,5 +171,4 @@ message PackageDependency {
   string Target = 2;
   string Type = 3;
   repeated string ChildIDs = 4;
-
 }
