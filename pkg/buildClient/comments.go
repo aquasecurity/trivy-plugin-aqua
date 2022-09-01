@@ -70,13 +70,11 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 		return nil
 	}
 	err := c.RemovePreviousAquaComments(aquaMsg)
-	fmt.Printf("after client")
 	if err != nil {
 		log.Logger.Infof("failed removing old comments with error: %s", err)
 	}
 
 	for _, r := range result {
-		fmt.Printf("result-----%s", r)
 		if r.SuppressionID == "" {
 			switch r.Type {
 			case buildsecurity.Result_TYPE_TERRAFORM, buildsecurity.Result_TYPE_CLOUDFORMATION,

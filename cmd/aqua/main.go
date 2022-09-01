@@ -297,8 +297,6 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 		if err != nil {
 			return err
 		}
-
-		fmt.Printf("results: %s", report.Results)
 	}
 
 	processedResults, dependencies, avdUrlMap := processor.ProcessResults(report.Results, policies, checkSupIDMap)
