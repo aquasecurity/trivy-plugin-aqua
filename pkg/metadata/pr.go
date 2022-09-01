@@ -20,7 +20,11 @@ func GetBaseRef() (r string) {
 	case Gitlab:
 		return os.Getenv("CI_MERGE_REQUEST_DIFF_BASE_SHA")
 	case Jenkins:
-		return fmt.Sprintf("origin/%s", os.Getenv("CHANGE_TARGET"))
+		bitbucketTargetBranch := os.Getenv("BITBUCKET_TARGET_BRANCH")
+		if bitbucketTargetBranch != "" {
+			return fmt.Sprintf("origin/%s", os.Getenv("BITBUCKET_TARGET_BRANCH"))
+		}
+		return "origin/master"
 	default:
 		return "origin/master"
 	}
