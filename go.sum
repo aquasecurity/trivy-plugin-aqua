@@ -206,8 +206,6 @@ github.com/aquasecurity/go-dep-parser v0.0.0-20220815163410-fcf26eb92b86 h1:sc8h
 github.com/aquasecurity/go-dep-parser v0.0.0-20220815163410-fcf26eb92b86/go.mod h1:wwxn1SyOEY8W5hy8aDQDoExX+ybVsi+xfIllXz93+Fk=
 github.com/aquasecurity/go-gem-version v0.0.0-20201115065557-8eed6fe000ce h1:QgBRgJvtEOBtUXilDb1MLi1p1MWoyFDXAu5DEUl5nwM=
 github.com/aquasecurity/go-gem-version v0.0.0-20201115065557-8eed6fe000ce/go.mod h1:HXgVzOPvXhVGLJs4ZKO817idqr/xhwsTcj17CLYY74s=
-github.com/aquasecurity/go-git-pr-commenter v0.5.0 h1:rdyjAUyxZAQUK8zNJiHHzm2rnP3dSJH+i+58g9keZmc=
-github.com/aquasecurity/go-git-pr-commenter v0.5.0/go.mod h1:cHPlBrSN+KFsiZEetv3cckCTpCC01GQ/I5D8UPIEokY=
 github.com/aquasecurity/go-mock-aws v0.0.0-20220726154943-99847deb62b0 h1:tihCUjLWkF0b1SAjAKcFltUs3SpsqGrLtI+Frye0D10=
 github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798 h1:eveqE9ivrt30CJ7dOajOfBavhZ4zPqHcZe/4tKp0alc=
 github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798/go.mod h1:hxbJZtKlO4P8sZ9nztizR6XLoE33O+BkPmuYQ4ACyz0=
@@ -1447,6 +1445,8 @@ github.com/shogo82148/go-shuffle v0.0.0-20170808115208-59829097ff3b h1:VI1u+o2KZ
 github.com/shogo82148/go-shuffle v0.0.0-20170808115208-59829097ff3b/go.mod h1:2htx6lmL0NGLHlO8ZCf+lQBGBHIbEujyywxJArf+2Yc=
 github.com/shopspring/decimal v1.2.0 h1:abSATXmQEYyShuxI4/vyW3tV1MrKAJzCZ/0zLUXYbsQ=
 github.com/shopspring/decimal v1.2.0/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=
+github.com/shurcooL/go v0.0.0-20180423040247-9e1955d9fb6e/go.mod h1:TDJrrUr11Vxrven61rcy3hJMUqaf/CLWYhHNPmT14Lk=
+github.com/shurcooL/go-goon v0.0.0-20170922171312-37c2f522c041/go.mod h1:N5mDOmsrJOB+vfqUK+7DmDyjhSLIIBnXo9lvZJj3MWQ=
 github.com/shurcooL/sanitized_anchor_name v0.0.0-20170918181015-86672fcb3f95/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
 github.com/sirupsen/logrus v1.0.4-0.20170822132746-89742aefa4b2/go.mod h1:pMByvHTf9Beacp5x1UXfOR9xyW/9antXMhjMPG0dEzc=
@@ -1465,6 +1465,8 @@ github.com/smartystreets/goconvey v1.6.4/go.mod h1:syvi0/a8iFYH4r/RixwvyeAJjdLS9
 github.com/soheilhy/cmux v0.1.4/go.mod h1:IM3LyeVVIOuxMH7sFAkER9+bJ4dT7Ms6E4xg4kGIyLM=
 github.com/soheilhy/cmux v0.1.5/go.mod h1:T7TcVDs9LWfQgPlPsdngu6I6QIoyIFZDDC6sNE1GqG0=
 github.com/sosedoff/gitkit v0.3.0 h1:TfINVRNUM+GcFa+LGhZ3RcWN86Im1M6i8qs0IsgMy90=
+github.com/sourcegraph/go-diff v0.6.1 h1:hmA1LzxW0n1c3Q4YbrFgg4P99GSnebYa3x8gr0HZqLQ=
+github.com/sourcegraph/go-diff v0.6.1/go.mod h1:iBszgVvyxdc8SFZ7gm69go2KDdt3ag071iBaWPF6cjs=
 github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
 github.com/spaolacci/murmur3 v1.1.0/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
 github.com/spdx/gordf v0.0.0-20201111095634-7098f93598fb/go.mod h1:uKWaldnbMnjsSAXRurWqqrdyZen1R7kxl8TkmWk2OyM=

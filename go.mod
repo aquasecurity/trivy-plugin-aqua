@@ -13,6 +13,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/samber/lo v1.27.0
+	github.com/sourcegraph/go-diff v0.6.1
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.0
@@ -366,3 +367,5 @@ replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20220224
 // v1.2.0 is taken from github.com/open-policy-agent/opa v0.42.0
 // v1.2.0 incompatible with github.com/docker/docker v20.10.3-0.20220224222438-c78f6963a1c0+incompatible
 replace oras.land/oras-go => oras.land/oras-go v1.1.1
+
+replace github.com/aquasecurity/go-git-pr-commenter => /Users/lior.vaisman/Aqua/go-git-pr-commenter

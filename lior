@@ -1,0 +1,102 @@
+diff --git a/go.mod b/go.mod
+index 8929889..b1df482 100644
+--- a/go.mod
++++ b/go.mod
+@@ -285,6 +285,7 @@ require (
+ 	github.com/shogo82148/go-shuffle v0.0.0-20170808115208-59829097ff3b // indirect
+ 	github.com/shopspring/decimal v1.2.0 // indirect
+ 	github.com/sirupsen/logrus v1.9.0 // indirect
++	github.com/sourcegraph/go-diff v0.6.1 // indirect
+ 	github.com/spdx/tools-golang v0.3.0 // indirect
+ 	github.com/spf13/afero v1.8.2 // indirect
+ 	github.com/spf13/cast v1.5.0 // indirect
+diff --git a/go.sum b/go.sum
+index 7f367a2..a1c4169 100644
+--- a/go.sum
++++ b/go.sum
+@@ -1447,6 +1447,8 @@ github.com/shogo82148/go-shuffle v0.0.0-20170808115208-59829097ff3b h1:VI1u+o2KZ
+ github.com/shogo82148/go-shuffle v0.0.0-20170808115208-59829097ff3b/go.mod h1:2htx6lmL0NGLHlO8ZCf+lQBGBHIbEujyywxJArf+2Yc=
+ github.com/shopspring/decimal v1.2.0 h1:abSATXmQEYyShuxI4/vyW3tV1MrKAJzCZ/0zLUXYbsQ=
+ github.com/shopspring/decimal v1.2.0/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=
++github.com/shurcooL/go v0.0.0-20180423040247-9e1955d9fb6e/go.mod h1:TDJrrUr11Vxrven61rcy3hJMUqaf/CLWYhHNPmT14Lk=
++github.com/shurcooL/go-goon v0.0.0-20170922171312-37c2f522c041/go.mod h1:N5mDOmsrJOB+vfqUK+7DmDyjhSLIIBnXo9lvZJj3MWQ=
+ github.com/shurcooL/sanitized_anchor_name v0.0.0-20170918181015-86672fcb3f95/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
+ github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
+ github.com/sirupsen/logrus v1.0.4-0.20170822132746-89742aefa4b2/go.mod h1:pMByvHTf9Beacp5x1UXfOR9xyW/9antXMhjMPG0dEzc=
+@@ -1465,6 +1467,8 @@ github.com/smartystreets/goconvey v1.6.4/go.mod h1:syvi0/a8iFYH4r/RixwvyeAJjdLS9
+ github.com/soheilhy/cmux v0.1.4/go.mod h1:IM3LyeVVIOuxMH7sFAkER9+bJ4dT7Ms6E4xg4kGIyLM=
+ github.com/soheilhy/cmux v0.1.5/go.mod h1:T7TcVDs9LWfQgPlPsdngu6I6QIoyIFZDDC6sNE1GqG0=
+ github.com/sosedoff/gitkit v0.3.0 h1:TfINVRNUM+GcFa+LGhZ3RcWN86Im1M6i8qs0IsgMy90=
++github.com/sourcegraph/go-diff v0.6.1 h1:hmA1LzxW0n1c3Q4YbrFgg4P99GSnebYa3x8gr0HZqLQ=
++github.com/sourcegraph/go-diff v0.6.1/go.mod h1:iBszgVvyxdc8SFZ7gm69go2KDdt3ag071iBaWPF6cjs=
+ github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
+ github.com/spaolacci/murmur3 v1.1.0/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
+ github.com/spdx/gordf v0.0.0-20201111095634-7098f93598fb/go.mod h1:uKWaldnbMnjsSAXRurWqqrdyZen1R7kxl8TkmWk2OyM=
+diff --git a/pkg/metadata/build_env_vars.go b/pkg/metadata/build_env_vars.go
+index 7647b18..4234586 100644
+--- a/pkg/metadata/build_env_vars.go
++++ b/pkg/metadata/build_env_vars.go
+@@ -2,8 +2,8 @@ package metadata
+ 
+ const (
+ 	Bitbucket           = "bitbucket"
+-	Jenkins             = "jenkins"
+ 	Gitlab              = "gitlab"
++	Jenkins             = "jenkins"
+ 	Codebuild           = "codebuild"
+ 	Azure               = "azure"
+ 	Github              = "github"
+@@ -50,8 +50,8 @@ var possibleBuildSystems = map[string]string{
+ 	"BITBUCKET_COMMIT":     Bitbucket,
+ 	"GIT_COMMIT":           Jenkins,
+ 	"JENKINS_HOME":         Jenkins,
+-	"CI_COMMIT_SHA":        Gitlab,
+ 	"CODEBUILD_GIT_COMMIT": Codebuild,
+ 	"BUILD_SOURCEBRANCH":   Azure,
+ 	"GITHUB_SHA":           Github,
++	"AAAADDED":             "AAAADDED",
+ }
+diff --git a/pkg/runenv/consts.go b/pkg/runenv/consts.go
+index 1898c47..aad38ff 100644
+--- a/pkg/runenv/consts.go
++++ b/pkg/runenv/consts.go
+@@ -15,8 +15,10 @@ const (
+ 
+ 	azureCi = "BUILD_BUILDID"
+ 	azurePr = "SYSTEM_PULLREQUEST_PULLREQUESTID"
++
++	override = "OVERRIDE_BUILDSYSTEM"
+ )
+ 
+-var ciEnvs = []string{githubCi, bitbucketCi, gitlabCi, jenkinsCi, azureCi}
++var ciEnvs = []string{githubCi, bitbucketCi, gitlabCi, jenkinsCi, azureCi, override}
+ 
+-var prEnvs = []string{githubPr, bitbucketPr, gitlabPr, jenkinsPr, azurePr}
++var prEnvs = []string{githubPr, bitbucketPr, gitlabPr, jenkinsPr, azurePr, override}
+diff --git a/pkg/scanner/diff.go b/pkg/scanner/diff.go
+index e974770..cb0be29 100644
+--- a/pkg/scanner/diff.go
++++ b/pkg/scanner/diff.go
+@@ -9,6 +9,7 @@ import (
+ 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
+ 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
+ 	"github.com/pkg/errors"
++	"github.com/sourcegraph/go-diff/diff"
+ )
+ 
+ const (
+@@ -59,6 +60,14 @@ func createDiffScanFs() error {
+ 		return errors.Wrap(err, "failed git diff")
+ 	}
+ 
++	out2, _ := git.GitExec("diff", diffCmd)
++	fdiff, _ := diff.ParseFileDiff([]byte(out2))
++	fmt.Printf("%+v", fdiff)
++
++	// if err2 != nil {
++	// 	return errors.Wrap(err, "failed git diff")
++	// }
++
+ 	if out != "" {
+ 		diffFiles := strings.Split(out, "\n")
+ 		for _, v := range diffFiles {

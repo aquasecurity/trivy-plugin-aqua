@@ -15,8 +15,10 @@ const (
 
 	azureCi = "BUILD_BUILDID"
 	azurePr = "SYSTEM_PULLREQUEST_PULLREQUESTID"
+
+	override = "OVERRIDE_BUILDSYSTEM"
 )
 
-var ciEnvs = []string{githubCi, bitbucketCi, gitlabCi, jenkinsCi, azureCi}
+var ciEnvs = []string{githubCi, bitbucketCi, gitlabCi, jenkinsCi, azureCi, override}
 
-var prEnvs = []string{githubPr, bitbucketPr, gitlabPr, jenkinsPr, azurePr}
+var prEnvs = []string{githubPr, bitbucketPr, gitlabPr, jenkinsPr, azurePr, override}

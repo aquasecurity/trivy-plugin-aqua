@@ -7,12 +7,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+	"github.com/samber/lo"
+	"github.com/sourcegraph/go-diff/diff"
 
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/azure"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/bitbucket"
-	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/github"
+	bitbucket_server "github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/bitbucket-server"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/gitlab"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
@@ -25,18 +28,9 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 	var c = commenter.Repository(nil)
 	switch buildSystem {
 	case metadata.Github:
-		owner, repo, err := getGitHubRepositoryDetails()
-		if err != nil {
-			return err
-		}
-		prNumber, err := extractGitHubActionPrNumber()
-		if err != nil {
-			return err
-		}
-		r, err := github.NewGithub(os.Getenv("GITHUB_TOKEN"),
-			owner,
-			repo,
-			prNumber)
+		r, err := bitbucket_server.NewBitbucketServer(os.Getenv("BITBUCKET_USER"), os.Getenv("BITBUCKET_TOKEN"), "jen", "lior", "27")
+		r.PopulateChangeTypes(generateBitbucketFileChanges())
+
 		if err != nil {
 			return err
 		}
@@ -55,6 +49,13 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 		c = commenter.Repository(r)
 	case metadata.Bitbucket:
 		r, err := bitbucket.NewBitbucket(os.Getenv("BITBUCKET_USER"), os.Getenv("BITBUCKET_TOKEN"))
+		if err != nil {
+			return err
+		}
+		c = commenter.Repository(r)
+	case metadata.Jenkins:
+		r, err := bitbucket_server.NewBitbucketServer(os.Getenv("BITBUCKET_USER"), os.Getenv("BITBUCKET_TOKEN"), "jen", "lior", "27")
+		r.PopulateChangeTypes(generateBitbucketFileChanges())
 		if err != nil {
 			return err
 		}
@@ -188,4 +189,25 @@ func extractGitHubActionPrNumber() (int, error) {
 		return 0, fmt.Errorf("failed not a valid PR")
 	}
 	return prNumber, nil
+}
+
+func generateBitbucketFileChanges() bitbucket_server.FileToChanges {
+	fileToChanges := make(bitbucket_server.FileToChanges)
+	out, _ := git.GitExec("diff", metadata.GetBaseRef())
+	diff, _ := diff.ParseMultiFileDiff([]byte(out))
+	for _, fileDiff := range diff {
+		filename := fileDiff.NewName
+		changes := make(bitbucket_server.FileChanges, 0)
+		for _, hunk := range fileDiff.Hunks {
+			linesChange := hunk.NewLines - hunk.OrigLines
+			change := bitbucket_server.FileChange{
+				StartLine:  int(hunk.NewStartLine),
+				EndLine:    int(hunk.NewStartLine + hunk.NewLines - 1),
+				ChangeType: lo.Ternary(linesChange > 0, "ADDED", lo.Ternary(linesChange < 0, "REMOVED", "CONTEXT")),
+			}
+			changes = append(changes, change)
+		}
+		fileToChanges[filename] = changes
+	}
+	return fileToChanges
 }
