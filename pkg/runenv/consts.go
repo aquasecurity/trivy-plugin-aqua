@@ -1,6 +1,8 @@
 package runenv
 
 const (
+	override = "OVERRIDE_BUILDSYSTEM"
+
 	githubCi = "CI"
 	githubPr = "GITHUB_BASE_REF"
 
@@ -18,6 +20,6 @@ const (
 	azurePr = "SYSTEM_PULLREQUEST_PULLREQUESTID"
 )
 
-var ciEnvs = []string{githubCi, bitbucketCi, gitlabCi, jenkinsCi, azureCi}
+var ciEnvs = []string{githubCi, bitbucketCi, gitlabCi, jenkinsCi, azureCi, override}
 
 var prEnvs = []string{githubPr, bitbucketPr, gitlabPr, jenkinsPr, azurePr, jenkinsPrBitbucket}

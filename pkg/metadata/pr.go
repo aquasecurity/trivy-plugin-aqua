@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+	"github.com/pkg/errors"
 )
 
 func GetBaseRef() (r string) {
@@ -22,14 +26,30 @@ func GetBaseRef() (r string) {
 	case Jenkins:
 		bitbucketTargetBranch := os.Getenv("BITBUCKET_TARGET_BRANCH")
 		if bitbucketTargetBranch != "" {
-			return fmt.Sprintf("origin/%s", os.Getenv("BITBUCKET_TARGET_BRANCH"))
+			return GetFullBranchName(os.Getenv("BITBUCKET_TARGET_BRANCH"))
 		}
 		changeTarget := os.Getenv("CHANGE_TARGET")
 		if changeTarget != "" {
-			return fmt.Sprintf("origin/%s", changeTarget)
+			return GetFullBranchName(changeTarget)
 		}
-		return "origin/master"
+		return "upstream/master"
 	default:
 		return "origin/master"
 	}
+}
+
+func GetFullBranchName(branchName string) string {
+	branchPattern := fmt.Sprintf("*/%s", branchName)
+	out, err := git.GitExec("branch", "-a", "--list", branchPattern, "--format=%(refname:lstrip=-2)", "--sort=-refname")
+	if err != nil {
+		log.Logger.Error(errors.Wrap(err, "failed git branch -a"))
+	}
+
+	if out != "" {
+		branchs := strings.Split(out, "\n")
+		if len(branchs) > 0 {
+			return branchs[0]
+		}
+	}
+	return fmt.Sprintf("upstream/%s", branchName)
 }
