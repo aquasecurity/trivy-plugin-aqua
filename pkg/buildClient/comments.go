@@ -69,6 +69,10 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 	default:
 		return nil
 	}
+
+	if c == nil {
+		return fmt.Errorf("couldnt initialize provider client")
+	}
 	err := c.RemovePreviousAquaComments(aquaMsg)
 	if err != nil {
 		log.Logger.Infof("failed removing old comments with error: %s", err)
