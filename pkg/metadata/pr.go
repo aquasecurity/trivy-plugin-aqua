@@ -24,6 +24,10 @@ func GetBaseRef() (r string) {
 		if bitbucketTargetBranch != "" {
 			return fmt.Sprintf("origin/%s", os.Getenv("BITBUCKET_TARGET_BRANCH"))
 		}
+		changeTarget := os.Getenv("CHANGE_TARGET")
+		if changeTarget != "" {
+			return fmt.Sprintf("origin/%s", changeTarget)
+		}
 		return "origin/master"
 	default:
 		return "origin/master"

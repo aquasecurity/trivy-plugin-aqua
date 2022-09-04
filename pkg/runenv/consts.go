@@ -10,8 +10,9 @@ const (
 	gitlabCi = "GITLAB_CI"
 	gitlabPr = "CI_MERGE_REQUEST_IID"
 
-	jenkinsCi = "BUILD_TAG"
-	jenkinsPr = "CHANGE_TARGET"
+	jenkinsCi          = "BUILD_TAG"
+	jenkinsPr          = "CHANGE_TARGET"
+	jenkinsPrBitbucket = "BITBUCKET_TARGET_BRANCH"
 
 	azureCi = "BUILD_BUILDID"
 	azurePr = "SYSTEM_PULLREQUEST_PULLREQUESTID"
@@ -19,4 +20,4 @@ const (
 
 var ciEnvs = []string{githubCi, bitbucketCi, gitlabCi, jenkinsCi, azureCi}
 
-var prEnvs = []string{githubPr, bitbucketPr, gitlabPr, jenkinsPr, azurePr}
+var prEnvs = []string{githubPr, bitbucketPr, gitlabPr, jenkinsPr, azurePr, jenkinsPrBitbucket}
