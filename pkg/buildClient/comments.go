@@ -70,36 +70,36 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 		return nil
 	}
 
-	if c != nil {
+	if c == nil {
+		return fmt.Errorf("couldnt initialize provider client")
+	}
+	err := c.RemovePreviousAquaComments(aquaMsg)
+	if err != nil {
+		log.Logger.Infof("failed removing old comments with error: %s", err)
+	}
 
-		err := c.RemovePreviousAquaComments(aquaMsg)
-		if err != nil {
-			log.Logger.Infof("failed removing old comments with error: %s", err)
-		}
-
-		for _, r := range result {
-			if r.SuppressionID == "" {
-				switch r.Type {
-				case buildsecurity.Result_TYPE_TERRAFORM, buildsecurity.Result_TYPE_CLOUDFORMATION,
-					buildsecurity.Result_TYPE_KUBERNETES, buildsecurity.Result_TYPE_DOCKERFILE,
-					buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML, buildsecurity.Result_TYPE_PIPELINE:
-					err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r, avdUrlMap), int(r.StartLine), int(r.EndLine))
+	for _, r := range result {
+		if r.SuppressionID == "" {
+			switch r.Type {
+			case buildsecurity.Result_TYPE_TERRAFORM, buildsecurity.Result_TYPE_CLOUDFORMATION,
+				buildsecurity.Result_TYPE_KUBERNETES, buildsecurity.Result_TYPE_DOCKERFILE,
+				buildsecurity.Result_TYPE_HCL, buildsecurity.Result_TYPE_YAML, buildsecurity.Result_TYPE_PIPELINE:
+				err := c.WriteMultiLineComment(r.Filename, returnMisconfMsg(r, avdUrlMap), int(r.StartLine), int(r.EndLine))
+				if err != nil {
+					log.Logger.Infof("failed write misconfiguration comment: %w", err)
+				}
+			case buildsecurity.Result_TYPE_VULNERABILITIES:
+				if !strings.Contains(r.Filename, "node_modules") {
+					err := c.WriteMultiLineComment(r.Filename, returnVulnfMsg(r, avdUrlMap), commenter.FIRST_AVAILABLE_LINE, commenter.FIRST_AVAILABLE_LINE)
 					if err != nil {
-						log.Logger.Infof("failed write misconfiguration comment: %w", err)
+						log.Logger.Infof("failed write vulnerability comment: %w", err)
 					}
-				case buildsecurity.Result_TYPE_VULNERABILITIES:
-					if !strings.Contains(r.Filename, "node_modules") {
-						err := c.WriteMultiLineComment(r.Filename, returnVulnfMsg(r, avdUrlMap), commenter.FIRST_AVAILABLE_LINE, commenter.FIRST_AVAILABLE_LINE)
-						if err != nil {
-							log.Logger.Infof("failed write vulnerability comment: %w", err)
-						}
-					}
+				}
 
-				case buildsecurity.Result_TYPE_SECRETS:
-					err := c.WriteMultiLineComment(r.Filename, returnSecretMsg(r), int(r.StartLine), int(r.EndLine))
-					if err != nil {
-						log.Logger.Infof("failed write secret findings comment: %w", err)
-					}
+			case buildsecurity.Result_TYPE_SECRETS:
+				err := c.WriteMultiLineComment(r.Filename, returnSecretMsg(r), int(r.StartLine), int(r.EndLine))
+				if err != nil {
+					log.Logger.Infof("failed write secret findings comment: %w", err)
 				}
 			}
 		}
