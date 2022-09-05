@@ -20,13 +20,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Update plugin Links
+        run: |
+          sed  -e "s/PLACEHOLDERVERSION/test/g" .github/plugin_template.yaml > plugin.yaml
+
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.PR_CREATION_TOKEN }}
-          branch: "test1"
-          title: "test1"
+          branch: "test12"
+          title: "test12"
           delete-branch: true
           base: master
           add-paths: |
