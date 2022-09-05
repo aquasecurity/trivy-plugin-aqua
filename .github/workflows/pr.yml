@@ -19,14 +19,25 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Send custom JSON data to Slack workflow
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.PR_CREATION_TOKEN }}
+          branch: "update-plugin-links-${{github.ref_name}}"
+          title: "Update Plugin Artifacts Links for ${{github.ref_name}}"
+          delete-branch: true
+          base: master
+          add-paths: |
+            plugin.yaml
+      - name: Send Slack message (Workflow)
         id: slack
         uses: slackapi/slack-github-action@v1.21.0
         with:
-          # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
             {
-              "link": "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
+              "link": ${{ steps.cpr.outputs.pull-request-url }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.CODE_TEAM_SLACK_WEBHOOK }}

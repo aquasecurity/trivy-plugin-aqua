@@ -3,7 +3,7 @@ name: trivy-plugin-aqua release
 on:
   push:
     tags:
-      - '*'
+      - "*"
 
 jobs:
   build:
@@ -17,8 +17,8 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          stable: 'false'
-          go-version: '1.18'
+          stable: "false"
+          go-version: "1.18"
       - run: go version
 
       - name: Release
@@ -44,3 +44,13 @@ jobs:
           base: master
           add-paths: |
             plugin.yaml
+      - name: Send Slack message (Workflow)
+        id: slack
+        uses: slackapi/slack-github-action@v1.21.0
+        with:
+          payload: |
+            {
+              "link": ${{ steps.cpr.outputs.pull-request-url }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.CODE_TEAM_SLACK_WEBHOOK }}
