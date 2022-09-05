@@ -25,8 +25,8 @@ jobs:
         uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.PR_CREATION_TOKEN }}
-          branch: "send-slack-msg"
-          title: "Update Plugin Artifacts Links for ${{github.ref_name}}"
+          branch: "test1"
+          title: "test1"
           delete-branch: true
           base: master
           add-paths: |
