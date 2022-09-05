@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/aquasecurity/defsec v0.71.9
 	github.com/aquasecurity/go-dep-parser v0.0.0-20220815163410-fcf26eb92b86
-	github.com/aquasecurity/go-git-pr-commenter v0.5.0
+	github.com/aquasecurity/go-git-pr-commenter v0.7.0
 	github.com/aquasecurity/trivy v0.31.2
 	github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63
 	github.com/argonsecurity/pipeline-parser v0.1.15
@@ -181,8 +181,6 @@ require (
 	github.com/google/gnostic v0.5.7-v3refs // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/go-containerregistry v0.7.1-0.20211214010025-a65b7844a475 // indirect
-	github.com/google/go-github/v44 v44.1.0 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/licenseclassifier/v2 v2.0.0-pre6 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect

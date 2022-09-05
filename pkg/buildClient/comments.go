@@ -17,6 +17,7 @@ import (
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/bitbucket"
 	bitbucket_server "github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/bitbucket-server"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/gitlab"
+	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/jenkins"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
@@ -54,14 +55,24 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 		}
 		c = commenter.Repository(r)
 	case metadata.Jenkins:
-		r, err := bitbucket_server.NewBitbucketServer(os.Getenv("BITBUCKET_USER"), os.Getenv("BITBUCKET_TOKEN"), "jen", "lior", "27")
-		r.PopulateChangeTypes(generateBitbucketFileChanges())
+		r, err := jenkins.NewJenkins()
 		if err != nil {
 			return err
 		}
 		c = commenter.Repository(r)
+	// case metadata.Jenkins:
+	// 	r, err := bitbucket_server.NewBitbucketServer(os.Getenv("BITBUCKET_USER"), os.Getenv("BITBUCKET_TOKEN"), "jen", "lior", "27")
+	// 	r.PopulateChangeTypes(generateBitbucketFileChanges())
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	c = commenter.Repository(r)
 	default:
 		return nil
+	}
+
+	if c == nil {
+		return fmt.Errorf("couldnt initialize provider client")
 	}
 	err := c.RemovePreviousAquaComments(aquaMsg)
 	if err != nil {

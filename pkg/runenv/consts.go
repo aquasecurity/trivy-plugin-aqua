@@ -1,6 +1,8 @@
 package runenv
 
 const (
+	override = "OVERRIDE_BUILDSYSTEM"
+
 	githubCi = "CI"
 	githubPr = "GITHUB_BASE_REF"
 
@@ -10,15 +12,14 @@ const (
 	gitlabCi = "GITLAB_CI"
 	gitlabPr = "CI_MERGE_REQUEST_IID"
 
-	jenkinsCi = "BUILD_TAG"
-	jenkinsPr = "CHANGE_TARGET"
+	jenkinsCi          = "BUILD_TAG"
+	jenkinsPr          = "CHANGE_TARGET"
+	jenkinsPrBitbucket = "BITBUCKET_TARGET_BRANCH"
 
 	azureCi = "BUILD_BUILDID"
 	azurePr = "SYSTEM_PULLREQUEST_PULLREQUESTID"
-
-	override = "OVERRIDE_BUILDSYSTEM"
 )
 
 var ciEnvs = []string{githubCi, bitbucketCi, gitlabCi, jenkinsCi, azureCi, override}
 
-var prEnvs = []string{githubPr, bitbucketPr, gitlabPr, jenkinsPr, azurePr, override}
+var prEnvs = []string{githubPr, bitbucketPr, gitlabPr, jenkinsPr, azurePr, jenkinsPrBitbucket}
