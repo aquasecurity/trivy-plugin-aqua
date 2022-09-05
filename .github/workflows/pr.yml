@@ -26,7 +26,7 @@ jobs:
           # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
             {
-              "link": ""https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}""
+              "link": "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.CODE_TEAM_SLACK_WEBHOOK }}
