@@ -37,7 +37,7 @@ jobs:
         with:
           payload: |
             {
-              "link": ${{ steps.cpr.outputs.pull-request-url }}"
+              "link": "${{ steps.cpr.outputs.pull-request-url }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.CODE_TEAM_SLACK_WEBHOOK }}
