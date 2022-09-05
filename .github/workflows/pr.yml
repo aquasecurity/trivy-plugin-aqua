@@ -23,6 +23,6 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v1.14.0
         with:
-          payload: '{"repository": "${{ env.git_repo_name }}", "package":"${{ env.docker_repo_name }}-${{ env.build_type }}", "version": "${{ env.gitversion }}", "status": "${{ env.status }}", "link": "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"}'
+          payload: '{"link": "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"}'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.CODE_TEAM_SLACK_WEBHOOK }}
