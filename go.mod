@@ -5,14 +5,14 @@ go 1.18
 require (
 	github.com/aquasecurity/defsec v0.71.9
 	github.com/aquasecurity/go-dep-parser v0.0.0-20220815163410-fcf26eb92b86
-	github.com/aquasecurity/go-git-pr-commenter v0.7.0
+	github.com/aquasecurity/go-git-pr-commenter v0.8.0
 	github.com/aquasecurity/trivy v0.31.2
 	github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63
 	github.com/argonsecurity/pipeline-parser v0.1.15
 	github.com/liamg/memoryfs v1.4.2
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
-	github.com/samber/lo v1.27.0
+	github.com/samber/lo v1.28.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.0
