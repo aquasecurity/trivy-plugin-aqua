@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/aquasecurity/defsec v0.71.9
 	github.com/aquasecurity/go-dep-parser v0.0.0-20220815163410-fcf26eb92b86
-	github.com/aquasecurity/go-git-pr-commenter v0.7.0
+	github.com/aquasecurity/go-git-pr-commenter v0.7.1-0.20220906124055-ce839cfe4f2b
 	github.com/aquasecurity/trivy v0.31.2
 	github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63
 	github.com/argonsecurity/pipeline-parser v0.1.15
@@ -366,5 +366,3 @@ replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20220224
 // v1.2.0 is taken from github.com/open-policy-agent/opa v0.42.0
 // v1.2.0 incompatible with github.com/docker/docker v20.10.3-0.20220224222438-c78f6963a1c0+incompatible
 replace oras.land/oras-go => oras.land/oras-go v1.1.1
-
-replace github.com/aquasecurity/go-git-pr-commenter => /Users/lior.vaisman/Aqua/go-git-pr-commenter
