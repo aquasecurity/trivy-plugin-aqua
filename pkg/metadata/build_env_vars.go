@@ -2,8 +2,8 @@ package metadata
 
 const (
 	Bitbucket           = "bitbucket"
-	Gitlab              = "gitlab"
 	Jenkins             = "jenkins"
+	Gitlab              = "gitlab"
 	Codebuild           = "codebuild"
 	Azure               = "azure"
 	Github              = "github"
@@ -53,5 +53,4 @@ var possibleBuildSystems = map[string]string{
 	"CODEBUILD_GIT_COMMIT": Codebuild,
 	"BUILD_SOURCEBRANCH":   Azure,
 	"GITHUB_SHA":           Github,
-	"AAAADDED":             "AAAADDED",
 }
