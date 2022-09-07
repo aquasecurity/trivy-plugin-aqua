@@ -1,14 +1,14 @@
-package builtin.pipeline.INSECURE_FETCHING
+package builtin.pipeline.HTTP_USAGE
 
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "INSECURE_FETCHING",
-	"avd_id": "AVD-PIPELINE-0009",
-	"title": "Insecure fetching",
+	"id": "HTTP_USAGE",
+	"avd_id": "AVD-PIPELINE-0011",
+	"title": "HTTP usage instead of HTTPS",
 	"severity": "MEDIUM",
 	"type": "Pipeline Yaml Security Check",
-	"description": "Using 'insecure' or 'skip certificate' flags when fetching files and packages in build is exposing you to the threat of 'man-in-the-middle' that may poison your build without you noticing because the certificate validation, which checks if the source is trusted, is disabled.",
+	"description": "Using HTTP protocol when reaching sites is highly not recommended due to its insecurity and lack of certificate validation. Use HTTPS protocol instead",
 	"recommended_actions": "",
 	"url": "",
 }
@@ -23,7 +23,7 @@ deny[result] {
 	input.jobs[i].steps[j].type == "shell"
 	script := input.jobs[i].steps[j].shell.script
 
-	pipeline.contains_insecure_fetching_commands(script)
+	pipeline.contains_http_fetching(script)
 
 	result = {
 		"msg": sprintf("Avoid using usecured fetching commands in job '%s', step '%s'", [input.jobs[i].name, input.jobs[i].steps[j].name]),

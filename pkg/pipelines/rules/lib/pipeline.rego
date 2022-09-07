@@ -3,7 +3,7 @@ package lib.pipeline
 import future.keywords.every
 
 
-contains_fetching_commands(string) = result {
+contains_insecure_fetching_commands(string) = result {
 	fetching_commands := [
 		`curl .*(-[a-zA-Z]*k|--insecure)`,
 		`wget .*--no-check-certificate`,
@@ -11,6 +11,18 @@ contains_fetching_commands(string) = result {
 
 	result := count({x |
 		regex.match(fetching_commands[x], lower(string))
+	}) > 0
+}
+
+
+contains_http_fetching(string) = result {
+	http_regex := [
+		`curl.*http:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)`,
+		`wget.*http:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)`,
+	]
+
+	result := count({x |
+		regex.match(http_regex[x], lower(string))
 	}) > 0
 }
 
