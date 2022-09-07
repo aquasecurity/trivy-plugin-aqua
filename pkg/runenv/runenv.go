@@ -4,6 +4,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
 
@@ -24,7 +26,9 @@ func DetectTriggeredBy(input string) string {
 
 	}
 
-	return mapTriggeredByToString(triggeredBy)
+	stringTriggerBy := mapTriggeredByToString(triggeredBy)
+	log.Logger.Infof("Auto detected TRIGGERED_BY: %s", stringTriggerBy)
+	return stringTriggerBy
 }
 
 func mapTriggeredByToString(triggerBy buildsecurity.TriggeredByEnum) string {

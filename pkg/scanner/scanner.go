@@ -20,7 +20,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
-	"golang.org/x/xerrors"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
 	dbTypes "github.com/aquasecurity/trivy-db/pkg/types"
@@ -56,7 +55,7 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string) (*trivyT
 
 	r, err := artifact.NewRunner(ctx, opts)
 	if err != nil {
-		return nil, nil, xerrors.Errorf("init error: %w", err)
+		return nil, nil, fmt.Errorf("init error: %w", err)
 	}
 	defer r.Close(ctx)
 
@@ -68,7 +67,7 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string) (*trivyT
 		opts.Target = path
 		// Container image scanning
 		if report, err = r.ScanImage(ctx, opts); err != nil {
-			return nil, nil, xerrors.Errorf("image scan error: %w", err)
+			return nil, nil, fmt.Errorf("image scan error: %w", err)
 		}
 	default:
 		if viper.GetString("triggered-by") == "PR" {
@@ -109,7 +108,7 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string) (*trivyT
 
 		// Filesystem scanning
 		if report, err = r.ScanFilesystem(ctx, opts); err != nil {
-			return nil, nil, xerrors.Errorf("image scan error: %w", err)
+			return nil, nil, fmt.Errorf("image scan error: %w", err)
 		}
 
 		if fileMap != nil {
@@ -122,11 +121,11 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string) (*trivyT
 
 	report, err = r.Filter(ctx, opts, report)
 	if err != nil {
-		return nil, nil, xerrors.Errorf("filter error: %w", err)
+		return nil, nil, fmt.Errorf("filter error: %w", err)
 	}
 
 	if err = r.Report(opts, report); err != nil {
-		return nil, nil, xerrors.Errorf("report error: %w", err)
+		return nil, nil, fmt.Errorf("report error: %w", err)
 	}
 	return &report, repositoryPipelines, nil
 }
@@ -166,11 +165,11 @@ func CreateMemoryFs(files []types.File) (*memoryfs.FS, map[string]ppConsts.Platf
 	for _, file := range files {
 		if filepath.Dir(file.Path) != "." {
 			if err := memFs.MkdirAll(filepath.Dir(file.Path), os.ModePerm); err != nil {
-				return nil, nil, xerrors.Errorf("memoryfs mkdir error: %w", err)
+				return nil, nil, fmt.Errorf("memoryfs mkdir error: %w", err)
 			}
 		}
 		if err := memFs.WriteFile(file.Path, file.Content, os.ModePerm); err != nil {
-			return nil, nil, xerrors.Errorf("memoryfs write error: %w", err)
+			return nil, nil, fmt.Errorf("memoryfs write error: %w", err)
 		}
 		sourcesMap[cleanse(file.Path)] = ppConsts.Platform(file.Type)
 	}
