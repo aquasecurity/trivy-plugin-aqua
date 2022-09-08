@@ -26,7 +26,7 @@ deny[result] {
 	pipeline.contains_http_fetching(script)
 
 	result = {
-		"msg": sprintf("Avoid using usecured fetching commands in job '%s', step '%s'", [input.jobs[i].name, input.jobs[i].steps[j].name]),
+		"msg": sprintf("Avoid fetching from usecured resources (using http) in job '%s', step '%s'", [input.jobs[i].name, input.jobs[i].steps[j].name]),
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
 	}
 }
