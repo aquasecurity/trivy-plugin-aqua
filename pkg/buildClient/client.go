@@ -80,8 +80,8 @@ func Get(scanPath, cmdName string, opts flag.Options) (Client, error) {
 
 func getCspmAndAquaUrl() (string, string) {
 	var urlPrefix string
-	awsRegion, _ := os.LookupEnv("AWS_REGION")
-	switch awsRegion {
+	region, _ := os.LookupEnv("REGION")
+	switch region {
 	case "eu-central-1":
 		urlPrefix = "eu-1."
 	case "ap-southeast-1":
