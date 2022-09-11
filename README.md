@@ -48,7 +48,7 @@ The only explicitly required environment variables are
 |:------------|:-------------------------------------------------------------------|
 | AQUA_KEY    | Generated through CSPM UI                                          |
 | AQUA_SECRET | Generated through CSPM UI                                          |
-| AWS_REGION  | Using Aqua Platform from your selected region (default: us-east-1) |
+| REGION      | Using Aqua Platform from your selected region (default: us-east-1) |
 
 ### Optional
 
