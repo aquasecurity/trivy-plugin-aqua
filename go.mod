@@ -4,9 +4,9 @@ go 1.18
 
 require (
 	github.com/aquasecurity/defsec v0.71.9
-	github.com/aquasecurity/go-dep-parser v0.0.0-20220815163410-fcf26eb92b86
+	github.com/aquasecurity/go-dep-parser v0.0.0-20220819065825-29e1e04fb7ae
 	github.com/aquasecurity/go-git-pr-commenter v0.8.1
-	github.com/aquasecurity/trivy v0.31.2
+	github.com/aquasecurity/trivy v0.31.3
 	github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63
 	github.com/argonsecurity/pipeline-parser v0.1.15
 	github.com/liamg/memoryfs v1.4.3
@@ -18,7 +18,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/thoas/go-funk v0.9.2
 	github.com/twitchtv/twirp v8.1.2+incompatible
-	go.uber.org/zap v1.21.0
+	go.uber.org/zap v1.22.0
 	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d
 	golang.org/x/text v0.3.7
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df
@@ -68,7 +68,7 @@ require (
 	github.com/aquasecurity/go-pep440-version v0.0.0-20210121094942-22b2f8951d46 // indirect
 	github.com/aquasecurity/go-version v0.0.0-20210121072130-637058cfe492 // indirect
 	github.com/aquasecurity/table v1.7.2 // indirect
-	github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220727123250-2cfd49c5b6c3 // indirect
+	github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220823151349-b90b48958b91 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
 	github.com/aws/aws-sdk-go v1.44.77 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.16.11 // indirect
@@ -235,7 +235,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
-	github.com/microsoft/go-rustaudit v0.0.0-20220805122630-097fff025e34 // indirect
+	github.com/microsoft/go-rustaudit v0.0.0-20220808201409-204dfee52032 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
@@ -335,12 +335,12 @@ require (
 	k8s.io/apiextensions-apiserver v0.24.2 // indirect
 	k8s.io/apimachinery v0.25.0-alpha.2 // indirect
 	k8s.io/apiserver v0.24.2 // indirect
-	k8s.io/cli-runtime v0.24.3 // indirect
+	k8s.io/cli-runtime v0.24.4 // indirect
 	k8s.io/client-go v0.25.0-alpha.2 // indirect
-	k8s.io/component-base v0.24.3 // indirect
+	k8s.io/component-base v0.24.4 // indirect
 	k8s.io/klog/v2 v2.70.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20220627174259-011e075b9cb8 // indirect
-	k8s.io/kubectl v0.24.3 // indirect
+	k8s.io/kubectl v0.24.4 // indirect
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
 	lukechampine.com/uint128 v1.1.1 // indirect
 	modernc.org/cc/v3 v3.36.0 // indirect
