@@ -373,7 +373,10 @@ func cleanse(path string) string {
 	var separator = string(filepath.Separator)
 	path = strings.ReplaceAll(path, "/", separator)
 	path = filepath.Clean(path)
-	path = strings.TrimPrefix(path, ".")
+	path = strings.TrimPrefix(path, "."+separator)
 	path = strings.TrimPrefix(path, separator)
+	if path == "." {
+		return ""
+	}
 	return path
 }
