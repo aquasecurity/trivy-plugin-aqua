@@ -65,6 +65,7 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 		if err != nil {
 			return err
 		}
+		//nolint:unconvert
 		c = commenter.Repository(r)
 	default:
 		return nil
