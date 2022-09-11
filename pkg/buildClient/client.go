@@ -80,8 +80,8 @@ func Get(scanPath, cmdName string, opts flag.Options) (Client, error) {
 
 func getCspmAndAquaUrl() (string, string) {
 	var urlPrefix string
-	region, _ := os.LookupEnv("REGION")
-	switch region {
+	trivyPlatformRegion, _ := os.LookupEnv("TRIVY_PLATFORM_REGION")
+	switch trivyPlatformRegion {
 	case "eu-central-1":
 		urlPrefix = "eu-1."
 	case "ap-southeast-1":
