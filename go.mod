@@ -3,7 +3,7 @@ module github.com/aquasecurity/trivy-plugin-aqua
 go 1.18
 
 require (
-	github.com/aquasecurity/defsec v0.71.9
+	github.com/aquasecurity/defsec v0.74.2
 	github.com/aquasecurity/go-dep-parser v0.0.0-20220815163410-fcf26eb92b86
 	github.com/aquasecurity/go-git-pr-commenter v0.8.1
 	github.com/aquasecurity/trivy v0.31.2
@@ -71,15 +71,16 @@ require (
 	github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220727123250-2cfd49c5b6c3 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
 	github.com/aws/aws-sdk-go v1.44.77 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.16.11 // indirect
+	github.com/aws/aws-sdk-go-v2 v1.16.12 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.4 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.17.0 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.13 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.12 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.18 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.12 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.19 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.13 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.19 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.0.9 // indirect
+	github.com/aws/aws-sdk-go-v2/service/accessanalyzer v1.15.14 // indirect
 	github.com/aws/aws-sdk-go-v2/service/apigateway v1.15.14 // indirect
 	github.com/aws/aws-sdk-go-v2/service/apigatewayv2 v1.12.12 // indirect
 	github.com/aws/aws-sdk-go-v2/service/athena v1.18.4 // indirect
@@ -120,7 +121,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.11.16 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.13 // indirect
 	github.com/aws/aws-sdk-go-v2/service/workspaces v1.22.3 // indirect
-	github.com/aws/smithy-go v1.12.1 // indirect
+	github.com/aws/smithy-go v1.13.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
