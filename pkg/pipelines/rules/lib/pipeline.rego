@@ -163,6 +163,13 @@ does_task_match(task, vendor_configs) {
 	count(task.inputs) == 0
 }
 
+does_task_match(task, vendor_configs) {
+	vendor_config := vendor_configs[vendor]
+	task_config := vendor_config[_]
+	task.name == task_config.name
+	not task_config.inputs
+}
+
 # Task exists, and its inputs pass all input filters
 does_task_match(task, vendor_configs) {
 	vendor_config := vendor_configs[vendor]

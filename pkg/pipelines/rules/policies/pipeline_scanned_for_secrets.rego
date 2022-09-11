@@ -19,7 +19,7 @@ __rego_input__ := {
 }
 
 vendorToCommandRegexes = {
-	"Trivy": [`trivy ?.* fs ?.* --security-checks .*\b(,?)secret\b(,?)`, `trivy ?.* image ?.* --security-checks .*\b(,?)secret\b(,?)`],
+	"Trivy": [`(\.\/)?trivy ?.* (fs|image)\b ?.* --security-checks .*\b(,?)secret\b(,?)`],
 	"DetectSecrets": [`detect-secrets.* scan`],
 	"GitAllSecrets": [`docker run.* abhartiya/tools_gitallsecrets`],
 	"Whispers": [`whispers`],
