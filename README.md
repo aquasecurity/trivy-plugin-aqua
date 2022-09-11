@@ -32,11 +32,11 @@ Set Aqua plugin as Trivy's current default plugin by exporting an environment va
 
 ## Command Line Arguments
 
-| Argument | Purpose | Example Usage |
-|----------|---------|---------------|
-|`--debug`| Get more detailed output as Trivy runs.||
-|`--severities`|The Severities that you are interested in. | `--severities CRITICAL,HIGH,UKNOWN` |
-|`--tags`|Arbitrary tags to be stored with the scan. | `--tags 'BUILD_HOST=$HOSTNAME,foo=bar'` |
+| Argument       | Purpose                                    | Example Usage                           |
+| -------------- | ------------------------------------------ | --------------------------------------- |
+| `--debug`      | Get more detailed output as Trivy runs.    |                                         |
+| `--severities` | The Severities that you are interested in. | `--severities CRITICAL,HIGH,UNKNOWN`    |
+| `--tags`       | Arbitrary tags to be stored with the scan. | `--tags 'BUILD_HOST=$HOSTNAME,foo=bar'` |
 
 ## Environment Variables
 
@@ -45,7 +45,7 @@ Set Aqua plugin as Trivy's current default plugin by exporting an environment va
 The only explicitly required environment variables are
 
 | Variable              | Purpose                                                            |
-|:----------------------|:-------------------------------------------------------------------|
+| :-------------------- | :----------------------------------------------------------------- |
 | AQUA_KEY              | Generated through CSPM UI                                          |
 | AQUA_SECRET           | Generated through CSPM UI                                          |
 | TRIVY_PLATFORM_REGION | Using Aqua Platform from your selected region (default: us-east-1) |
@@ -63,7 +63,7 @@ Trivy will attempt to resolve the following details from the available environme
 There are some special case env vars;
 
 | Variable             | Purpose                                                                                |
-|:---------------------|:---------------------------------------------------------------------------------------|
+| :------------------- | :------------------------------------------------------------------------------------- |
 | OVERRIDE_REPOSITORY  | Use this environment variable to explicitly specify the repository used by Trivy       |
 | FALLBACK_REPOSITORY  | Use this environment variable as a backup if no other repository env vars can be found |
 | OVERRIDE_BRANCH      | Use this environment variable to explicitly specify the branch used by Trivy           |
