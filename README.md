@@ -37,6 +37,7 @@ Set Aqua plugin as Trivy's current default plugin by exporting an environment va
 | `--debug`      | Get more detailed output as Trivy runs.    |                                         |
 | `--severities` | The Severities that you are interested in. | `--severities CRITICAL,HIGH,UNKNOWN`    |
 | `--tags`       | Arbitrary tags to be stored with the scan. | `--tags 'BUILD_HOST=$HOSTNAME,foo=bar'` |
+| `--pipelines`  | Scan repository pipeline files.            | `--pipelines` / `PIPELINES=1 trivy ...` |
 
 ## Environment Variables
 
@@ -70,6 +71,20 @@ There are some special case env vars;
 | FALLBACK_BRANCH      | Use this environment variable as a backup if no other branch env vars can be found     |
 | OVERRIDE_BUILDSYSTEM | Use this environment variable to explicitly specify the build system                   |
 | OVERRIDE_SCMID       | Use this environment variable to explicitly specify the scm id                         |
+
+# Scanners
+
+Certain scanners have additional behaviors
+
+### Pipelines
+
+The pipelines scanner is enabled by providing either `--pipelines` flag or `PIPELINES=1` environment variable.
+It uses [Pipeline Parser](https://github.com/argonsecurity/pipeline-parser) to parse the pipelines, and therefor supports only the platforms that are supported by the package.
+
+The results of the scanner are:
+
+- parsed version of the pipeline files
+- pipeline misconfigurations
 
 # Deployment of a new version
 
