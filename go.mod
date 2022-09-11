@@ -8,7 +8,7 @@ require (
 	github.com/aquasecurity/go-git-pr-commenter v0.8.1
 	github.com/aquasecurity/trivy v0.31.2
 	github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63
-	github.com/argonsecurity/pipeline-parser v0.1.15
+	github.com/argonsecurity/pipeline-parser v0.2.0
 	github.com/liamg/memoryfs v1.4.3
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
