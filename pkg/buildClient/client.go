@@ -98,7 +98,7 @@ func getCspmAndAquaUrl() (string, string) {
 
 	// New APIs need supply-chain included in prefix instead of api.
 	if urlPrefix != "" {
-		urlPrefix += "supply-chain."
+		urlPrefix += "supply-chain.cloud."
 	} else {
 		urlPrefix = "api."
 	}
