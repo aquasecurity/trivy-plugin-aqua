@@ -19,7 +19,7 @@ __rego_input__ := {
 }
 
 vendorToCommandRegexes = {
-	"Trivy": [`trivy ?.* image ?.* --security-checks .*\b(,?)vuln\b(,?)`, `trivy ?.* fs ?.* --security-checks .*\b(,?)vuln\b(,?)`],
+	"Trivy": [`(\.\/)?trivy ?.* (fs|image)\b ?.* --security-checks .*\b(,?)vuln\b(,?)`],
 	"Snyk": [`snyk container`, `snyk monitor`, `snyk test`],
 	"Sonatype": [`nancy`, `jake`, `ahab`],
 }
