@@ -3,7 +3,7 @@ package builtin.pipeline.SBOM_GENERATION
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "SBOM_GENERATION",
+	"id": "PIPELINE-0022",
 	"avd_id": "AVD-PIPELINE-0022",
 	"title": "Ensure pipeline steps produce an SBOM",
 	"severity": "HIGH",
@@ -20,7 +20,7 @@ __rego_input__ := {
 
 vendorToCommandRegexes = {
 	"Trivy": [`(\.\/)?trivy .* --format cyclonedx`],
-	"Aqua": [`(\.\/)?billy .*`],
+	"Aqua": [`(\.\/)?billy generate`],
 	"Anchore": [`syft .*`],
 	"Cyclonedx": [`cyclonedx-\w+`],
 	"Spdx": [`spdx-sbom-generator`],
@@ -57,7 +57,7 @@ deny[result] {
 	input.jobs[i].metadata.build == true
 
 	result := {
-		"msg": "No SBOM generating tool is used in pipeline",
+		"msg": sprintf("Consider adding SBOM generation tool in build job '%s'", input.jobs[i].name),
 		"startline": input.jobs[i].file_reference.start_ref.line,
 	}
 }
