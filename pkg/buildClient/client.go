@@ -79,33 +79,15 @@ func Get(scanPath, cmdName string, opts flag.Options) (Client, error) {
 }
 
 func getCspmAndAquaUrl() (string, string) {
-	var urlPrefix string
-	trivyPlatformRegion, _ := os.LookupEnv("TRIVY_PLATFORM_REGION")
-	switch trivyPlatformRegion {
-	case "eu-central-1":
-		urlPrefix = "eu-1."
-	case "ap-southeast-1":
-		urlPrefix = "asia-1."
-	// us-east-1, or any unknown
-	default:
-		urlPrefix = ""
-	}
 
 	cspmURL, ok := os.LookupEnv("CSPM_URL")
 	if !ok {
-		cspmURL = fmt.Sprintf("https://%sapi.cloudsploit.com/v2/tokens", urlPrefix)
-	}
-
-	// New APIs need supply-chain included in prefix instead of api.
-	if urlPrefix != "" {
-		urlPrefix += "supply-chain."
-	} else {
-		urlPrefix = "api."
+		cspmURL = "https://api.cloudsploit.com/v2/tokens"
 	}
 
 	aquaURL, ok := os.LookupEnv("AQUA_URL")
 	if !ok {
-		aquaURL = fmt.Sprintf("https://%saquasec.com/v2/build", urlPrefix)
+		aquaURL = "https://api.aquasec.com/v2/build"
 	}
 
 	return cspmURL, aquaURL
