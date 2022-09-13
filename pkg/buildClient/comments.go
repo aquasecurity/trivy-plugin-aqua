@@ -14,6 +14,7 @@ import (
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/bitbucket"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/github"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/gitlab"
+	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/jenkins"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 )
@@ -59,14 +60,27 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 			return err
 		}
 		c = commenter.Repository(r)
+	case metadata.Jenkins:
+		r, err := jenkins.NewJenkins(metadata.GetBaseRef())
+		if err != nil {
+			return err
+		}
+		//nolint:unconvert
+		c = commenter.Repository(r)
 	default:
 		return nil
 	}
+
+	if c == nil {
+		return fmt.Errorf("couldnt initialize provider client")
+	}
+	log.Logger.Debugf("Removing previous aqua comments from %s", buildSystem)
 	err := c.RemovePreviousAquaComments(aquaMsg)
 	if err != nil {
 		log.Logger.Infof("failed removing old comments with error: %s", err)
 	}
 
+	log.Logger.Debugf("Writing comments to %s", buildSystem)
 	for _, r := range result {
 		if r.SuppressionID == "" {
 			switch r.Type {

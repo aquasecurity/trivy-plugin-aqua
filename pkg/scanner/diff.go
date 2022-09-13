@@ -7,8 +7,10 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
 )
 
 const (
@@ -60,10 +62,12 @@ func createDiffScanFs() error {
 	}
 
 	if out != "" {
-		diffFiles := strings.Split(out, "\n")
+		diffFiles := lo.Filter(strings.Split(out, "\n"), func(diffFile string, _ int) bool {
+			return diffFile != ""
+		})
 		for _, v := range diffFiles {
 			var status, name, newName, dirName string
-			diffFile := strings.SplitAfter(v, "\t")
+			diffFile := strings.Split(v, "\t")
 			status = strings.TrimSpace(diffFile[0])
 			switch len(diffFile) {
 			case 2:
@@ -71,6 +75,9 @@ func createDiffScanFs() error {
 			case 3:
 				name = strings.TrimSpace(diffFile[1])
 				newName = strings.TrimSpace(diffFile[2])
+			default:
+				log.Logger.Debugf("Unknown git diff file format: %s", v)
+				continue
 			}
 
 			dirName = filepath.Dir(name)
