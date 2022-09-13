@@ -222,6 +222,7 @@ func TestPipelines(t *testing.T) {
 					return
 				}
 				t.Error(err.Error())
+				return
 			}
 
 			if err == nil && tt.wantErr {
