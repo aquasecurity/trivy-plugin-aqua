@@ -179,11 +179,9 @@ func scanPipelines(ctx context.Context, repositoryPipelines []*buildsecurity.Pip
 }
 
 func ExecutePipelineScanning(rootDir string) ([]*buildsecurity.Pipeline, trivyTypes.Results, error) {
-	var err error
 	defer func() {
-		if panicErr := recover(); panicErr != nil {
-			log.Logger.Errorw("panic occurred", "error", panicErr)
-			err = errors.Errorf("panic: %v", panicErr)
+		if err := recover(); err != nil {
+			log.Logger.Errorw("panic occurred", "error", err)
 		}
 	}()
 
@@ -197,5 +195,5 @@ func ExecutePipelineScanning(rootDir string) ([]*buildsecurity.Pipeline, trivyTy
 		return nil, nil, err
 	}
 
-	return pipelines, results, err
+	return pipelines, results, nil
 }
