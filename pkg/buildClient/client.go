@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/pkg/errors"
@@ -78,17 +79,27 @@ func Get(scanPath, cmdName string, opts flag.Options) (Client, error) {
 	return buildClient, nil
 }
 
+func getBaseUrl(inputUrl string) (string, error) {
+	u, err := url.ParseRequestURI(inputUrl)
+	if err != nil {
+		return "", err
+	}
+	return u.Scheme + "://" + u.Host, nil
+}
+
+func getUrlWithRoute(url, route, fallbackUrl string) string {
+	baseUrl, err := getBaseUrl(url)
+	if url == "" || err != nil {
+		return fallbackUrl
+	} else {
+		return fmt.Sprintf("%s%s", baseUrl, route)
+	}
+}
+
 func getCspmAndAquaUrl() (string, string) {
 
-	cspmURL, ok := os.LookupEnv("CSPM_URL")
-	if !ok {
-		cspmURL = "https://api.cloudsploit.com/v2/tokens"
-	}
-
-	aquaURL, ok := os.LookupEnv("AQUA_URL")
-	if !ok {
-		aquaURL = "https://api.aquasec.com/v2/build"
-	}
+	cspmURL := getUrlWithRoute(os.Getenv("CSPM_URL"), "/v2/tokens", "https://api.cloudsploit.com/v2/tokens")
+	aquaURL := getUrlWithRoute(os.Getenv("AQUA_URL"), "/v2/build", "https://api.aquasec.com/v2/build")
 
 	return cspmURL, aquaURL
 }
