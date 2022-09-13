@@ -19,10 +19,6 @@ integration-test:
 
 .PHONY: update-plugin
 update-plugin:
-	@if [ -z "$(LEVEL)" ]; then\
-		echo "Usage: make update-plugin LEVEL=<patch|minor|major>";\
-		exit 1;\
-	fi
 	@LEVEL=$(LEVEL) ./scripts/update_plugin.sh
 
 .PHONY: proto

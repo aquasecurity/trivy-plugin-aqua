@@ -2,6 +2,27 @@
 
 set -e
 
+function print_usage() {
+    echo "Usage: make update-plugin LEVEL=<patch|minor|major>"
+}
+
+function validate_input() {
+    if [ -z "${LEVEL}" ]; then
+        echo "Parameter LEVEL is not allowed to be empty"
+        print_usage
+        exit 1
+    fi
+
+    case "${LEVEL}" in
+        patch|minor|major) ;;
+        *)
+            echo "LEVEL value is not valid"
+            print_usage
+            exit 2
+        ;;
+    esac
+}
+
 # Usage: incr_semver <VERSION> <patch|minor|major>
 # Example: incr_semver 1.2.3 patch
 # Output: 1.2.4
@@ -28,11 +49,12 @@ function incr_semver() {
             major=$((major+1))
         ;;
         *)
-            echo "Invalid level passed"
             return 2
     esac
     echo "${major}.${minor}.${patch}"
 }
+
+validate_input
 
 git checkout master
 git fetch --tags --all
