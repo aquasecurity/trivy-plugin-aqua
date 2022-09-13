@@ -19,7 +19,7 @@ integration-test:
 
 .PHONY: update-plugin
 update-plugin:
-	@./scripts/update_plugin.sh
+	@LEVEL=$(LEVEL) ./scripts/update_plugin.sh
 
 .PHONY: proto
 proto:

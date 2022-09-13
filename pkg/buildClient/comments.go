@@ -41,31 +41,32 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 		if err != nil {
 			return err
 		}
-		c = r
+		c = commenter.Repository(r)
 	case metadata.Gitlab:
 		r, err := gitlab.NewGitlab(os.Getenv("GITLAB_TOKEN"))
 		if err != nil {
 			return err
 		}
-		c = r
+		c = commenter.Repository(r)
 	case metadata.Azure:
 		r, err := azure.NewAzure(os.Getenv("AZURE_TOKEN"))
 		if err != nil {
 			return err
 		}
-		c = r
+		c = commenter.Repository(r)
 	case metadata.Bitbucket:
 		r, err := bitbucket.NewBitbucket(os.Getenv("BITBUCKET_USER"), os.Getenv("BITBUCKET_TOKEN"))
 		if err != nil {
 			return err
 		}
-		c = r
+		c = commenter.Repository(r)
 	case metadata.Jenkins:
 		r, err := jenkins.NewJenkins(metadata.GetBaseRef())
 		if err != nil {
 			return err
 		}
-		c = r
+		//nolint:unconvert
+		c = commenter.Repository(r)
 	default:
 		return nil
 	}
