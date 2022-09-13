@@ -24,6 +24,9 @@ func getParsedGitHubPipelines(rootDir string) ([]*buildsecurity.Pipeline, []stri
 
 	parsedGithubPipelines := lo.FilterMap(gitHubWorkflows, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseGitHubWorkflow(rootDir, path)
+		if err != nil {
+			log.Logger.Warnf("Failed to parse GitHub workflow: %s", err)
+		}
 		return pipeline, err == nil
 	})
 
@@ -37,6 +40,9 @@ func getParsedGitLabPipelines(rootDir string) ([]*buildsecurity.Pipeline, []stri
 	}
 	parsedGitLabPipelines := lo.FilterMap(gitLabPipelines, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseGitLabPipelineFile(rootDir, path)
+		if err != nil {
+			log.Logger.Warnf("Failed to parse GitLab pipeline: %s", err)
+		}
 		return pipeline, err == nil
 	})
 	return parsedGitLabPipelines, gitLabPipelines, nil
@@ -50,6 +56,9 @@ func getParsedAzurePipelines(rootDir string) ([]*buildsecurity.Pipeline, []strin
 
 	parsedAzurePipelines := lo.FilterMap(azurePipelines, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseAzurePipelineFile(rootDir, path)
+		if err != nil {
+			log.Logger.Warnf("Failed to parse Azure pipeline: %s", err)
+		}
 		return pipeline, err == nil
 	})
 	return parsedAzurePipelines, azurePipelines, nil

@@ -157,6 +157,14 @@ func TestPipelines(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "invalid-yaml",
+			dir:  "invalid-yaml",
+			want: pipelineTestResult{
+				pipelines: []*buildsecurity.Pipeline{},
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range testCases {
@@ -170,6 +178,12 @@ func TestPipelines(t *testing.T) {
 				}
 				t.Error(err.Error())
 			}
+
+			if err == nil && tt.wantErr {
+				t.Error("Expected error but got none")
+				return
+			}
+
 			sortPipelines(pipelines)
 			sortPipelines(tt.want.pipelines)
 			assert.Equal(t, tt.want.pipelines, pipelines)
