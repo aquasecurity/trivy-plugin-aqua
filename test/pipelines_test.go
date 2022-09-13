@@ -110,6 +110,17 @@ func TestPipelines(t *testing.T) {
 						CreatedBy:      firstCommit.Author,
 						UpdatedBy:      lastCommit.Author,
 					},
+					{
+						Name:           ".gitlab-ci.yml",
+						Path:           "another/.gitlab-ci.yml",
+						Platform:       "gitlab",
+						ID:             "895459c423ac62b66889133506ce722b",
+						CreatedDate:    firstCommit.Date,
+						LastCommitDate: lastCommit.Date,
+						LastCommitSha:  lastCommit.SHA,
+						CreatedBy:      firstCommit.Author,
+						UpdatedBy:      lastCommit.Author,
+					},
 				},
 				pipelineMisconfigurationsIds: map[string][]string{
 					"0c8c82fe9e5f3000647429d551cdc171": {
