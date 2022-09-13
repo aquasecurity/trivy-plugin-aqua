@@ -26,7 +26,7 @@ deny[result] {
 	pipeline.contains_eval(script)
 
 	result = {
-		"msg": sprintf("Consider removing eval command from job %s step %s", [input.jobs[i].name, input.jobs[i].steps[j].name]),
+		"msg": sprintf("Consider removing eval command from job '%s' step '%v'", [input.jobs[i].name, pipeline.get_step_name(input.jobs[i].steps[j], j)]),
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
 	}
 }

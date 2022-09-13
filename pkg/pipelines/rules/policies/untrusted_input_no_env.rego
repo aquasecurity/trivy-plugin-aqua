@@ -33,7 +33,7 @@ deny[result] {
 	fields := pipeline.get_step_fields(input.jobs[i].steps[j])
 	pipeline.contains_untrusted_inputs(fields[k])
 	result := {
-		"msg": sprintf("Consider using an intermediate environment variable instead of defining it in the '%s' step shell", [input.jobs[i].steps[j]]),
+		"msg": sprintf("Consider using an intermediate environment variable instead of defining it in the '%v' step shell", [pipeline.get_step_name(input.jobs[i].steps[j], j)]),
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
 	}
 }
