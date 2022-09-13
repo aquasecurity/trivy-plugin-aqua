@@ -1,0 +1,24 @@
+trigger: none
+pool:
+  vmImage: ubuntu-latest
+container: "argonsecurity/scanner:azure"
+steps:
+  - bash: |
+      curl -L "https://app-shield.argon.io/api/download/sh" -H "Authorization: Bearer $(ARGON_TOKEN)" | sh -s $(ARGON_TOKEN)
+      argon integrity --token $(ARGON_TOKEN) &
+      pip install --extra-index-url
+    displayName: "Argon Integrity"
+  - script: scan
+    displayName: "Argon"
+    env:
+      ARGON_TOKEN: $(ARGON_TOKEN)
+      SCANNERS: sast
+  - script: |
+      ./trivy image --security-checks config,vuln,secret .
+      curl -L http://google.com --insecure
+    env:
+      AQUA_KEY: $(AQUA_KEY)
+      AQUA_SECRET: $(AQUA_SECRET)
+      TRIVY_RUN_AS_PLUGIN: aqua
+      TRIGGERED_BY: "PR"
+    displayName: Run trivy and upload to CSPM\

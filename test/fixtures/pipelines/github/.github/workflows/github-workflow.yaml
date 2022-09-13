@@ -1,0 +1,34 @@
+name: Argon
+on: [pull_request]
+jobs:
+  scan:
+    name: Argon
+    runs-on: ubuntu-latest
+    env:
+      TITLE: ${{ github.event.issue.title }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@1e204e9a9253d643386038d443f96446fa156a97 # origin: v2.3.5
+      - name: Argon Security
+        uses: argonsecurity/scanner-action@aea6b4e82b7aa06aa45efa6621ae37595ee895d7 # origin: v1.1
+        with:
+          should-notify: true
+          argon-token: "${{ secrets.ARGON_TOKEN }}"
+          scanners: ["sast"]
+      - name: Argon Integrity billy
+        run: |
+          argon integrity --token --finish
+          eval echo 1
+
+      - name: Run Trivy vulnerability scanner in IaC mode
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          security-checks: "vuln,config,secret"
+          hide-progress: false
+          format: "table"
+        env:
+          AQUA_KEY: ${{ secrets.AQUA_KEY }}
+          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
+          TRIVY_RUN_AS_PLUGIN: "aqua"
+          TRIGGERED_BY: "PR"
