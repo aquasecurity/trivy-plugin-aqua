@@ -3,7 +3,7 @@ package builtin.pipeline.DE_PINNED_VERSION
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "DEPENDECY_PINNED_VERSION",
+	"id": "DEPENDENCY_PINNED_VERSION",
 	"avd_id": "AVD-PIPELINE-0008",
 	"title": "Unrestricted dependency version",
 	"severity": "MEDIUM",

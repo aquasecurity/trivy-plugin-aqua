@@ -1,23 +1,28 @@
 linters:
-    disable-all: true
-    enable:
-        - deadcode
-        - errcheck
-        - govet
-        - ineffassign
-        - typecheck
-        - varcheck
-        - dupl
-        - funlen
-        - goconst
-        - gocyclo
-        - gocritic
-        - goimports
-        - goprintffuncname
-        - gosec
-        - nakedret
-        - unconvert
+  disable-all: true
+  enable:
+    - deadcode
+    - errcheck
+    - govet
+    - ineffassign
+    - typecheck
+    - varcheck
+    - dupl
+    - funlen
+    - goconst
+    - gocyclo
+    - gocritic
+    - goimports
+    - goprintffuncname
+    - gosec
+    - nakedret
+    - unconvert
 linters-settings:
-    funlen:
-        lines: 150
-        statements: 80
+  funlen:
+    lines: 150
+    statements: 80
+
+issues:
+  exclude-rules:
+    - path: _test.go
+      linters: funlen

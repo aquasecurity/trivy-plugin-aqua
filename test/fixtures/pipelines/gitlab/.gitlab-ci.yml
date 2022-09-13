@@ -1,0 +1,15 @@
+Argon:
+  image: "argonsecurity/scanner:latest"
+  script:
+    - scan
+    - eval echo 1
+  variables:
+    ACCESS_TOKEN: $ACCESS_TOKEN
+    ARGON_SCANNER: "https://staging-actions.argon.io"
+  only:
+    - merge_requests
+
+Build:
+  script:
+    - argon integrity start
+    - wget https://google.com --no-check-certificate

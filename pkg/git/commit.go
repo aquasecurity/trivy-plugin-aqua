@@ -13,20 +13,20 @@ type Commit struct {
 	Author string
 }
 
-func GetFirstCommit(path string) (Commit, error) {
-	return executeCommitCommand(path, "log", "--format=%H%x1f%ai%x1f%aN", "--diff-filter=A", "--", path)
+func (gc *Client) GetFirstCommit(path string) (Commit, error) {
+	return gc.executeLogCommand(path, "log", "--format=%H%x1f%ai%x1f%aN", "--diff-filter=A", "--", path)
 }
 
 // Gets the last commit that modified the file
-func GetLastCommit(path string) (Commit, error) {
-	return executeCommitCommand(path, "log", "-n", "1", "--format=%H%x1f%ai%x1f%aN", "--", path)
+func (gc *Client) GetLastCommit(path string) (Commit, error) {
+	return gc.executeLogCommand(path, "log", "-n", "1", "--format=%H%x1f%ai%x1f%aN", "--", path)
 }
 
-func executeCommitCommand(path string, args ...string) (Commit, error) {
+func (gc *Client) executeLogCommand(path string, args ...string) (Commit, error) {
 	dir := filepath.Dir(path)
-	out, err := GitExecInDir(dir, args...)
+	out, err := gc.GitExecInDir(dir, args...)
 	if err != nil {
-		return Commit{}, errors.Wrap(err, "failed to get last commit")
+		return Commit{}, errors.Wrap(err, "failed to get commit")
 	}
 
 	var commit Commit

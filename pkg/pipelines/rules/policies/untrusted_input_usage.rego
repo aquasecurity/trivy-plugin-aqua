@@ -18,14 +18,24 @@ __rego_input__ := {
 	"selector": [{"type": "pipeline"}],
 }
 
-# Check for untrusted inputs that are inside env variables
+# Check for untrusted inputs that are inside env variables in steps
 deny[result] {
-	envs := pipeline.get_all_envs[_]
-	[path, value] := walk(envs[i].environment_variables)
-	count(path) == 1
+	envs := input.jobs[i].steps[j].environment_variables
+	[_, value] := walk(envs.environment_variables)
 	pipeline.contains_untrusted_inputs(value)
 	result := {
-		"msg": sprintf("Consider evaluating user inputs in intermediate environment variables instead of using them right in '%s' step shell", [input.jobs[i].steps[j]]),
-		"startline": envs[i].file_reference.start_ref.line,
+		"msg": sprintf("Consider evaluating user inputs in intermediate environment variables instead of using them right in '%s' job in '%v' step", [input.jobs[i].name, pipeline.get_step_name(input.jobs[i].steps[j], j)]),
+		"startline": envs.file_reference.start_ref.line,
+	}
+}
+
+# Check for untrusted inputs that are inside env variables in jobs
+deny[result] {
+	envs := input.jobs[i].environment_variables
+	[_, value] := walk(envs.environment_variables)
+	pipeline.contains_untrusted_inputs(value)
+	result := {
+		"msg": sprintf("Consider evaluating user inputs in intermediate environment variables instead of using them right in '%s' job", [input.jobs[i].name]),
+		"startline": envs.file_reference.start_ref.line,
 	}
 }

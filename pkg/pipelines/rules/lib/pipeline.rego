@@ -27,7 +27,7 @@ contains_http_fetching(string) = result {
 }
 
 contains_pip_install_with_extra_index_url_flag(string) = result {
-	result := regex.match(`.*?pip install .*--extra-index-url .*`, lower(string))
+	result := regex.match(`.*?pip install .*--extra-index-url.*`, lower(string))
 }
 
 contains_untrusted_inputs(string) = result {
@@ -59,7 +59,7 @@ contains_untrusted_inputs(string) = result {
 }
 
 contains_eval(string) = result {
-	result := regex.match(`^eval `, lower(string))
+	result := regex.match(`eval `, lower(string))
 }
 
 contains_variables(string) = result {
@@ -202,4 +202,13 @@ does_task_input_match(task_input, task_config_inputs) {
 # Filtered input doesn't exist in task
 does_task_input_match(task_input, task_config_inputs) {
 	not task_config_inputs[task_input.name]
+}
+
+get_step_name(step, index) = name {
+	name = step.name
+}
+
+get_step_name(step, index) = name {
+	not step.name
+	name = index
 }

@@ -26,7 +26,7 @@ deny[result] {
 	pipeline.contains_pip_install_with_extra_index_url_flag(script)
 
 	result = {
-		"msg": sprintf("Avoid using pip install with --extra-index-url flag in job '%s', step '%s'", [input.jobs[i].name, input.jobs[i].steps[j].name]),
+		"msg": sprintf("Avoid using pip install with --extra-index-url flag in job '%s', step '%v'", [input.jobs[i].name, pipeline.get_step_name(input.jobs[i].steps[j], j)]),
 		"startline": input.jobs[i].steps[j].file_reference.start_ref.line,
 	}
 }
