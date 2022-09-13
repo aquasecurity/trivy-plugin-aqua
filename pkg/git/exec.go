@@ -8,7 +8,7 @@ import (
 )
 
 func (gc *Client) GitExec(args ...string) (string, error) {
-	cmd := exec.Command(gc.binPath, args...)
+	cmd := exec.Command(gc.binPath, args...) // #nosec G204
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", errors.Wrap(err, fmt.Sprintf("failed run git cmd output: %s", string(output)))
@@ -18,7 +18,7 @@ func (gc *Client) GitExec(args ...string) (string, error) {
 }
 
 func (gc *Client) GitExecInDir(dir string, args ...string) (string, error) {
-	cmd := exec.Command(gc.binPath, args...)
+	cmd := exec.Command(gc.binPath, args...) // #nosec G204
 	cmd.Dir = dir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
