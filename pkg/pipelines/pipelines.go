@@ -1,6 +1,7 @@
 package pipelines
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 
@@ -8,6 +9,8 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
+	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
+	"github.com/pkg/errors"
 
 	ppConsts "github.com/argonsecurity/pipeline-parser/pkg/consts"
 	"github.com/samber/lo"
@@ -102,7 +105,7 @@ func getPipelinesFiles(rootDir string, pipelinePaths []string, platform ppConsts
 	return files, nil
 }
 
-func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, error) {
+func getPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, error) {
 	var files []types.File
 	pipelines := []*buildsecurity.Pipeline{}
 	githubPipelines, githubPaths, err := getParsedGitHubPipelines(rootDir)
@@ -143,4 +146,47 @@ func GetPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 	enhancePipelines(rootDir, pipelines)
 
 	return pipelines, files, nil
+}
+
+func scanPipelines(ctx context.Context, repositoryPipelines []*buildsecurity.Pipeline, files []types.File) (trivyTypes.Results, error) {
+	memFs, sourcesMap, err := CreateMemoryFs(files)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed create memory fs")
+	}
+
+	pipelineScanner := NewScanner()
+	policyReaders, err := getPolicyReaders()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed get policy readers")
+	}
+	pipelineScanner.SetPolicyReaders(policyReaders)
+
+	scanResults, err := pipelineScanner.ScanFS(context.WithValue(ctx, "sourcesMap", sourcesMap), memFs, ".")
+	if err != nil {
+		return nil, errors.Wrap(err, "failed scan pipelines")
+	}
+	results := misconfsToResults(resultsToMisconf("pipeline", pipelineScanner.Name(), scanResults))
+	return results, nil
+}
+
+func ExecutePipelineScanning(rootDir string) ([]*buildsecurity.Pipeline, trivyTypes.Results, error) {
+	var err error
+	defer func() {
+		if panicErr := recover(); panicErr != nil {
+			log.Logger.Errorw("panic occurred", "error", panicErr)
+			err = errors.Errorf("panic: %v", panicErr)
+		}
+	}()
+
+	pipelines, files, err := getPipelines(rootDir)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	results, err := scanPipelines(context.Background(), pipelines, files)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return pipelines, results, err
 }
