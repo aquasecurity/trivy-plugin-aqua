@@ -176,6 +176,11 @@ func TestPipelines(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name:    "non-existent-dir",
+			dir:     "non-existent-dir",
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range testCases {
