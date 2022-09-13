@@ -7,6 +7,8 @@ type MockGitClient struct {
 	lastCommit  git.Commit
 
 	commandResult string
+
+	err error
 }
 
 // Setters
@@ -20,6 +22,11 @@ func (m *MockGitClient) SetLastCommit(commit git.Commit) *MockGitClient {
 	return m
 }
 
+func (m *MockGitClient) SetError(err error) *MockGitClient {
+	m.err = err
+	return m
+}
+
 func (m *MockGitClient) SetCommandResult(result string) *MockGitClient {
 	m.commandResult = result
 	return m
@@ -27,19 +34,19 @@ func (m *MockGitClient) SetCommandResult(result string) *MockGitClient {
 
 // Implementations
 func (m *MockGitClient) GetFirstCommit(path string) (git.Commit, error) {
-	return m.firstCommit, nil
+	return m.firstCommit, m.err
 }
 
 func (m *MockGitClient) GetLastCommit(path string) (git.Commit, error) {
-	return m.lastCommit, nil
+	return m.lastCommit, m.err
 }
 
 func (m *MockGitClient) GitExec(args ...string) (string, error) {
-	return m.commandResult, nil
+	return m.commandResult, m.err
 }
 
 func (m *MockGitClient) GitExecInDir(dir string, args ...string) (string, error) {
-	return m.commandResult, nil
+	return m.commandResult, m.err
 }
 
 // Set the global git client to the mock

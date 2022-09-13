@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 	"testing"
@@ -26,8 +27,6 @@ var (
 		Date:   "2020-01-01T00:00:00Z",
 		Author: "Alice Bob",
 	}
-
-	mockGitClient = &mocks.MockGitClient{}
 )
 
 type pipelineTestResult struct {
@@ -41,14 +40,12 @@ func getTestFixturePath(dirName string) string {
 
 func TestPipelines(t *testing.T) {
 
-	mockGitClient.SetFirstCommit(firstCommit).SetLastCommit(lastCommit)
-	mocks.SetGitMock(mockGitClient)
-
 	testCases := []struct {
-		name    string
-		dir     string
-		want    pipelineTestResult
-		wantErr bool
+		name      string
+		dir       string
+		want      pipelineTestResult
+		wantErr   bool
+		gitClient *mocks.MockGitClient
 	}{
 		{
 			name: "github",
@@ -124,8 +121,6 @@ func TestPipelines(t *testing.T) {
 				},
 				pipelineMisconfigurationsIds: map[string][]string{
 					"0c8c82fe9e5f3000647429d551cdc171": {
-						"SECRET_SCANNING",
-						"VULN_SCANNING",
 						"EVAL_COMMAND",
 						"INSECURE_FETCHING",
 					},
@@ -181,11 +176,45 @@ func TestPipelines(t *testing.T) {
 			dir:     "non-existent-dir",
 			wantErr: true,
 		},
+		{
+			name: "git-error",
+			dir:  "azure",
+			want: pipelineTestResult{
+				pipelines: []*buildsecurity.Pipeline{
+					{
+						Name:           "azure-pipelines.yaml",
+						Path:           "azure-pipelines.yaml",
+						Platform:       "azure",
+						ID:             "80611fdce4e780cf7b3abe982814b6eb",
+						CreatedDate:    "",
+						LastCommitDate: "",
+						LastCommitSha:  "",
+						CreatedBy:      "",
+						UpdatedBy:      "",
+					},
+				},
+				pipelineMisconfigurationsIds: map[string][]string{
+					"80611fdce4e780cf7b3abe982814b6eb": {
+						"EXTRA_INDEX_URL",
+						"HTTP_USAGE",
+						"INSECURE_FETCHING",
+					},
+				},
+			},
+			gitClient: (&mocks.MockGitClient{}).SetError(errors.New("git error")),
+			wantErr:   false,
+		},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			dirPath := getTestFixturePath(tt.dir)
+			mockGitClient := tt.gitClient
+			if mockGitClient == nil {
+				mockGitClient = (&mocks.MockGitClient{}).SetFirstCommit(firstCommit).SetLastCommit(lastCommit)
+			}
+			mocks.SetGitMock(mockGitClient)
+
 			pipelines, results, err := pipelines.ExecutePipelineScanning(dirPath)
 			if err != nil {
 				if tt.wantErr {

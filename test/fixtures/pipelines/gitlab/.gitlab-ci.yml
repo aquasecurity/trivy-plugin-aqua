@@ -1,5 +1,5 @@
 Argon:
-  image: "repo/scanner:latest"
+  image: "argonsecurity/scanner:latest"
   script:
     - scan
     - eval echo 1
