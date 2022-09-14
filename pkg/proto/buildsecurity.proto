@@ -146,6 +146,7 @@ float V2Score = 2;
 string V2Vector = 3;
 float V3Score = 4;
 string V3Vector = 5;
+int32 Severity = 6;
 }
 
 message Pipeline {
