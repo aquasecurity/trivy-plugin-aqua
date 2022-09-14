@@ -3,7 +3,7 @@ package builtin.pipeline.EVAL_COMMAND
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "EVAL_COMMAND",
+	"id": "PIPELINE-0004",
 	"avd_id": "AVD-PIPELINE-0004",
 	"title": "Using eval command",
 	"severity": "LOW",

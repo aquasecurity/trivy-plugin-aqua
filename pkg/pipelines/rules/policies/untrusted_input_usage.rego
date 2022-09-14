@@ -3,7 +3,7 @@ package builtin.pipeline.UNTRUSTED_INPUT_USAGE
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "UNTRUSTED_INPUT_USAGE",
+	"id": "PIPELINE-0007",
 	"avd_id": "AVD-PIPELINE-0007",
 	"title": "Potentially untrusted input - input usage",
 	"severity": "LOW",

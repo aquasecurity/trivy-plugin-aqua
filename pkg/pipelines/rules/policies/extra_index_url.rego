@@ -3,7 +3,7 @@ package builtin.pipeline.EXTRA_INDEX_URL
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "EXTRA_INDEX_URL",
+	"id": "PIPELINE-0001",
 	"avd_id": "AVD-PIPELINE-0001",
 	"title": " Using extra-index-url",
 	"severity": "MEDIUM",

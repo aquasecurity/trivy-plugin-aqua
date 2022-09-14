@@ -3,7 +3,7 @@ package builtin.pipeline.VARIABLES_LOGGING
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "VARIABLES_LOGGING",
+	"id": "PIPELINE-0003",
 	"avd_id": "AVD-PIPELINE-0003",
 	"title": "Echo of variables",
 	"severity": "LOW",

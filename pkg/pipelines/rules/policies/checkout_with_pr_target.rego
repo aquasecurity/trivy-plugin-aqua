@@ -3,7 +3,7 @@ package builtin.pipeline.CHECKOUT_WITH_PR_TARGET
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "CHECKOUT_WITH_PR_TARGET",
+	"id": "PIPELINE-0002",
 	"avd_id": "AVD-PIPELINE-0002",
 	"title": "checkout with pull_request_target",
 	"severity": "HIGH",

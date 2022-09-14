@@ -3,7 +3,7 @@ package builtin.pipeline.VULN_SCANNING
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "VULN_SCANNING",
+	"id": "PIPELINE-0021",
 	"avd_id": "AVD-PIPELINE-0021",
 	"title": "Ensure pipelines are automatically scanned for vulnerabilities",
 	"severity": "HIGH",

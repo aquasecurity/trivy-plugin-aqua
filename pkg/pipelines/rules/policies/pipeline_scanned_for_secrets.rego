@@ -3,7 +3,7 @@ package builtin.pipeline.SECRET_SCANNING
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "SECRET_SCANNING",
+	"id": "PIPELINE-0020",
 	"avd_id": "AVD-PIPELINE-0020",
 	"title": "Ensure scanners are in place to identify and prevent sensitive data in pipeline files",
 	"severity": "HIGH",
