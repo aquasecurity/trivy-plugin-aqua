@@ -174,6 +174,7 @@ func addVulnerabilitiesResults(rep types.Result,
 				V3Score:    float32(cvssVal.V3Score),
 				V3Vector:   cvssVal.V3Vector,
 				VendorName: string(vendor),
+				Severity:   int32(vuln.VendorSeverity[vendor]),
 			})
 		}
 
