@@ -3,7 +3,7 @@ package builtin.pipeline.UNTRUSTED_INPUT_NO_ENV
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "UNTRUSTED_INPUT_NO_ENV",
+	"id": "PIPELINE-0006",
 	"avd_id": "AVD-PIPELINE-0006",
 	"title": "Potentially untrusted input - environment variable",
 	"severity": "HIGH",

@@ -3,7 +3,7 @@ package builtin.pipeline.HTTP_USAGE
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "HTTP_USAGE",
+	"id": "PIPELINE-0011",
 	"avd_id": "AVD-PIPELINE-0011",
 	"title": "HTTP usage instead of HTTPS",
 	"severity": "MEDIUM",

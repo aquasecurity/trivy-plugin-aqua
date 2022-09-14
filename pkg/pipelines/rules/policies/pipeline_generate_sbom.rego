@@ -57,7 +57,7 @@ deny[result] {
 	input.jobs[i].metadata.build == true
 
 	result := {
-		"msg": sprintf("Consider adding SBOM generation tool in build job '%s'", input.jobs[i].name),
+		"msg": sprintf("Consider adding SBOM generation tool in build job '%s'", [input.jobs[i].name]),
 		"startline": input.jobs[i].file_reference.start_ref.line,
 	}
 }

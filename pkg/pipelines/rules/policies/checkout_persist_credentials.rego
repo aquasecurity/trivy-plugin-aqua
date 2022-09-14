@@ -3,7 +3,7 @@ package builtin.pipeline.PERSIST_CREDENTIALS
 import data.lib.pipeline
 
 __rego_metadata__ := {
-	"id": "PERSIST_CREDENTIALS",
+	"id": "PIPELINE-0005",
 	"avd_id": "AVD-PIPELINE-0005",
 	"title": "persist-credentials is true",
 	"severity": "HIGH",

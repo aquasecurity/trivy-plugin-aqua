@@ -14,12 +14,12 @@ type Commit struct {
 }
 
 func (gc *Client) GetFirstCommit(path string) (Commit, error) {
-	return gc.executeLogCommand(path, "log", "--format=%H%x1f%ai%x1f%aN", "--diff-filter=A", "--", path)
+	return gc.executeLogCommand(path, "log", "--format=%H%x1f%ai%x1f%aN", "--diff-filter=A", "--", filepath.Base(path))
 }
 
 // Gets the last commit that modified the file
 func (gc *Client) GetLastCommit(path string) (Commit, error) {
-	return gc.executeLogCommand(path, "log", "-n", "1", "--format=%H%x1f%ai%x1f%aN", "--", path)
+	return gc.executeLogCommand(path, "log", "-n", "1", "--format=%H%x1f%ai%x1f%aN", "--", filepath.Base(path))
 }
 
 func (gc *Client) executeLogCommand(path string, args ...string) (Commit, error) {
