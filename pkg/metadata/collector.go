@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 )
 
@@ -143,15 +144,30 @@ func getFsRepositoryDetails(scanPath string) (repoName, branch string, err error
 		log.Logger.Debugf("Extracted repo name from scmID: %s", inferredRepoName)
 	}
 
+	out, giterr := git.GitExec("branch", "--show-current")
+	if giterr != nil {
+		log.Logger.Error(fmt.Errorf("failed git branch -a: %s", err))
+	}
+
+	if out != "" {
+		branches := strings.Split(out, "\n")
+		if len(branches) > 0 {
+			return inferredRepoName, branches[0], nil
+		}
+	}
+
 	headFile := filepath.Join(workingDir, ".git", "HEAD")
 	if _, err := os.Stat(headFile); err == nil {
 		contents, err := os.ReadFile(headFile)
 		if err == nil {
-			re := regexp.MustCompile("([^/]+$)")
-			if re.Match(contents) {
-				branch := strings.TrimSpace(re.FindString(string(contents)))
-				log.Logger.Debugf("Extracted branch name from HEAD: %s", branch)
-				return inferredRepoName, branch, nil
+			arr := strings.Split(string(contents), "refs/heads/")
+			if len(arr) > 1 {
+				arr := strings.Split(arr[1], "\n")
+				if len(arr) > 0 {
+					branch = arr[0]
+					log.Logger.Debugf("Extracted branch name from HEAD: %s", branch)
+					return inferredRepoName, branch, nil
+				}
 			}
 		}
 	}
