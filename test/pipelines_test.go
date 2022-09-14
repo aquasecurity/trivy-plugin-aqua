@@ -77,15 +77,15 @@ func TestPipelines(t *testing.T) {
 				},
 				pipelineMisconfigurationsIds: map[string][]string{
 					"6f25aa81a90ec44064b5b4cd5efeeaeb": {
-						"DEPENDENCY_PINNED_VERSION",
-						"PERSIST_CREDENTIALS",
-						"UNTRUSTED_INPUT_USAGE",
-						"EVAL_COMMAND",
+						"PIPELINE-0004",
+						"PIPELINE-0005",
+						"PIPELINE-0007",
+						"PIPELINE-0008",
 					},
 					"7dbf677abd33b0e9ac85632e62b9020e": {
-						"VARIABLES_LOGGING",
-						"UNTRUSTED_INPUT_NO_ENV",
-						"UNTRUSTED_INPUT_USAGE",
+						"PIPELINE-0003",
+						"PIPELINE-0006",
+						"PIPELINE-0007",
 					},
 				},
 			},
@@ -121,8 +121,9 @@ func TestPipelines(t *testing.T) {
 				},
 				pipelineMisconfigurationsIds: map[string][]string{
 					"0c8c82fe9e5f3000647429d551cdc171": {
-						"EVAL_COMMAND",
-						"INSECURE_FETCHING",
+						"PIPELINE-0004",
+						"PIPELINE-0009",
+						"PIPELINE-0022",
 					},
 				},
 			},
@@ -147,9 +148,9 @@ func TestPipelines(t *testing.T) {
 				},
 				pipelineMisconfigurationsIds: map[string][]string{
 					"80611fdce4e780cf7b3abe982814b6eb": {
-						"EXTRA_INDEX_URL",
-						"HTTP_USAGE",
-						"INSECURE_FETCHING",
+						"PIPELINE-0001",
+						"PIPELINE-0009",
+						"PIPELINE-0011",
 					},
 				},
 			},
@@ -195,9 +196,9 @@ func TestPipelines(t *testing.T) {
 				},
 				pipelineMisconfigurationsIds: map[string][]string{
 					"80611fdce4e780cf7b3abe982814b6eb": {
-						"EXTRA_INDEX_URL",
-						"HTTP_USAGE",
-						"INSECURE_FETCHING",
+						"PIPELINE-0001",
+						"PIPELINE-0009",
+						"PIPELINE-0011",
 					},
 				},
 			},
