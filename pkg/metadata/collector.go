@@ -146,7 +146,7 @@ func getFsRepositoryDetails(scanPath string) (repoName, branch string, err error
 
 	out, giterr := git.GitExec("branch", "--show-current")
 	if giterr != nil {
-		log.Logger.Error(fmt.Errorf("failed git branch -a: %s", err))
+		log.Logger.Errorf("failed git branch -a: %w", err)
 	}
 
 	if out != "" {
@@ -162,15 +162,13 @@ func getFsRepositoryDetails(scanPath string) (repoName, branch string, err error
 		if err == nil {
 			arr := strings.Split(string(contents), "refs/heads/")
 			if len(arr) > 1 {
-				arr := strings.Split(arr[1], "\n")
-				if len(arr) > 0 {
-					branch = arr[0]
-					log.Logger.Debugf("Extracted branch name from HEAD: %s", branch)
-					return inferredRepoName, branch, nil
-				}
+				branch = strings.TrimSuffix(arr[1], "\n")
+				log.Logger.Debugf("Extracted branch name from HEAD: %s", branch)
+				return inferredRepoName, branch, nil
 			}
 		}
 	}
+
 	return inferredRepoName, "", nil
 }
 
