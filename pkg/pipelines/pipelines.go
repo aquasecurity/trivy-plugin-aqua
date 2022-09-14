@@ -179,13 +179,15 @@ func scanPipelines(ctx context.Context, repositoryPipelines []*buildsecurity.Pip
 }
 
 func ExecutePipelineScanning(rootDir string) ([]*buildsecurity.Pipeline, trivyTypes.Results, error) {
+	target := filepath.Clean(rootDir)
+
 	defer func() {
 		if err := recover(); err != nil {
 			log.Logger.Errorw("panic occurred", "error", err)
 		}
 	}()
 
-	pipelines, files, err := getPipelines(rootDir)
+	pipelines, files, err := getPipelines(target)
 	if err != nil {
 		return nil, nil, err
 	}
