@@ -179,7 +179,7 @@ func scanPipelines(ctx context.Context, repositoryPipelines []*buildsecurity.Pip
 }
 
 func ExecutePipelineScanning(rootDir string) ([]*buildsecurity.Pipeline, trivyTypes.Results, error) {
-	target := filepath.Clean(rootDir)
+	target := filepath.Clean(rootDir) // if rootDir == "", this function will return the current directory
 
 	defer func() {
 		if err := recover(); err != nil {
