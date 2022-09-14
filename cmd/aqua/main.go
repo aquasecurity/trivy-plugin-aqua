@@ -84,6 +84,7 @@ func main() {
 
 	if err := root.Execute(); err != nil {
 		log.Logger.Error(err)
+		//nolint:gocritic
 		os.Exit(1)
 	}
 }
