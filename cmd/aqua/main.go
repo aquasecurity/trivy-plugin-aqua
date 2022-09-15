@@ -6,6 +6,7 @@ import (
 	"os"
 	"runtime/debug"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -49,8 +50,12 @@ var pluginBoolFlags []PluginBoolFlag
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
+			exitCode := 1
 			log.Logger.Errorf("failed running plugin, got panic: ", err, string(debug.Stack()))
-			os.Exit(0)
+			if code, ok := os.LookupEnv("OVERRIDE_EXIT_CODE"); ok {
+				exitCode, _ = strconv.Atoi(code)
+			}
+			os.Exit(exitCode)
 		}
 	}()
 
