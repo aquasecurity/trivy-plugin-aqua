@@ -6,7 +6,6 @@ import (
 	"os"
 	"runtime/debug"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -50,12 +49,11 @@ var pluginBoolFlags []PluginBoolFlag
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			exitCode := 1
 			log.Logger.Errorf("failed running plugin, got panic: ", err, string(debug.Stack()))
-			if code, ok := os.LookupEnv("OVERRIDE_EXIT_CODE"); ok {
-				exitCode, _ = strconv.Atoi(code)
+			if _, ok := os.LookupEnv("IGNORE_PANIC"); ok {
+				os.Exit(0)
 			}
-			os.Exit(exitCode)
+			os.Exit(1)
 		}
 	}()
 
@@ -262,6 +260,8 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 		viper.Set("security-checks", "config")
 		viper.Set("vuln-type", "os,library")
 	}
+
+	panic("implement me")
 
 	triggeredByInput := viper.GetString("triggered-by")
 	triggeredBy := runenv.DetectTriggeredBy(triggeredByInput)
