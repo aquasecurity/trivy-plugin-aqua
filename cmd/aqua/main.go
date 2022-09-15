@@ -261,8 +261,6 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 		viper.Set("vuln-type", "os,library")
 	}
 
-	panic("implement me")
-
 	triggeredByInput := viper.GetString("triggered-by")
 	triggeredBy := runenv.DetectTriggeredBy(triggeredByInput)
 
