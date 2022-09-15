@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"runtime/debug"
 	"sort"
 	"strings"
 	"time"
@@ -46,6 +47,16 @@ var pluginStringFlags []PluginStringFlag
 var pluginBoolFlags []PluginBoolFlag
 
 func main() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Logger.Errorf("failed running plugin, got panic: ", err, string(debug.Stack()))
+			if _, ok := os.LookupEnv("IGNORE_PANIC"); ok {
+				os.Exit(0)
+			}
+			os.Exit(1)
+		}
+	}()
+
 	globalFlags := flag.NewGlobalFlagGroup()
 
 	initPluginStringFlags()
@@ -76,6 +87,7 @@ func main() {
 
 	if err := root.Execute(); err != nil {
 		log.Logger.Error(err)
+		//nolint:gocritic
 		os.Exit(1)
 	}
 }
