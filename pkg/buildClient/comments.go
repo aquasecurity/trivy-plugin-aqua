@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+	"github.com/argonsecurity/go-utils/environments/models"
 
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/azure"
@@ -22,21 +23,17 @@ import (
 const aquaMsg = "[This comment was created by Aqua Pipeline]"
 
 // prComments send results PR comments
-func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap ResultIdToUrlMap) error {
+func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap ResultIdToUrlMap, envconfig *models.Configuration) error {
 	var c = commenter.Repository(nil)
 	switch buildSystem {
 	case metadata.Github:
-		owner, repo, err := getGitHubRepositoryDetails()
-		if err != nil {
-			return err
-		}
 		prNumber, err := extractGitHubActionPrNumber()
 		if err != nil {
 			return err
 		}
 		r, err := github.NewGithub(os.Getenv("GITHUB_TOKEN"),
-			owner,
-			repo,
+			envconfig.Organization.Name,
+			envconfig.Repository.Name,
 			prNumber)
 		if err != nil {
 			return err
@@ -61,7 +58,7 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 		}
 		c = commenter.Repository(r)
 	case metadata.Jenkins:
-		r, err := jenkins.NewJenkins(metadata.GetBaseRef())
+		r, err := jenkins.NewJenkins(envconfig.Repository.Name)
 		if err != nil {
 			return err
 		}
@@ -168,18 +165,6 @@ func returnVulnfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string 
 	}
 
 	return commentWithoutAvdUrl
-}
-
-func getGitHubRepositoryDetails() (owner, repo string, err error) {
-	r := os.Getenv("GITHUB_REPOSITORY")
-	s := strings.Split(r, "/")
-	if len(s) != 2 {
-		return owner, repo,
-			fmt.Errorf("failed unexpected value for GITHUB_REPOSITORY."+
-				" Expected <organisation/name>, found %v", r)
-	}
-
-	return s[0], s[1], nil
 }
 
 // extractGitHubActionPrNumber take the pull request number from the GitHub action run

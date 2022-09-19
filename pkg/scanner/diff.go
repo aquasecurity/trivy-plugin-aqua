@@ -9,6 +9,8 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
+	"github.com/argonsecurity/go-utils/environments/enums"
+	"github.com/argonsecurity/go-utils/environments/models"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 )
@@ -39,24 +41,24 @@ func writeFile(path, content string) error {
 }
 
 // Create folders with head and base for diff scanning
-func createDiffScanFs() error {
+func createDiffScanFs(envconfig *models.Configuration) error {
 	var fileName string
 
 	// In GitHub we need fetch the remote branch first
-	if os.Getenv("GITHUB_BASE_REF") != "" {
+	if envconfig.Repository.Source == enums.Github {
 		// In GitHub trivy action container we need safe directory to run git fetch
 		_, err := git.GitExec("config", "--global", "--add", "safe.directory", "/github/workspace")
 		if err != nil {
 			return errors.Wrap(err, "failed git fetch ref")
 		}
-		_, err = git.GitExec("fetch", "origin", fmt.Sprintf("refs/heads/%s", os.Getenv("GITHUB_BASE_REF")))
+		_, err = git.GitExec("fetch", "origin", fmt.Sprintf("refs/heads/%s", envconfig.PullRequest.TargetRef.Branch))
 		if err != nil {
 			return errors.Wrap(err, "failed git fetch ref")
 		}
 	}
 
-	diffCmd := metadata.GetBaseRef()
-	out, err := git.GitExec("diff", "--name-status", diffCmd)
+	targetBranch := metadata.GetBaseRef(envconfig)
+	out, err := git.GitExec("diff", "--name-status", targetBranch)
 	if err != nil {
 		return errors.Wrap(err, "failed git diff")
 	}
@@ -90,7 +92,7 @@ func createDiffScanFs() error {
 					if err != nil {
 						return errors.Wrap(err, "failed mkdir aqua tmp path")
 					}
-					out, err = git.GitExec("show", fmt.Sprintf("%s:%s", diffCmd, fileName))
+					out, err = git.GitExec("show", fmt.Sprintf("%s:%s", targetBranch, fileName))
 					if err != nil {
 						return errors.Wrap(err, "failed git show origin:"+fileName)
 					}

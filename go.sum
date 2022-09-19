@@ -225,6 +225,14 @@ github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63 h1:hgGD7zqlN
 github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63/go.mod h1:/nULgnDeq/JMPMVwE1dmf4kWlYn++7VrM3O2naj4BHA=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220727123250-2cfd49c5b6c3 h1:qhWeovRDnbjC1kdyzRhrJNMJtJwNWicQrXjCnuF64JU=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220727123250-2cfd49c5b6c3/go.mod h1:ZHtpUrBrJ6gZ8Gd4IaXbZwTNOg5KW2m7ClC33qnSlY8=
+github.com/argonsecurity/go-utils/environments v0.1.135 h1:X5iAnh/G/SMI2punml8DiWLjF2OyuYhQclphxDgDvO8=
+github.com/argonsecurity/go-utils/environments v0.1.135/go.mod h1:uG7SX6PjAQjxN0lhFD2ONZTIz4SjmdgR1p676a6fDWk=
+github.com/argonsecurity/go-utils/http v0.1.97 h1:IHfZtpsGlzQcG+PaeFSFJRkLXtLYdT2aIaL6rXRLhzQ=
+github.com/argonsecurity/go-utils/http v0.1.97/go.mod h1:wDElyXxNSwD+zBjzd6wFu+upjQYSVU0vRpsNs0oJ7Eo=
+github.com/argonsecurity/go-utils/logger v0.1.110 h1:XyFLmR9KH12+AcA6QKnE9smaQxRa04a2G9FvojJDzbk=
+github.com/argonsecurity/go-utils/logger v0.1.110/go.mod h1:KqpVWQeyIk6wfaKZgW3zhkSB30sz+XfRkGcT9lF5H5g=
+github.com/argonsecurity/go-utils/schema-validator v0.1.120 h1:UCNAT5F6XeCj9ksSYLQ1NJrdQzSCD+gj53O9FhrQ4iI=
+github.com/argonsecurity/go-utils/schema-validator v0.1.120/go.mod h1:AUWlXKw/YIOJsWY045xXnIsFyWlVUKnebC8uRrpm+zI=
 github.com/argonsecurity/pipeline-parser v0.2.2 h1:JFeZwiFJ2iYYt2uwqpyYRGDhbdQU0BMnIJtX1OQqCEQ=
 github.com/argonsecurity/pipeline-parser v0.2.2/go.mod h1:MTiBd66r2j++hvQ8vWvqM8h1s/MZ4ghpIWrhto8Vv1M=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
@@ -1326,6 +1334,7 @@ github.com/opencontainers/selinux v1.10.0/go.mod h1:2i0OySw99QjzBBQByd1Gr9gSjvuh
 github.com/opencontainers/selinux v1.10.1 h1:09LIPVRP3uuZGQvgR+SgMSNBd1Eb3vlRbGqQpoHsF8w=
 github.com/opencontainers/selinux v1.10.1/go.mod h1:2i0OySw99QjzBBQByd1Gr9gSjvuho1lHsJxIJ3gGbJI=
 github.com/opentracing/opentracing-go v1.1.0/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
+github.com/otiai10/copy v1.7.0 h1:hVoPiN+t+7d2nzzwMiDHPSOogsWAStewq3TwU05+clE=
 github.com/owenrumney/go-sarif v1.1.1/go.mod h1:dNDiPlF04ESR/6fHlPyq7gHKmrM0sHUvAGjsoh8ZH0U=
 github.com/owenrumney/go-sarif/v2 v2.1.2 h1:PMDK7tXShJ9zsB7bfvlpADH5NEw1dfA9xwU8Xtdj73U=
 github.com/owenrumney/go-sarif/v2 v2.1.2/go.mod h1:MSqMMx9WqlBSY7pXoOZWgEsVB4FDNfhcaXDA1j6Sr+w=
@@ -1415,6 +1424,9 @@ github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6L
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.8.0 h1:FCbCCtXNOY3UtUuHUYaghJg4y7Fd14rXifAYUAtL9R8=
 github.com/rogpeppe/go-internal v1.8.0/go.mod h1:WmiCO8CzOY8rg0OYDC4/i/2WRWAB6poM+XZ2dLUbcbE=
+github.com/rs/xid v1.3.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
+github.com/rs/zerolog v1.25.0 h1:Rj7XygbUHKUlDPcVdoLyR91fJBsduXj5fRxyqIQj/II=
+github.com/rs/zerolog v1.25.0/go.mod h1:7KHcEGe0QZPOm2IE4Kpb5rTh6n1h2hIgS5OOnu1rUaI=
 github.com/rubenv/sql-migrate v1.1.1 h1:haR5Hn8hbW9/SpAICrXoZqXnywS7Q5WijwkQENPeNWY=
 github.com/rubenv/sql-migrate v1.1.1/go.mod h1:/7TZymwxN8VWumcIxw1jjHEcR1djpdkMHQPT4FWdnbQ=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=

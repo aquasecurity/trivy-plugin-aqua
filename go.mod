@@ -8,6 +8,7 @@ require (
 	github.com/aquasecurity/go-git-pr-commenter v0.8.1
 	github.com/aquasecurity/trivy v0.31.2
 	github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63
+	github.com/argonsecurity/go-utils/environments v0.1.135
 	github.com/argonsecurity/pipeline-parser v0.2.2
 	github.com/liamg/memoryfs v1.4.3
 	github.com/mitchellh/mapstructure v1.5.0
@@ -69,6 +70,9 @@ require (
 	github.com/aquasecurity/go-version v0.0.0-20210121072130-637058cfe492 // indirect
 	github.com/aquasecurity/table v1.7.2 // indirect
 	github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220727123250-2cfd49c5b6c3 // indirect
+	github.com/argonsecurity/go-utils/http v0.1.97 // indirect
+	github.com/argonsecurity/go-utils/logger v0.1.110 // indirect
+	github.com/argonsecurity/go-utils/schema-validator v0.1.120 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
 	github.com/aws/aws-sdk-go v1.44.77 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.16.11 // indirect
@@ -275,6 +279,7 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/rs/zerolog v1.25.0 // indirect
 	github.com/rubenv/sql-migrate v1.1.1 // indirect
 	github.com/russross/blackfriday v1.6.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect

@@ -2,40 +2,33 @@ package metadata
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+	"github.com/argonsecurity/go-utils/environments/models"
 	"github.com/pkg/errors"
 )
 
-func GetBaseRef() (r string) {
-	buildSystem := GetBuildSystem()
-	switch buildSystem {
+func GetBaseRef(envconfig *models.Configuration) (r string) {
+	switch envconfig.Repository.Source {
 	case Azure:
-		return fmt.Sprintf(
-			"origin/%s",
-			strings.ReplaceAll(os.Getenv("SYSTEM_PULLREQUEST_TARGETBRANCH"), "refs/heads/", ""))
+		return fmt.Sprintf("origin/%s", strings.ReplaceAll(envconfig.PullRequest.TargetRef.Branch, "refs/heads/", ""))
 	case Bitbucket:
-		return os.Getenv("BITBUCKET_PR_DESTINATION_COMMIT")
 	case Github:
-		return "FETCH_HEAD"
 	case Gitlab:
-		return os.Getenv("CI_MERGE_REQUEST_DIFF_BASE_SHA")
+		return envconfig.PullRequest.TargetRef.Branch
 	case Jenkins:
-		bitbucketTargetBranch := os.Getenv("BITBUCKET_TARGET_BRANCH")
-		if bitbucketTargetBranch != "" {
-			return GetFullBranchName(os.Getenv("BITBUCKET_TARGET_BRANCH"))
-		}
-		changeTarget := os.Getenv("CHANGE_TARGET")
-		if changeTarget != "" {
-			return GetFullBranchName(changeTarget)
+		branch := envconfig.PullRequest.TargetRef.Branch
+		if branch != "" {
+			return branch
 		}
 		return "upstream/master"
 	default:
 		return "origin/master"
 	}
+
+	return ""
 }
 
 func GetFullBranchName(branchName string) string {

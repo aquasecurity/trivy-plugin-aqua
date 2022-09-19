@@ -230,32 +230,32 @@ func GetCommitID(scanPath string) (commitId string) {
 }
 
 // GetGitUser attempts to get the user who performed the most recent commit
-func GetGitUser(scanPath string) (gitUser string) {
+// func GetGitUser(scanPath string) (gitUser string) {
 
-	for _, userEnv := range possibleUserEnvVars {
-		if v, ok := os.LookupEnv(userEnv); ok {
-			return v
-		}
-	}
+// 	for _, userEnv := range possibleUserEnvVars {
+// 		if v, ok := os.LookupEnv(userEnv); ok {
+// 			return v
+// 		}
+// 	}
 
-	re := regexp.MustCompile(`(?m)^.*<(.+?)>`)
-	logsHeadFile := filepath.Join(scanPath, ".git", "logs", "HEAD")
-	if _, err := os.Stat(logsHeadFile); err == nil {
-		contents, err := os.ReadFile(logsHeadFile)
-		if err == nil {
-			matches := re.FindAllSubmatch(contents, -1)
-			if len(matches) >= 1 {
-				return string(matches[len(matches)-1][1])
-			}
-		}
-	}
+// 	re := regexp.MustCompile(`(?m)^.*<(.+?)>`)
+// 	logsHeadFile := filepath.Join(scanPath, ".git", "logs", "HEAD")
+// 	if _, err := os.Stat(logsHeadFile); err == nil {
+// 		contents, err := os.ReadFile(logsHeadFile)
+// 		if err == nil {
+// 			matches := re.FindAllSubmatch(contents, -1)
+// 			if len(matches) >= 1 {
+// 				return string(matches[len(matches)-1][1])
+// 			}
+// 		}
+// 	}
 
-	if v, ok := os.LookupEnv("USERNAME"); ok {
-		return fmt.Sprintf("Fallback: %s", v)
-	}
+// 	if v, ok := os.LookupEnv("USERNAME"); ok {
+// 		return fmt.Sprintf("Fallback: %s", v)
+// 	}
 
-	return "Unknown user"
-}
+// 	return "Unknown user"
+// }
 
 func lastLogsHead(scanPath string) (s []string, err error) {
 	logsHeadFile := filepath.Join(scanPath, ".git", "logs", "HEAD")
@@ -273,22 +273,4 @@ func lastLogsHead(scanPath string) (s []string, err error) {
 	}
 
 	return s, nil
-}
-
-// GetBuildInfo the vendor build run number and id
-func GetBuildInfo(buildSystem string) (run string, buildID string) {
-	switch buildSystem {
-	case Github:
-		return os.Getenv("GITHUB_RUN_NUMBER"), os.Getenv("GITHUB_RUN_ID")
-	case Bitbucket:
-		return os.Getenv("BITBUCKET_BUILD_NUMBER"), os.Getenv("BITBUCKET_PR_ID")
-	case Gitlab:
-		return os.Getenv("CI_JOB_ID"), os.Getenv("CI_MERGE_REQUEST_IID")
-	case Azure:
-		return os.Getenv("BUILD_BUILDID"), os.Getenv("SYSTEM_PULLREQUEST_PULLREQUESTID")
-	case Jenkins:
-		return os.Getenv("BUILD_ID"), os.Getenv("BUILD_NUMBER")
-	default:
-		return "", ""
-	}
 }
