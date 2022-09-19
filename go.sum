@@ -225,8 +225,8 @@ github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63 h1:hgGD7zqlN
 github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63/go.mod h1:/nULgnDeq/JMPMVwE1dmf4kWlYn++7VrM3O2naj4BHA=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220727123250-2cfd49c5b6c3 h1:qhWeovRDnbjC1kdyzRhrJNMJtJwNWicQrXjCnuF64JU=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220727123250-2cfd49c5b6c3/go.mod h1:ZHtpUrBrJ6gZ8Gd4IaXbZwTNOg5KW2m7ClC33qnSlY8=
-github.com/argonsecurity/go-utils/environments v0.1.135 h1:X5iAnh/G/SMI2punml8DiWLjF2OyuYhQclphxDgDvO8=
-github.com/argonsecurity/go-utils/environments v0.1.135/go.mod h1:uG7SX6PjAQjxN0lhFD2ONZTIz4SjmdgR1p676a6fDWk=
+github.com/argonsecurity/go-utils/environments v0.1.134 h1:yEW3f8P2AyExmZbc/l4BzIeV7YLidTyui2EOhoX7OKQ=
+github.com/argonsecurity/go-utils/environments v0.1.134/go.mod h1:uG7SX6PjAQjxN0lhFD2ONZTIz4SjmdgR1p676a6fDWk=
 github.com/argonsecurity/go-utils/http v0.1.97 h1:IHfZtpsGlzQcG+PaeFSFJRkLXtLYdT2aIaL6rXRLhzQ=
 github.com/argonsecurity/go-utils/http v0.1.97/go.mod h1:wDElyXxNSwD+zBjzd6wFu+upjQYSVU0vRpsNs0oJ7Eo=
 github.com/argonsecurity/go-utils/logger v0.1.110 h1:XyFLmR9KH12+AcA6QKnE9smaQxRa04a2G9FvojJDzbk=
