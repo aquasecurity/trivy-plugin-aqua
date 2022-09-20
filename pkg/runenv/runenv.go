@@ -23,7 +23,6 @@ func DetectTriggeredBy(input string) string {
 		triggeredBy = buildsecurity.TriggeredByEnum_TRIGGERED_BY_PR
 	} else if isCi {
 		triggeredBy = buildsecurity.TriggeredByEnum_TRIGGERED_BY_PUSH
-
 	}
 
 	stringTriggerBy := mapTriggeredByToString(triggeredBy)

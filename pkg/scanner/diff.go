@@ -13,11 +13,22 @@ import (
 	"github.com/samber/lo"
 )
 
+type targetSubDir string
+
+const (
+	headPath targetSubDir = "head"
+	basePath targetSubDir = "base"
+)
+
 const (
 	gitStatusDeleted     = "D"
 	gitStatusAdded       = "A"
 	gitStatusRenamedOnly = "R100"
 )
+
+var relatedFilesMap map[string][]string = map[string][]string{
+	"package.json": {"package-lock.json", "yarn.lock"},
+}
 
 func writeFile(path, content string) error {
 	f, err := os.Create(path)
@@ -86,15 +97,7 @@ func createDiffScanFs() error {
 			if status != gitStatusDeleted && status != gitStatusRenamedOnly && status != "" && fileName != "" {
 				// Create base
 				if status != gitStatusAdded {
-					err = os.MkdirAll(fmt.Sprintf("%s/base/%s", aquaPath, dirName), os.ModePerm)
-					if err != nil {
-						return errors.Wrap(err, "failed mkdir aqua tmp path")
-					}
-					out, err = git.GitExec("show", fmt.Sprintf("%s:%s", diffCmd, fileName))
-					if err != nil {
-						return errors.Wrap(err, "failed git show origin:"+fileName)
-					}
-					err = writeFile(fmt.Sprintf("%s/base/%s", aquaPath, fileName), out)
+					err = fetchFile(diffCmd, fileName, dirName, basePath)
 					if err != nil {
 						return errors.Wrap(err, "failed write base file")
 					}
@@ -104,16 +107,7 @@ func createDiffScanFs() error {
 					fileName = newName
 				}
 				// Create head
-				err = os.MkdirAll(fmt.Sprintf("%s/head/%s", aquaPath, dirName), os.ModePerm)
-				if err != nil {
-					return errors.Wrap(err, "failed mkdir aqua tmp path")
-				}
-
-				out, err = git.GitExec("show", fmt.Sprintf(":%s", fileName))
-				if err != nil {
-					return errors.Wrap(err, "failed git show")
-				}
-				err = writeFile(fmt.Sprintf("%s/head/%s", aquaPath, fileName), out)
+				err := fetchFile("", fileName, dirName, headPath)
 				if err != nil {
 					return errors.Wrap(err, "failed write head file")
 				}
@@ -122,4 +116,36 @@ func createDiffScanFs() error {
 	}
 
 	return nil
+}
+
+func fetchFile(baseRef, fileName, dirName string, target targetSubDir) error {
+	err := os.MkdirAll(fmt.Sprintf("%s/%s/%s", aquaPath, target, dirName), os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "failed mkdir aqua tmp path")
+	}
+	out, err := git.GitExec("show", fmt.Sprintf("%s:%s", baseRef, fileName))
+	if err != nil {
+		return errors.Wrapf(err, "failed git show %s:%s", baseRef, fileName)
+	}
+	err = writeFile(fmt.Sprintf("%s/%s/%s", aquaPath, target, fileName), out)
+	if err != nil {
+		return errors.Wrap(err, "failed write base file")
+	}
+
+	tryFetchRelatedFiles(baseRef, fileName, dirName, target)
+
+	return nil
+}
+
+func tryFetchRelatedFiles(baseRef, fileName, dirName string, target targetSubDir) {
+	relatedFiles, ok := relatedFilesMap[filepath.Base(fileName)]
+	if !ok {
+		return
+	}
+	for _, relatedFile := range relatedFiles {
+		err := fetchFile(baseRef, filepath.Join(dirName, relatedFile), dirName, target)
+		if err != nil {
+			log.Logger.Debugf("Could not fetch related file %s:%s/%s, err: %w", baseRef, dirName, target, err)
+		}
+	}
 }

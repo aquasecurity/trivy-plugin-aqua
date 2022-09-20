@@ -12,28 +12,31 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+	"github.com/samber/lo"
 )
 
-const packageJsonFileName = "package.json"
-const packageLockFileName = "package-lock.json"
-const yarnLockFileName = "yarn.lock"
+var skipDirs = []string{"node_modules", ".git"}
 
-func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
-	files := findPackageJsonFiles(path)
+const (
+	packageJsonFileName = "package.json"
+	packageLockFileName = "package-lock.json"
+	yarnLockFileName    = "yarn.lock"
+)
 
+func GeneratePackageLockFiles(aquaPath, path string, files []string) (string, map[string]string, error) {
 	var (
 		err     error
 		tmpDir  string
 		fileDir string
 	)
 
-	tmpDir, err = os.MkdirTemp(path, "")
+	tmpDir, err = os.MkdirTemp(path, "lockfiles-")
 
 	if err != nil {
 		return "", nil, err
 	}
 
-	packageLockToPackageJsonMap := make(map[string]string)
+	newLockToPackageJsonMap := make(map[string]string)
 
 	for _, file := range files {
 		bs, err := os.ReadFile(file)
@@ -52,7 +55,8 @@ func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
 			continue
 		}
 
-		fileDir, err = os.MkdirTemp(tmpDir, "")
+		tmpPattern := fmt.Sprintf("%s-*", strings.Replace(strings.TrimPrefix(file, aquaPath), "/", "-", -1))
+		fileDir, err = os.MkdirTemp(tmpDir, tmpPattern)
 		if err != nil {
 			log.Logger.Warnf("Error occurred while creating temp directory: %s", err.Error())
 
@@ -64,15 +68,16 @@ func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
 		} else {
 			target, _ := filepath.Rel(path, file)
 			source, _ := filepath.Rel(path, lockpath)
-			packageLockToPackageJsonMap[source] = target
+			newLockToPackageJsonMap[source] = target
 		}
 	}
 
-	return tmpDir, packageLockToPackageJsonMap, nil
+	return tmpDir, newLockToPackageJsonMap, nil
 }
 
-func findPackageJsonFiles(dirPath string) []string {
-	files := []string{}
+func GetLockToPackageJson(dirPath string) (map[string]string, []string) {
+	lockToPackageJson := map[string]string{}
+	noLockFiles := []string{}
 
 	//nolint:errcheck
 	filepath.Walk(dirPath, func(path string, f os.FileInfo, err error) error {
@@ -86,7 +91,7 @@ func findPackageJsonFiles(dirPath string) []string {
 
 		f_mode := f.Mode()
 
-		if f.IsDir() && f.Name() == "node_modules" {
+		if f.IsDir() && lo.Contains(skipDirs, f.Name()) {
 			return filepath.SkipDir
 		}
 
@@ -95,23 +100,27 @@ func findPackageJsonFiles(dirPath string) []string {
 		}
 
 		if f.Name() == packageJsonFileName {
+			lockFound := false
 			packageLockPath := filepath.Join(filepath.Dir(path), packageLockFileName)
 			if _, err := os.Stat(packageLockPath); !os.IsNotExist(err) {
-				return nil
+				lockToPackageJson[packageLockPath] = path
+				lockFound = true
 			}
 
 			yarnLockPath := filepath.Join(filepath.Dir(path), yarnLockFileName)
 			if _, err := os.Stat(yarnLockPath); !os.IsNotExist(err) {
-				return nil
+				lockToPackageJson[yarnLockPath] = path
+				lockFound = true
 			}
 
-			files = append(files, path)
+			if !lockFound {
+				noLockFiles = append(noLockFiles, path)
+			}
 		}
-
 		return nil
 	})
 
-	return files
+	return lockToPackageJson, noLockFiles
 }
 
 func createPackageJsonFile(dir string, packageJson PackageJson) error {
