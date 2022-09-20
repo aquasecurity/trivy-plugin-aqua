@@ -131,6 +131,12 @@ func initPluginBoolFlags() {
 			DefaultValue: false,
 			Description:  "Add this flag to fetch and scan pipelines",
 		},
+		{
+			Name:         "package-json",
+			EnvName:      "PACKAGE_JSON",
+			DefaultValue: false,
+			Description:  "Add this flag to scan package.json files without lock files",
+		},
 	}
 }
 
