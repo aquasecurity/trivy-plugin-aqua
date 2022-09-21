@@ -55,7 +55,7 @@ func GeneratePackageLockFiles(aquaPath, path string, files []string) (string, ma
 			continue
 		}
 
-		tmpPattern := fmt.Sprintf("%s-*", strings.Replace(strings.TrimPrefix(file, aquaPath), "/", "-", -1))
+		tmpPattern := fmt.Sprintf("%s-*", strings.ReplaceAll(strings.TrimPrefix(file, aquaPath), "/", "-", -1))
 		fileDir, err = os.MkdirTemp(tmpDir, tmpPattern)
 		if err != nil {
 			log.Logger.Warnf("Error occurred while creating temp directory: %s", err.Error())
