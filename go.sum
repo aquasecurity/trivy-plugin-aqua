@@ -225,8 +225,10 @@ github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63 h1:hgGD7zqlN
 github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63/go.mod h1:/nULgnDeq/JMPMVwE1dmf4kWlYn++7VrM3O2naj4BHA=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220727123250-2cfd49c5b6c3 h1:qhWeovRDnbjC1kdyzRhrJNMJtJwNWicQrXjCnuF64JU=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220727123250-2cfd49c5b6c3/go.mod h1:ZHtpUrBrJ6gZ8Gd4IaXbZwTNOg5KW2m7ClC33qnSlY8=
-github.com/argonsecurity/go-utils/environments v0.1.4-merge-plugin-missing-logic.7 h1:SKdo/B70O00k9NDJkL3c1sskB5TtS11R8Ty7yANsstM=
-github.com/argonsecurity/go-utils/environments v0.1.4-merge-plugin-missing-logic.7/go.mod h1:uG7SX6PjAQjxN0lhFD2ONZTIz4SjmdgR1p676a6fDWk=
+github.com/argonsecurity/go-environments v0.0.0-20220921135723-db59c9fb25bf h1:eDZRUeCRSwK98474veG9ZFTrm8INxGfEF6HNi4+DQ5M=
+github.com/argonsecurity/go-environments v0.0.0-20220921135723-db59c9fb25bf/go.mod h1:E2Kx7VeOm9p3kUnaWUzHuMCU0NxQnIxnIOGRIgGkJBY=
+github.com/argonsecurity/go-environments v0.1.4-merge-plugin-missing-logic.7 h1:SKdo/B70O00k9NDJkL3c1sskB5TtS11R8Ty7yANsstM=
+github.com/argonsecurity/go-environments v0.1.4-merge-plugin-missing-logic.7/go.mod h1:uG7SX6PjAQjxN0lhFD2ONZTIz4SjmdgR1p676a6fDWk=
 github.com/argonsecurity/go-utils/http v0.1.97 h1:IHfZtpsGlzQcG+PaeFSFJRkLXtLYdT2aIaL6rXRLhzQ=
 github.com/argonsecurity/go-utils/http v0.1.97/go.mod h1:wDElyXxNSwD+zBjzd6wFu+upjQYSVU0vRpsNs0oJ7Eo=
 github.com/argonsecurity/go-utils/logger v0.1.110 h1:XyFLmR9KH12+AcA6QKnE9smaQxRa04a2G9FvojJDzbk=

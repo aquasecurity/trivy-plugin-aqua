@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/argonsecurity/go-utils/environments/models"
+	"github.com/argonsecurity/go-environments/models"
 	"github.com/spf13/viper"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"

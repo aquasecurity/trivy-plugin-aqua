@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/argonsecurity/go-utils/environments"
+	"github.com/argonsecurity/go-environments"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"golang.org/x/xerrors"

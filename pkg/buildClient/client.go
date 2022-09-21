@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/argonsecurity/go-utils/environments/models"
+	"github.com/argonsecurity/go-environments/models"
 	"github.com/pkg/errors"
 	"github.com/twitchtv/twirp"
 
