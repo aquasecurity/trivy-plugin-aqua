@@ -73,7 +73,7 @@ func createDiffScanFs() error {
 	}
 
 	diffCmd := metadata.GetBaseRef()
-	diffFiles, err := GetDiffFiles(diffCmd)
+	diffFiles, err := getDiffFiles(diffCmd)
 	if err != nil {
 		return errors.Wrap(err, "failed get diff files")
 	}
@@ -104,7 +104,7 @@ func createDiffScanFs() error {
 	return nil
 }
 
-func GetDiffFiles(diffCmd string) ([]DiffFile, error) {
+func getDiffFiles(diffCmd string) ([]DiffFile, error) {
 	out, err := git.GitExec("diff", "--name-status", diffCmd)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed git diff")

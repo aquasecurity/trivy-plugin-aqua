@@ -23,7 +23,7 @@ const (
 	yarnLockFileName    = "yarn.lock"
 )
 
-func GeneratePackageLockFiles(aquaPath, path string, files []string) (string, map[string]string, error) {
+func GeneratePackageLockFiles(path string, files []string) (string, map[string]string, error) {
 	var (
 		err     error
 		tmpDir  string
@@ -39,7 +39,7 @@ func GeneratePackageLockFiles(aquaPath, path string, files []string) (string, ma
 	newLockToPackageJsonMap := make(map[string]string)
 
 	for _, file := range files {
-		bs, err := os.ReadFile(file)
+		bs, err := os.ReadFile(filepath.Join(path, file))
 
 		if err != nil {
 			log.Logger.Warnf("Error occurred while reading file %s: %s", file, err.Error())
@@ -55,7 +55,7 @@ func GeneratePackageLockFiles(aquaPath, path string, files []string) (string, ma
 			continue
 		}
 
-		tmpPattern := fmt.Sprintf("%s-*", strings.ReplaceAll(strings.TrimPrefix(file, aquaPath), "/", "-"))
+		tmpPattern := fmt.Sprintf("%s-*", strings.ReplaceAll(strings.TrimPrefix(file, path+"/"), "/", "-"))
 		fileDir, err = os.MkdirTemp(tmpDir, tmpPattern)
 		if err != nil {
 			log.Logger.Warnf("Error occurred while creating temp directory: %s", err.Error())
@@ -66,9 +66,8 @@ func GeneratePackageLockFiles(aquaPath, path string, files []string) (string, ma
 		if lockpath, err := createPackageLockFile(fileDir, packageJson); err != nil {
 			log.Logger.Warnf("Error occurred while creating package-lock.json file: %s", err.Error())
 		} else {
-			target, _ := filepath.Rel(path, file)
 			source, _ := filepath.Rel(path, lockpath)
-			newLockToPackageJsonMap[source] = target
+			newLockToPackageJsonMap[source] = file
 		}
 	}
 
@@ -101,15 +100,16 @@ func GetLockToPackageJson(dirPath string) (map[string]string, []string) {
 
 		if f.Name() == packageJsonFileName {
 			lockFound := false
+			path = strings.TrimPrefix(path, dirPath+"/")
 			packageLockPath := filepath.Join(filepath.Dir(path), packageLockFileName)
-			if _, err := os.Stat(packageLockPath); !os.IsNotExist(err) {
+			if _, err := os.Stat(filepath.Join(dirPath, packageLockPath)); !os.IsNotExist(err) {
 				lockToPackageJson[packageLockPath] = path
 				lockFound = true
 			}
 
 			yarnLockPath := filepath.Join(filepath.Dir(path), yarnLockFileName)
-			if _, err := os.Stat(yarnLockPath); !os.IsNotExist(err) {
-				lockToPackageJson[yarnLockPath] = path
+			if _, err := os.Stat(filepath.Join(dirPath, yarnLockPath)); !os.IsNotExist(err) {
+				lockToPackageJson[strings.TrimPrefix(yarnLockPath, dirPath+"/")] = path
 				lockFound = true
 			}
 

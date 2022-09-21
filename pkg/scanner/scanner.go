@@ -78,7 +78,7 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string) (*trivyT
 		filenameReplaceMap, noLockFiles := oss.GetLockToPackageJson(opts.Target)
 
 		if viper.GetBool("package-json") && len(noLockFiles) > 0 {
-			dir, newLocksToPackageJson, err := oss.GeneratePackageLockFiles(aquaPath+"/", opts.Target, noLockFiles)
+			dir, newLocksToPackageJson, err := oss.GeneratePackageLockFiles(opts.Target, noLockFiles)
 			if err != nil {
 				log.Logger.Errorf("failed to generate package-lock.json: %s", err)
 			} else {
