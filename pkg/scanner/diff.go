@@ -26,6 +26,14 @@ const (
 	gitStatusRenamedOnly = "R100"
 )
 
+type DiffFile struct {
+	Status     string
+	Name       string
+	DirName    string
+	NewName    string
+	NewDirName string
+}
+
 var relatedFilesMap map[string][]string = map[string][]string{
 	"package.json": {"package-lock.json", "yarn.lock"},
 }
@@ -51,8 +59,6 @@ func writeFile(path, content string) error {
 
 // Create folders with head and base for diff scanning
 func createDiffScanFs() error {
-	var fileName string
-
 	// In GitHub we need fetch the remote branch first
 	if os.Getenv("GITHUB_BASE_REF") != "" {
 		// In GitHub trivy action container we need safe directory to run git fetch
@@ -67,55 +73,80 @@ func createDiffScanFs() error {
 	}
 
 	diffCmd := metadata.GetBaseRef()
-	out, err := git.GitExec("diff", "--name-status", diffCmd)
+	diffFiles, err := GetDiffFiles(diffCmd)
 	if err != nil {
-		return errors.Wrap(err, "failed git diff")
+		return errors.Wrap(err, "failed get diff files")
 	}
 
-	if out != "" {
-		diffFiles := lo.Filter(strings.Split(out, "\n"), func(diffFile string, _ int) bool {
-			return diffFile != ""
-		})
-		for _, v := range diffFiles {
-			var status, name, newName, dirName string
-			diffFile := strings.Split(v, "\t")
-			status = strings.TrimSpace(diffFile[0])
-			switch len(diffFile) {
-			case 2:
-				name = strings.TrimSpace(diffFile[1])
-			case 3:
-				name = strings.TrimSpace(diffFile[1])
-				newName = strings.TrimSpace(diffFile[2])
-			default:
-				log.Logger.Debugf("Unknown git diff file format: %s", v)
-				continue
-			}
-
-			dirName = filepath.Dir(name)
-			fileName = name
-
-			if status != gitStatusDeleted && status != gitStatusRenamedOnly && status != "" && fileName != "" {
-				// Create base
-				if status != gitStatusAdded {
-					err = fetchFile(diffCmd, fileName, dirName, basePath)
-					if err != nil {
-						return errors.Wrap(err, "failed write base file")
-					}
-				}
-				if newName != "" {
-					dirName = filepath.Dir(newName)
-					fileName = newName
-				}
-				// Create head
-				err := fetchFile("", fileName, dirName, headPath)
+	for _, v := range diffFiles {
+		fileName := v.Name
+		dirName := v.DirName
+		if v.Status != gitStatusDeleted && v.Status != gitStatusRenamedOnly && v.Status != "" && fileName != "" {
+			// Create base
+			if v.Status != gitStatusAdded {
+				err = fetchFile(diffCmd, fileName, v.DirName, basePath)
 				if err != nil {
-					return errors.Wrap(err, "failed write head file")
+					return errors.Wrap(err, "failed write base file")
 				}
+			}
+			if v.NewName != "" {
+				fileName = v.NewName
+				dirName = v.NewDirName
+			}
+			// Create head
+			err := fetchFile("", fileName, dirName, headPath)
+			if err != nil {
+				return errors.Wrap(err, "failed write head file")
 			}
 		}
 	}
 
 	return nil
+}
+
+func GetDiffFiles(diffCmd string) ([]DiffFile, error) {
+	out, err := git.GitExec("diff", "--name-status", diffCmd)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed git diff")
+	}
+
+	return parseDiffFiles(out), nil
+}
+
+func parseDiffFiles(warDiffFiles string) []DiffFile {
+	return lo.FilterMap(strings.Split(warDiffFiles, "\n"), func(diffFile string, _ int) (DiffFile, bool) {
+		parsedDiff := parseDiffFile(diffFile)
+		return parsedDiff, parsedDiff.Status != "" && parsedDiff.Name != ""
+	})
+}
+
+func parseDiffFile(rawDiffFile string) DiffFile {
+	var diffFile DiffFile
+	diffFileSplit := strings.Split(rawDiffFile, "\t")
+	status := strings.TrimSpace(diffFileSplit[0])
+	switch len(diffFileSplit) {
+	case 2:
+		name := strings.TrimSpace(diffFileSplit[1])
+		diffFile = DiffFile{
+			Status:  status,
+			Name:    name,
+			DirName: filepath.Dir(name),
+		}
+	case 3:
+		name := strings.TrimSpace(diffFileSplit[1])
+		newName := strings.TrimSpace(diffFileSplit[2])
+		diffFile = DiffFile{
+			Status:     status,
+			Name:       name,
+			DirName:    filepath.Dir(name),
+			NewName:    newName,
+			NewDirName: filepath.Dir(newName),
+		}
+	default:
+		log.Logger.Debugf("Unknown git diff file format: %s", rawDiffFile)
+	}
+
+	return diffFile
 }
 
 func fetchFile(baseRef, fileName, dirName string, target targetSubDir) error {
