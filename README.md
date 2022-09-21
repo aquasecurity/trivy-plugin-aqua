@@ -79,7 +79,7 @@ There are some special case env vars;
 | FALLBACK_BRANCH      | Use this environment variable as a backup if no other branch env vars can be found     |
 | OVERRIDE_BUILDSYSTEM | Use this environment variable to explicitly specify the build system                   |
 | OVERRIDE_SCMID       | Use this environment variable to explicitly specify the scm id                         |
-| IGNOR_PANIC          | Use this environment variable to return exit code 0 on cli panic                       |
+| IGNORE_PANIC         | Use this environment variable to return exit code 0 on cli panic                       |
 
 # Scanners
 
