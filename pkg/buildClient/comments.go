@@ -58,7 +58,7 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 		}
 		c = commenter.Repository(r)
 	case metadata.Jenkins:
-		r, err := jenkins.NewJenkins(envconfig.Repository.Name)
+		r, err := jenkins.NewJenkins(envconfig.PullRequest.TargetRef.Branch)
 		if err != nil {
 			return err
 		}
