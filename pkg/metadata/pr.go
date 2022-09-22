@@ -14,9 +14,9 @@ func GetBaseRef(envconfig *models.Configuration) (r string) {
 	switch envconfig.Repository.Source {
 	case Azure:
 		return fmt.Sprintf("origin/%s", strings.ReplaceAll(envconfig.PullRequest.TargetRef.Branch, "refs/heads/", ""))
-	case Github:
+	case Github, Gitlab:
 		return fmt.Sprintf("origin/%s", envconfig.PullRequest.TargetRef.Branch)
-	case Gitlab, Bitbucket:
+	case Bitbucket:
 		return envconfig.PullRequest.TargetRef.Branch
 	case Jenkins:
 		branch := envconfig.PullRequest.TargetRef.Branch
