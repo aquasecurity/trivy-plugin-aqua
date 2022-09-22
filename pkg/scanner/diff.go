@@ -60,7 +60,7 @@ func createDiffScanFs(envconfig *models.Configuration) error {
 	targetBranch := metadata.GetBaseRef(envconfig)
 	out, err := git.GitExec("diff", "--name-status", targetBranch)
 	if err != nil {
-		return errors.Wrap(err, "failed git diff")
+		return fmt.Errorf("failed git diff: %s", envconfig)
 	}
 
 	if out != "" {
