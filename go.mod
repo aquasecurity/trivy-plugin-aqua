@@ -6,7 +6,7 @@ require (
 	github.com/aquasecurity/defsec v0.75.3
 	github.com/aquasecurity/go-dep-parser v0.0.0-20220912084514-9d42a63ca964
 	github.com/aquasecurity/go-git-pr-commenter v0.8.1
-	github.com/aquasecurity/trivy v0.32.0
+	github.com/aquasecurity/trivy v0.32.1-0.20220922071137-e01253d54d65
 	github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63
 	github.com/argonsecurity/pipeline-parser v0.2.2
 	github.com/liamg/memoryfs v1.4.3
@@ -265,7 +265,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/open-policy-agent/opa v0.43.0 // indirect
+	github.com/open-policy-agent/opa v0.43.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.3-0.20220303224323-02efb9a75ee1 // indirect
 	github.com/opencontainers/runc v1.1.3 // indirect
