@@ -16,17 +16,17 @@ import (
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/github"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/gitlab"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/jenkins"
-	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
+	"github.com/argonsecurity/go-environments/enums"
 )
 
 const aquaMsg = "[This comment was created by Aqua Pipeline]"
 
 // prComments send results PR comments
-func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap ResultIdToUrlMap, envconfig *models.Configuration) error {
+func prComments(buildSystem enums.Source, result []*buildsecurity.Result, avdUrlMap ResultIdToUrlMap, envconfig *models.Configuration) error {
 	var c = commenter.Repository(nil)
 	switch buildSystem {
-	case metadata.Github:
+	case enums.Github, enums.GithubServer:
 		prNumber, err := extractGitHubActionPrNumber()
 		if err != nil {
 			return err
@@ -39,25 +39,25 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 			return err
 		}
 		c = commenter.Repository(r)
-	case metadata.Gitlab:
+	case enums.Gitlab, enums.GitlabServer:
 		r, err := gitlab.NewGitlab(os.Getenv("GITLAB_TOKEN"))
 		if err != nil {
 			return err
 		}
 		c = commenter.Repository(r)
-	case metadata.Azure:
+	case enums.Azure:
 		r, err := azure.NewAzure(os.Getenv("AZURE_TOKEN"))
 		if err != nil {
 			return err
 		}
 		c = commenter.Repository(r)
-	case metadata.Bitbucket:
+	case enums.Bitbucket, enums.BitbucketServer:
 		r, err := bitbucket.NewBitbucket(os.Getenv("BITBUCKET_USER"), os.Getenv("BITBUCKET_TOKEN"))
 		if err != nil {
 			return err
 		}
 		c = commenter.Repository(r)
-	case metadata.Jenkins:
+	case enums.Jenkins:
 		r, err := jenkins.NewJenkins(envconfig.PullRequest.TargetRef.Branch)
 		if err != nil {
 			return err
