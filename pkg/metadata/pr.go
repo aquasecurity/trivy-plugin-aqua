@@ -27,8 +27,6 @@ func GetBaseRef(envconfig *models.Configuration) (r string) {
 	default:
 		return "origin/master"
 	}
-
-	return ""
 }
 
 func GetFullBranchName(branchName string) string {
