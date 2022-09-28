@@ -11,25 +11,22 @@ import (
 )
 
 func GetBaseRef(envconfig *models.Configuration) (r string) {
-	switch envconfig.Builder {
-	case Azure:
-		return envconfig.PullRequest.TargetRef.Branch
-	case Github, Gitlab:
-		return fmt.Sprintf("origin/%s", envconfig.PullRequest.TargetRef.Branch)
-	case Bitbucket:
-		return envconfig.PullRequest.TargetRef.Branch
-	case Jenkins:
+	if envconfig.Builder == "Jenkins" {
 		branch := envconfig.PullRequest.TargetRef.Branch
 		if branch != "" {
-			return branch
+			return GetFullBranchName(branch, "upstream")
 		}
 		return "upstream/master"
-	default:
-		return "origin/master"
 	}
+
+	if envconfig.PullRequest.TargetRef.Branch != "" {
+		return GetFullBranchName(envconfig.PullRequest.TargetRef.Branch, "origin")
+	}
+
+	return "origin/master"
 }
 
-func GetFullBranchName(branchName string) string {
+func GetFullBranchName(branchName, remoteFallback string) string {
 	branchPattern := fmt.Sprintf("*/%s", branchName)
 	out, err := git.GitExec("branch", "-a", "--list", branchPattern, "--format=%(refname:lstrip=-2)", "--sort=-refname")
 	if err != nil {
@@ -42,5 +39,5 @@ func GetFullBranchName(branchName string) string {
 			return branchs[0]
 		}
 	}
-	return fmt.Sprintf("upstream/%s", branchName)
+	return fmt.Sprintf("%s/%s", remoteFallback, branchName)
 }
