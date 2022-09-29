@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/argonsecurity/go-environments/models"
 
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter"
@@ -72,7 +73,7 @@ func getCommenter(envconfig *models.Configuration) (commenter.Repository, enums.
 	var c commenter.Repository
 
 	if strings.ToLower(envconfig.Builder) == string(enums.Jenkins) {
-		r, err := jenkins.NewJenkins(envconfig.PullRequest.TargetRef.Branch)
+		r, err := jenkins.NewJenkins(metadata.GetBaseRef(envconfig))
 		if err != nil {
 			return nil, "", err
 		}
