@@ -20,64 +20,25 @@ import (
 	"github.com/argonsecurity/go-environments/enums"
 )
 
-const aquaMsg = "[This comment was created by Aqua Pipeline]"
+const AQUA_MSG = "[This comment was created by Aqua Pipeline]"
 
 // prComments send results PR comments
-func prComments(buildSystem enums.Source, result []*buildsecurity.Result, avdUrlMap ResultIdToUrlMap, envconfig *models.Configuration) error {
-	var c = commenter.Repository(nil)
-	switch buildSystem {
-	case enums.Github, enums.GithubServer:
-		prNumber, err := extractGitHubActionPrNumber()
-		if err != nil {
-			return err
-		}
-		r, err := github.NewGithub(os.Getenv("GITHUB_TOKEN"),
-			envconfig.Organization.Name,
-			envconfig.Repository.Name,
-			prNumber)
-		if err != nil {
-			return err
-		}
-		c = commenter.Repository(r)
-	case enums.Gitlab, enums.GitlabServer:
-		r, err := gitlab.NewGitlab(os.Getenv("GITLAB_TOKEN"))
-		if err != nil {
-			return err
-		}
-		c = commenter.Repository(r)
-	case enums.Azure:
-		r, err := azure.NewAzure(os.Getenv("AZURE_TOKEN"))
-		if err != nil {
-			return err
-		}
-		c = commenter.Repository(r)
-	case enums.Bitbucket, enums.BitbucketServer:
-		r, err := bitbucket.NewBitbucket(os.Getenv("BITBUCKET_USER"), os.Getenv("BITBUCKET_TOKEN"))
-		if err != nil {
-			return err
-		}
-		c = commenter.Repository(r)
-	case enums.Jenkins:
-		r, err := jenkins.NewJenkins(envconfig.PullRequest.TargetRef.Branch)
-		if err != nil {
-			return err
-		}
-		//nolint:unconvert
-		c = commenter.Repository(r)
-	default:
-		return nil
+func prComments(envconfig *models.Configuration, result []*buildsecurity.Result, avdUrlMap ResultIdToUrlMap) error {
+	c, source, err := getCommenter(envconfig)
+	if err != nil {
+		return err
 	}
 
 	if c == nil {
 		return fmt.Errorf("couldnt initialize provider client")
 	}
-	log.Logger.Debugf("Removing previous aqua comments from %s", buildSystem)
-	err := c.RemovePreviousAquaComments(aquaMsg)
-	if err != nil {
+
+	log.Logger.Debugf("Removing previous aqua comments from %s", source)
+	if err := c.RemovePreviousAquaComments(AQUA_MSG); err != nil {
 		log.Logger.Infof("failed removing old comments with error: %s", err)
 	}
 
-	log.Logger.Debugf("Writing comments to %s", buildSystem)
+	log.Logger.Debugf("Writing comments to %s", source)
 	for _, r := range result {
 		if r.SuppressionID == "" {
 			switch r.Type {
@@ -107,6 +68,59 @@ func prComments(buildSystem enums.Source, result []*buildsecurity.Result, avdUrl
 	return nil
 }
 
+func getCommenter(envconfig *models.Configuration) (commenter.Repository, enums.Source, error) {
+	var c commenter.Repository
+
+	if strings.ToLower(envconfig.Builder) == string(enums.Jenkins) {
+		r, err := jenkins.NewJenkins(envconfig.PullRequest.TargetRef.Branch)
+		if err != nil {
+			return nil, "", err
+		}
+
+		c = commenter.Repository(r)
+		return c, enums.Jenkins, nil
+	}
+
+	source := envconfig.Repository.Source
+	switch source {
+	case enums.Github, enums.GithubServer:
+		prNumber, err := extractGitHubActionPrNumber()
+		if err != nil {
+			return nil, "", err
+		}
+		r, err := github.NewGithub(os.Getenv("GITHUB_TOKEN"),
+			envconfig.Organization.Name,
+			envconfig.Repository.Name,
+			prNumber)
+		if err != nil {
+			return nil, "", err
+		}
+		c = commenter.Repository(r)
+	case enums.Gitlab, enums.GitlabServer:
+		r, err := gitlab.NewGitlab(os.Getenv("GITLAB_TOKEN"))
+		if err != nil {
+			return nil, "", err
+		}
+		c = commenter.Repository(r)
+	case enums.Azure:
+		r, err := azure.NewAzure(os.Getenv("AZURE_TOKEN"))
+		if err != nil {
+			return nil, "", err
+		}
+		c = commenter.Repository(r)
+	case enums.Bitbucket:
+		r, err := bitbucket.NewBitbucket(os.Getenv("BITBUCKET_USER"), os.Getenv("BITBUCKET_TOKEN"))
+		if err != nil {
+			return nil, "", err
+		}
+		c = commenter.Repository(r)
+	default:
+		return nil, "", fmt.Errorf("unsupported source: %s", source)
+	}
+
+	return c, source, nil
+}
+
 func returnSecretMsg(r *buildsecurity.Result) string {
 	return fmt.Sprintf("### :warning: Aqua detected sensitive data in your code"+
 		"  \n**Category:** %s "+
@@ -118,7 +132,7 @@ func returnSecretMsg(r *buildsecurity.Result) string {
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
 		r.Message,
-		aquaMsg)
+		AQUA_MSG)
 }
 
 func returnMisconfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string {
@@ -132,7 +146,7 @@ func returnMisconfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) strin
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
 		r.Message,
-		aquaMsg)
+		AQUA_MSG)
 
 	if avdUrl := avdUrlMap[GenerateResultId(r)]; avdUrl != "" {
 		return commentWithoutAvdUrl +
@@ -156,7 +170,7 @@ func returnVulnfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string 
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
 		r.FixedVersion,
 		r.Message,
-		aquaMsg)
+		AQUA_MSG)
 
 	if avdUrl := avdUrlMap[GenerateResultId(r)]; avdUrl != "" {
 		return commentWithoutAvdUrl +

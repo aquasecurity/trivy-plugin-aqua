@@ -146,7 +146,7 @@ func getFsRepositoryDetails(scanPath string) (repoName, branch string, err error
 
 	out, giterr := git.GitExec("branch", "--show-current")
 	if giterr != nil {
-		log.Logger.Errorf("failed git branch -a: %w", err)
+		log.Logger.Errorf("failed git branch --show-current: %w", err)
 	}
 
 	if out != "" {
