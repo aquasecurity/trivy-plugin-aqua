@@ -71,6 +71,7 @@ func prComments(envconfig *models.Configuration, result []*buildsecurity.Result,
 
 func getCommenter(envconfig *models.Configuration) (commenter.Repository, enums.Source, error) {
 	var c commenter.Repository
+	source := envconfig.Repository.Source
 
 	if strings.ToLower(envconfig.Builder) == string(enums.Jenkins) {
 		r, err := jenkins.NewJenkins(metadata.GetBaseRef(envconfig))
@@ -79,10 +80,9 @@ func getCommenter(envconfig *models.Configuration) (commenter.Repository, enums.
 		}
 
 		c = commenter.Repository(r)
-		return c, enums.Jenkins, nil
+		return c, source, nil
 	}
 
-	source := envconfig.Repository.Source
 	switch source {
 	case enums.Github, enums.GithubServer:
 		prNumber, err := extractGitHubActionPrNumber()

@@ -6,6 +6,7 @@ import (
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+	"github.com/argonsecurity/go-environments/enums"
 	"github.com/argonsecurity/go-environments/models"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
@@ -14,11 +15,15 @@ import (
 func GetBaseRef(envconfig *models.Configuration) (r string) {
 	branch := lo.Ternary(envconfig.PullRequest.TargetRef.Branch != "", envconfig.PullRequest.TargetRef.Branch, "master")
 
-	if envconfig.Builder == "Jenkins" {
-		return GetFullBranchName(branch, "upstream")
-	} else {
-		return GetFullBranchName(branch, "origin")
+	if envconfig.Repository.Source == enums.Azure {
+		return branch
 	}
+
+	if strings.ToLower(envconfig.Builder) == string(enums.Jenkins) {
+		return GetFullBranchName(branch, "upstream")
+	}
+
+	return GetFullBranchName(branch, "origin")
 }
 
 func GetFullBranchName(branchName, remoteFallback string) string {
