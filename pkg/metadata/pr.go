@@ -16,7 +16,7 @@ func GetBaseRef(envconfig *models.Configuration) (r string) {
 	branch := lo.Ternary(envconfig.PullRequest.TargetRef.Branch != "", envconfig.PullRequest.TargetRef.Branch, "master")
 
 	if envconfig.Repository.Source == enums.Azure {
-		return branch
+		return GetFullBranchName(strings.TrimPrefix(branch, "refs/heads/"), "origin")
 	}
 
 	if strings.ToLower(envconfig.Builder) == string(enums.Jenkins) {
