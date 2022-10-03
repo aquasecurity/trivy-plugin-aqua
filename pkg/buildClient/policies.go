@@ -8,7 +8,7 @@ import (
 
 func (bc *TwirpClient) GetPoliciesForRepository() ([]*buildsecurity.Policy, error) {
 
-	repoId, err := bc.GetOrCreateRepository()
+	repoId, err := bc.UpsertRepository()
 	if err != nil {
 		return nil, err
 	}
