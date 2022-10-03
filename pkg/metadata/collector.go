@@ -229,34 +229,6 @@ func GetCommitID(scanPath string) (commitId string) {
 	return "xxxxxxxxxxxxx"
 }
 
-// GetGitUser attempts to get the user who performed the most recent commit
-// func GetGitUser(scanPath string) (gitUser string) {
-
-// 	for _, userEnv := range possibleUserEnvVars {
-// 		if v, ok := os.LookupEnv(userEnv); ok {
-// 			return v
-// 		}
-// 	}
-
-// 	re := regexp.MustCompile(`(?m)^.*<(.+?)>`)
-// 	logsHeadFile := filepath.Join(scanPath, ".git", "logs", "HEAD")
-// 	if _, err := os.Stat(logsHeadFile); err == nil {
-// 		contents, err := os.ReadFile(logsHeadFile)
-// 		if err == nil {
-// 			matches := re.FindAllSubmatch(contents, -1)
-// 			if len(matches) >= 1 {
-// 				return string(matches[len(matches)-1][1])
-// 			}
-// 		}
-// 	}
-
-// 	if v, ok := os.LookupEnv("USERNAME"); ok {
-// 		return fmt.Sprintf("Fallback: %s", v)
-// 	}
-
-// 	return "Unknown user"
-// }
-
 func lastLogsHead(scanPath string) (s []string, err error) {
 	logsHeadFile := filepath.Join(scanPath, ".git", "logs", "HEAD")
 	if _, err := os.Stat(logsHeadFile); err == nil {
