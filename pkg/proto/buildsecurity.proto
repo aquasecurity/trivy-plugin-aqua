@@ -5,6 +5,7 @@ option go_package = "/buildsecurity";
 service BuildSecurity {
   rpc LookupRepository(LookupRepositoryReq) returns (LookupRepositoryResp);
   rpc CreateRepository(CreateRepositoryReq) returns (CreateRepositoryResp);
+  rpc UpsertRepository(UpsertRepositoryReq) returns (UpsertRepositoryResp);
   rpc GetPolicies(GetPoliciesReq) returns (GetPoliciesResp);
   rpc CreateScan(CreateScanReq) returns (CreateScanResp);
 }
@@ -15,6 +16,16 @@ message LookupRepositoryReq {
 
 message LookupRepositoryResp {
   string RepositoryID = 2;
+}
+
+message UpsertRepositoryReq {
+  string SCMID = 1;
+  string Name = 2;
+  repeated string Topics = 3;
+}
+
+message UpsertRepositoryResp {
+  string RepositoryID = 1;
 }
 
 message CreateRepositoryReq {
