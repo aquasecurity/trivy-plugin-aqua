@@ -30,7 +30,7 @@ func GetFullBranchName(branchName, remoteFallback string) string {
 	branchPattern := fmt.Sprintf("*/%s", branchName)
 	branch := fmt.Sprintf("%s/%s", remoteFallback, branchName)
 	out, err := git.GitExec("branch", "-a", "--list", branchPattern, "--format=%(refname:lstrip=-2)", "--sort=-refname")
-	if err == nil {
+	if err != nil {
 		if strings.Contains(err.Error(), "error: unknown option `format") { // git version < 2.7.0
 			log.Logger.Warnf("Git version is too old. Please upgrade to 2.7.0 or newer")
 			log.Logger.Debug("Trying to get branch name with old git version")
