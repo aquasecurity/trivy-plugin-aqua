@@ -9,6 +9,7 @@ require (
 	github.com/aquasecurity/trivy v0.32.1-0.20220922071137-e01253d54d65
 	github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63
 	github.com/argonsecurity/pipeline-parser v0.2.2
+	github.com/google/go-github/v38 v38.1.0
 	github.com/liamg/memoryfs v1.4.3
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
@@ -20,6 +21,7 @@ require (
 	github.com/twitchtv/twirp v8.1.2+incompatible
 	go.uber.org/zap v1.23.0
 	golang.org/x/exp v0.0.0-20220823124025-807a23277127
+	golang.org/x/oauth2 v0.0.0-20220718184931-c8730f7fcb92
 	golang.org/x/text v0.3.7
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f
 	google.golang.org/protobuf v1.28.1
@@ -325,7 +327,6 @@ require (
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
-	golang.org/x/oauth2 v0.0.0-20220718184931-c8730f7fcb92 // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
