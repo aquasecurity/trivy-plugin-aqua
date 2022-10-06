@@ -144,8 +144,8 @@ func getFsRepositoryDetails(scanPath string) (repoName, branch string, err error
 		log.Logger.Debugf("Extracted repo name from scmID: %s", inferredRepoName)
 	}
 
-	out, giterr := git.GitExec("branch", "--show-current")
-	if giterr != nil {
+	out, err := git.GitExec("branch", "--show-current")
+	if err != nil {
 		log.Logger.Errorf("failed git branch --show-current: %w", err)
 	}
 
