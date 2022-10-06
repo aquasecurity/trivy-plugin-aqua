@@ -299,7 +299,12 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 		return err
 	}
 
-	downloadedPolicies, err := client.GetPoliciesForRepository()
+	repoId, err := client.UpsertRepository(envConfig)
+	if err != nil {
+		return err
+	}
+
+	downloadedPolicies, err := client.GetPoliciesForRepository(envConfig, repoId)
 	if err != nil {
 		log.Logger.Errorf("Could not download the repository policies. %#v", err)
 		return err

@@ -4,9 +4,10 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
+	"github.com/argonsecurity/go-environments/models"
 )
 
-func (bc *TwirpClient) UpsertRepository() (string, error) {
+func (bc *TwirpClient) UpsertRepository(envConfig *models.Configuration) (string, error) {
 
 	log.Logger.Debug("Getting the repository id for current scan path")
 	if bc.repoId != "" {
@@ -29,7 +30,7 @@ func (bc *TwirpClient) UpsertRepository() (string, error) {
 		return "", err
 	}
 
-	topics, _ := getTopics(metadata.GetBuildSystem())
+	topics, _ := getTopics(envConfig)
 
 	newRepo, err := bc.client.UpsertRepository(ctx, &buildsecurity.UpsertRepositoryReq{
 		SCMID:  scmID,

@@ -18,8 +18,8 @@ import (
 
 type Client interface {
 	Upload([]*buildsecurity.Result, map[string]string, ResultIdToUrlMap, []*buildsecurity.Pipeline, map[string]*buildsecurity.PackageDependencies, *models.Configuration) error
-	GetPoliciesForRepository() ([]*buildsecurity.Policy, error)
-	UpsertRepository() (string, error)
+	GetPoliciesForRepository(*models.Configuration, string) ([]*buildsecurity.Policy, error)
+	UpsertRepository(*models.Configuration) (string, error)
 }
 
 type TwirpClient struct {

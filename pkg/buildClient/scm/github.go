@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/argonsecurity/go-environments/models"
 	"github.com/google/go-github/v38/github"
 	"golang.org/x/oauth2"
 )
@@ -22,8 +23,8 @@ type GithubClientImpl struct {
 	client *github.Client
 }
 
-func GetGitHubClient() GithubClient {
-	ctx, client := getGithubClient(os.Getenv("GITHUB_TOKEN"), os.Getenv("GITHUB_API_URL"))
+func GetGitHubClient(envConfig *models.Configuration) GithubClient {
+	ctx, client := getGithubClient(os.Getenv("GITHUB_TOKEN"), envConfig.SCMApiUrl)
 	Client = &GithubClientImpl{ctx: ctx, client: client}
 	return Client
 }
