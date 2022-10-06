@@ -21,3 +21,4 @@ policy/
 
 vendor/
 .vscode/
+event.json
