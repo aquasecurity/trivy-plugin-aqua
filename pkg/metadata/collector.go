@@ -93,7 +93,7 @@ func GetScmID(scanPath string) string {
 		re := regexp.MustCompile(`(?m)^\s*url\s?=\s*(.*)\s*$`)
 		if re.Match(gitConfig) {
 			scmID := re.FindStringSubmatch(string(gitConfig))[1]
-			scmID = sanitiseScmId(scmID)
+			scmID = sanitizeScmId(scmID)
 
 			return scmID
 		}
@@ -104,7 +104,7 @@ func GetScmID(scanPath string) string {
 
 // This function is the formula on the DB, on Atlas side and on Argon side,
 // do not change without coordinating the change
-func sanitiseScmId(scmID string) string {
+func sanitizeScmId(scmID string) string {
 	scmID = regexp.MustCompile("^.*@").ReplaceAllLiteralString(scmID, "")
 	scmID = regexp.MustCompile("^https?://").ReplaceAllLiteralString(scmID, "")
 	scmID = strings.TrimSuffix(scmID, ".git")

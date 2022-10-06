@@ -47,7 +47,7 @@ func Test_convertScmId(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := sanitiseScmId(tt.args.scmID); got != tt.want {
+			if got := sanitizeScmId(tt.args.scmID); got != tt.want {
 				t.Errorf("sanitiseScmId() = %v, want %v", got, tt.want)
 			}
 		})
