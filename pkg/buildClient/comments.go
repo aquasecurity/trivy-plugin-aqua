@@ -79,7 +79,7 @@ func getCommenter(envconfig *models.Configuration) (commenter.Repository, enums.
 			return nil, "", err
 		}
 
-		c = commenter.Repository(r)
+		c = r
 		return c, source, nil
 	}
 
