@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/argonsecurity/go-environments/models"
 	"github.com/pkg/errors"
 	"github.com/twitchtv/twirp"
 
@@ -16,7 +17,7 @@ import (
 )
 
 type Client interface {
-	Upload([]*buildsecurity.Result, map[string]string, ResultIdToUrlMap, []*buildsecurity.Pipeline, map[string]*buildsecurity.PackageDependencies) error
+	Upload([]*buildsecurity.Result, map[string]string, ResultIdToUrlMap, []*buildsecurity.Pipeline, map[string]*buildsecurity.PackageDependencies, *models.Configuration) error
 	GetPoliciesForRepository() ([]*buildsecurity.Policy, error)
 	GetOrCreateRepository() (string, error)
 }
