@@ -9,6 +9,8 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/git"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
+	"github.com/argonsecurity/go-environments/enums"
+	"github.com/argonsecurity/go-environments/models"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 )
@@ -58,24 +60,26 @@ func writeFile(path, content string) error {
 }
 
 // Create folders with head and base for diff scanning
-func createDiffScanFs() error {
+func createDiffScanFs(envconfig *models.Configuration) error {
+	var fileName string
+
 	// In GitHub we need fetch the remote branch first
-	if os.Getenv("GITHUB_BASE_REF") != "" {
+	if envconfig.Repository.Source == enums.Github {
 		// In GitHub trivy action container we need safe directory to run git fetch
 		_, err := git.GitExec("config", "--global", "--add", "safe.directory", "/github/workspace")
 		if err != nil {
 			return errors.Wrap(err, "failed git fetch ref")
 		}
-		_, err = git.GitExec("fetch", "origin", fmt.Sprintf("refs/heads/%s", os.Getenv("GITHUB_BASE_REF")))
+		_, err = git.GitExec("fetch", "origin", fmt.Sprintf("refs/heads/%s", envconfig.PullRequest.TargetRef.Branch))
 		if err != nil {
 			return errors.Wrap(err, "failed git fetch ref")
 		}
 	}
 
-	diffCmd := metadata.GetBaseRef()
-	diffFiles, err := getDiffFiles(diffCmd)
+	targetBranch := metadata.GetBaseRef(envconfig)
+	diffFiles, err := getDiffFiles(targetBranch)
 	if err != nil {
-		return errors.Wrap(err, "failed get diff files")
+		return errors.Wrapf(err, "failed git diff files, envconfig: %+v", envconfig)
 	}
 
 	for _, v := range diffFiles {
@@ -84,7 +88,7 @@ func createDiffScanFs() error {
 		if v.Status != gitStatusDeleted && v.Status != gitStatusRenamedOnly && v.Status != "" && fileName != "" {
 			// Create base
 			if v.Status != gitStatusAdded {
-				err = fetchFile(diffCmd, fileName, v.DirName, basePath)
+				err = fetchFile(targetBranch, fileName, v.DirName, basePath)
 				if err != nil {
 					return errors.Wrap(err, "failed write base file")
 				}
@@ -104,8 +108,8 @@ func createDiffScanFs() error {
 	return nil
 }
 
-func getDiffFiles(diffCmd string) ([]DiffFile, error) {
-	out, err := git.GitExec("diff", "--name-status", diffCmd)
+func getDiffFiles(targetBranch string) ([]DiffFile, error) {
+	out, err := git.GitExec("diff", "--name-status", targetBranch)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed git diff")
 	}

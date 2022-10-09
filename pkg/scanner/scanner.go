@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/argonsecurity/go-environments/models"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
@@ -28,7 +29,7 @@ const aquaPath = "/tmp/aqua"
 //go:embed trivy-secret.yaml
 var secretsConfig string
 
-func Scan(ctx context.Context, opts flag.Options, cmdName, path string) (*trivyTypes.Report, []*buildsecurity.Pipeline, error) {
+func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfig *models.Configuration) (*trivyTypes.Report, []*buildsecurity.Pipeline, error) {
 	err := os.MkdirAll(aquaPath, os.ModePerm)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed create aqua tmp dir")
@@ -62,7 +63,7 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string) (*trivyT
 		}
 	default:
 		if viper.GetString("triggered-by") == "PR" {
-			if err = createDiffScanFs(); err != nil {
+			if err = createDiffScanFs(envConfig); err != nil {
 				return nil, nil, errors.Wrap(err, "failed create diff scan system")
 			}
 			opts.Target = aquaPath

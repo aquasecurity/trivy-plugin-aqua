@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"runtime/debug"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/argonsecurity/go-environments"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"golang.org/x/xerrors"
@@ -289,13 +291,26 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 	if err != nil {
 		return err
 	}
+	currEnv := environments.DetectEnvironment()
+	if currEnv == nil {
+		return errors.New("could not detect environment")
+	}
+	envConfig, err := currEnv.GetConfiguration()
+	if err != nil {
+		return fmt.Errorf("could not get environmet configuration: %w", err)
+	}
 
-	report, pipelines, err := scanner.Scan(cmd.Context(), options, cmd.Name(), scanPath)
+	report, pipelines, err := scanner.Scan(cmd.Context(), options, cmd.Name(), scanPath, envConfig)
 	if err != nil {
 		return err
 	}
 
-	downloadedPolicies, err := client.GetPoliciesForRepository()
+	repoId, err := client.UpsertRepository(envConfig)
+	if err != nil {
+		return err
+	}
+
+	downloadedPolicies, err := client.GetPoliciesForRepository(envConfig, repoId)
 	if err != nil {
 		log.Logger.Errorf("Could not download the repository policies. %#v", err)
 		return err
@@ -326,7 +341,7 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 		if len(viper.GetStringSlice("tags")) > 0 {
 			tags = convertToTags(viper.GetStringSlice("tags"))
 		}
-		if err := uploader.Upload(client, processedResults, tags, avdUrlMap, pipelines, dependencies); err != nil {
+		if err := uploader.Upload(client, processedResults, tags, avdUrlMap, pipelines, dependencies, envConfig); err != nil {
 			return err
 		}
 	}
