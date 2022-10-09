@@ -77,7 +77,7 @@ func createDiffScanFs(envconfig *models.Configuration) error {
 	targetBranch := metadata.GetBaseRef(envconfig)
 	diffFiles, err := getDiffFiles(targetBranch)
 	if err != nil {
-		return errors.Wrapf(err, "failed git diff files, envconfig: %+v", envconfig)
+		return errors.Wrapf(err, "failed to create diff for PR scanning, envconfig: %+v", envconfig)
 	}
 
 	for _, v := range diffFiles {
@@ -112,19 +112,19 @@ func getDiffFiles(targetBranch string) ([]DiffFile, error) {
 		return nil, errors.Wrap(err, "failed git diff")
 	}
 
-	return parseDiffFiles(out), nil
+	if out == "" {
+		return nil, nil
+	}
+
+	return lo.FilterMap(strings.Split(out, "\n"), parseDiffFile), nil
 }
 
-func parseDiffFiles(warDiffFiles string) []DiffFile {
-	return lo.FilterMap(strings.Split(warDiffFiles, "\n"), func(diffFile string, _ int) (DiffFile, bool) {
-		parsedDiff := parseDiffFile(diffFile)
-		return parsedDiff, parsedDiff.Status != "" && parsedDiff.Name != ""
-	})
-}
-
-func parseDiffFile(rawDiffFile string) DiffFile {
+func parseDiffFile(rawDiffFile string, _ int) (DiffFile, bool) {
 	var diffFile DiffFile
 	diffFileSplit := strings.Split(rawDiffFile, "\t")
+	if len(diffFileSplit) < 2 {
+		return diffFile, false
+	}
 	status := strings.TrimSpace(diffFileSplit[0])
 	switch len(diffFileSplit) {
 	case 2:
@@ -146,9 +146,10 @@ func parseDiffFile(rawDiffFile string) DiffFile {
 		}
 	default:
 		log.Logger.Debugf("Unknown git diff file format: %s", rawDiffFile)
+		return diffFile, false
 	}
 
-	return diffFile
+	return diffFile, diffFile.Status != "" && diffFile.Name != ""
 }
 
 func fetchFile(baseRef, fileName, dirName string, target targetSubDir) error {
