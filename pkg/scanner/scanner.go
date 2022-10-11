@@ -11,6 +11,7 @@ import (
 
 	"github.com/argonsecurity/go-environments/models"
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
 
@@ -75,18 +76,18 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 			}
 		}
 
-		var (
-			fileMap map[string]string = nil
-			dir     string
-		)
+		filenameReplaceMap, noLockFiles := oss.GetLockToPackageJson(opts.Target)
 
-		if viper.GetBool("package-json") {
-			dir, fileMap, err = oss.GeneratePackageLockFiles(opts.Target)
+		if viper.GetBool("package-json") && len(noLockFiles) > 0 {
+			log.Logger.Warn("package.json files without lock files found. Please run install before scanning or upload lock files")
+			log.Logger.Warn("Generating lock files for package.json files")
+			dir, newLocksToPackageJson, err := oss.GeneratePackageLockFiles(opts.Target, noLockFiles)
 			if err != nil {
 				log.Logger.Errorf("failed to generate package-lock.json: %s", err)
 			} else {
 				defer os.RemoveAll(dir)
 			}
+			filenameReplaceMap = lo.Assign(filenameReplaceMap, newLocksToPackageJson)
 		}
 
 		// Filesystem scanning
@@ -94,8 +95,8 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 			return nil, nil, fmt.Errorf("image scan error: %w", err)
 		}
 
-		if fileMap != nil {
-			fixPackageJsonPaths(&report, fileMap)
+		if filenameReplaceMap != nil {
+			replaceFilenames(&report, filenameReplaceMap)
 		}
 
 	}
@@ -113,7 +114,7 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 	return &report, repositoryPipelines, nil
 }
 
-func fixPackageJsonPaths(report *trivyTypes.Report, fileMap map[string]string) {
+func replaceFilenames(report *trivyTypes.Report, fileMap map[string]string) {
 	for i := range report.Results {
 		result := &report.Results[i]
 		if file, ok := fileMap[result.Target]; ok {
