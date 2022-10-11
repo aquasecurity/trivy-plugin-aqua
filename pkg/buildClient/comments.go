@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
+	"github.com/argonsecurity/go-environments/models"
 
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/azure"
@@ -15,72 +17,29 @@ import (
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/github"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/gitlab"
 	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter/jenkins"
-	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
+	"github.com/argonsecurity/go-environments/enums"
 )
 
-const aquaMsg = "[This comment was created by Aqua Pipeline]"
+const AQUA_MSG = "[This comment was created by Aqua Pipeline]"
 
 // prComments send results PR comments
-func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap ResultIdToUrlMap) error {
-	var c = commenter.Repository(nil)
-	switch buildSystem {
-	case metadata.Github:
-		owner, repo, err := getGitHubRepositoryDetails()
-		if err != nil {
-			return err
-		}
-		prNumber, err := extractGitHubActionPrNumber()
-		if err != nil {
-			return err
-		}
-		r, err := github.NewGithub(os.Getenv("GITHUB_TOKEN"),
-			owner,
-			repo,
-			prNumber)
-		if err != nil {
-			return err
-		}
-		c = commenter.Repository(r)
-	case metadata.Gitlab:
-		r, err := gitlab.NewGitlab(os.Getenv("GITLAB_TOKEN"))
-		if err != nil {
-			return err
-		}
-		c = commenter.Repository(r)
-	case metadata.Azure:
-		r, err := azure.NewAzure(os.Getenv("AZURE_TOKEN"))
-		if err != nil {
-			return err
-		}
-		c = commenter.Repository(r)
-	case metadata.Bitbucket:
-		r, err := bitbucket.NewBitbucket(os.Getenv("BITBUCKET_USER"), os.Getenv("BITBUCKET_TOKEN"))
-		if err != nil {
-			return err
-		}
-		c = commenter.Repository(r)
-	case metadata.Jenkins:
-		r, err := jenkins.NewJenkins(metadata.GetBaseRef())
-		if err != nil {
-			return err
-		}
-		//nolint:unconvert
-		c = commenter.Repository(r)
-	default:
-		return nil
+func prComments(envconfig *models.Configuration, result []*buildsecurity.Result, avdUrlMap ResultIdToUrlMap) error {
+	c, source, err := getCommenter(envconfig)
+	if err != nil {
+		return err
 	}
 
 	if c == nil {
 		return fmt.Errorf("couldnt initialize provider client")
 	}
-	log.Logger.Debugf("Removing previous aqua comments from %s", buildSystem)
-	err := c.RemovePreviousAquaComments(aquaMsg)
-	if err != nil {
+
+	log.Logger.Debugf("Removing previous aqua comments from %s", source)
+	if err := c.RemovePreviousAquaComments(AQUA_MSG); err != nil {
 		log.Logger.Infof("failed removing old comments with error: %s", err)
 	}
 
-	log.Logger.Debugf("Writing comments to %s", buildSystem)
+	log.Logger.Debugf("Writing comments to %s", source)
 	for _, r := range result {
 		if r.SuppressionID == "" {
 			switch r.Type {
@@ -110,6 +69,59 @@ func prComments(buildSystem string, result []*buildsecurity.Result, avdUrlMap Re
 	return nil
 }
 
+func getCommenter(envconfig *models.Configuration) (commenter.Repository, enums.Source, error) {
+	var c commenter.Repository
+	source := envconfig.Repository.Source
+
+	if strings.ToLower(envconfig.Builder) == string(enums.Jenkins) {
+		r, err := jenkins.NewJenkins(metadata.GetBaseRef(envconfig))
+		if err != nil {
+			return nil, "", err
+		}
+
+		c = r
+		return c, source, nil
+	}
+
+	switch source {
+	case enums.Github, enums.GithubServer:
+		prNumber, err := extractGitHubActionPrNumber()
+		if err != nil {
+			return nil, "", err
+		}
+		r, err := github.NewGithub(os.Getenv("GITHUB_TOKEN"),
+			envconfig.Organization.Name,
+			envconfig.Repository.Name,
+			prNumber)
+		if err != nil {
+			return nil, "", err
+		}
+		c = commenter.Repository(r)
+	case enums.Gitlab, enums.GitlabServer:
+		r, err := gitlab.NewGitlab(os.Getenv("GITLAB_TOKEN"))
+		if err != nil {
+			return nil, "", err
+		}
+		c = commenter.Repository(r)
+	case enums.Azure:
+		r, err := azure.NewAzure(os.Getenv("AZURE_TOKEN"))
+		if err != nil {
+			return nil, "", err
+		}
+		c = commenter.Repository(r)
+	case enums.Bitbucket:
+		r, err := bitbucket.NewBitbucket(os.Getenv("BITBUCKET_USER"), os.Getenv("BITBUCKET_TOKEN"))
+		if err != nil {
+			return nil, "", err
+		}
+		c = commenter.Repository(r)
+	default:
+		return nil, "", fmt.Errorf("unsupported source: %s", source)
+	}
+
+	return c, source, nil
+}
+
 func returnSecretMsg(r *buildsecurity.Result) string {
 	return fmt.Sprintf("### :warning: Aqua detected sensitive data in your code"+
 		"  \n**Category:** %s "+
@@ -121,7 +133,7 @@ func returnSecretMsg(r *buildsecurity.Result) string {
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
 		r.Message,
-		aquaMsg)
+		AQUA_MSG)
 }
 
 func returnMisconfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string {
@@ -135,7 +147,7 @@ func returnMisconfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) strin
 		r.Title,
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
 		r.Message,
-		aquaMsg)
+		AQUA_MSG)
 
 	if avdUrl := avdUrlMap[GenerateResultId(r)]; avdUrl != "" {
 		return commentWithoutAvdUrl +
@@ -159,7 +171,7 @@ func returnVulnfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string 
 		strings.ReplaceAll(r.Severity.String(), "SEVERITY_", ""),
 		r.FixedVersion,
 		r.Message,
-		aquaMsg)
+		AQUA_MSG)
 
 	if avdUrl := avdUrlMap[GenerateResultId(r)]; avdUrl != "" {
 		return commentWithoutAvdUrl +
@@ -168,18 +180,6 @@ func returnVulnfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string 
 	}
 
 	return commentWithoutAvdUrl
-}
-
-func getGitHubRepositoryDetails() (owner, repo string, err error) {
-	r := os.Getenv("GITHUB_REPOSITORY")
-	s := strings.Split(r, "/")
-	if len(s) != 2 {
-		return owner, repo,
-			fmt.Errorf("failed unexpected value for GITHUB_REPOSITORY."+
-				" Expected <organisation/name>, found %v", r)
-	}
-
-	return s[0], s[1], nil
 }
 
 // extractGitHubActionPrNumber take the pull request number from the GitHub action run

@@ -4,14 +4,10 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
+	"github.com/argonsecurity/go-environments/models"
 )
 
-func (bc *TwirpClient) GetPoliciesForRepository() ([]*buildsecurity.Policy, error) {
-
-	repoId, err := bc.GetOrCreateRepository()
-	if err != nil {
-		return nil, err
-	}
+func (bc *TwirpClient) GetPoliciesForRepository(envConfig *models.Configuration, repoId string) ([]*buildsecurity.Policy, error) {
 
 	ctx, err := bc.createContext()
 	if err != nil {

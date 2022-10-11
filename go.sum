@@ -223,12 +223,14 @@ github.com/aquasecurity/go-version v0.0.0-20210121072130-637058cfe492/go.mod h1:
 github.com/aquasecurity/table v1.8.0 h1:9ntpSwrUfjrM6/YviArlx/ZBGd6ix8W+MtojQcM7tv0=
 github.com/aquasecurity/table v1.8.0/go.mod h1:eqOmvjjB7AhXFgFqpJUEE/ietg7RrMSJZXyTN8E/wZw=
 github.com/aquasecurity/testdocker v0.0.0-20210911155206-e1e85f5a1516 h1:moQmzbpLo5dxHQCyEhqzizsDSNrNhn/7uRTCZzo4A1o=
-github.com/aquasecurity/trivy v0.32.0 h1:IcMTIa/qpWswVy/GsiVAd/rUcF0zXAx7BcOFlLFeY/M=
-github.com/aquasecurity/trivy v0.32.0/go.mod h1:/cIQDtTXnuxTkTmCF4e0I2sL7Dpkpv2ZZK/EVErJO/s=
+github.com/aquasecurity/trivy v0.32.1-0.20220922071137-e01253d54d65 h1:y3KO7T2L2bli7ZeGWD6cqvW1/3e08QSq2zbMlNg7yPs=
+github.com/aquasecurity/trivy v0.32.1-0.20220922071137-e01253d54d65/go.mod h1:lO73yTa6GoOr7oWBxWi5Ch6vh8ekOWQTjZa5IoJeRjo=
 github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63 h1:hgGD7zqlNe6sWJZPFFv1Z6T1EuYW8XD/hqx/dxjNp3Q=
 github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63/go.mod h1:/nULgnDeq/JMPMVwE1dmf4kWlYn++7VrM3O2naj4BHA=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220823151349-b90b48958b91 h1:5dpjVGSSYr1DaZvCvvc5aKCPkqq69Q6bb710v5B6obc=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220823151349-b90b48958b91/go.mod h1:9qMuqnlmsuoRBedtIV84MZJWBRWTuOcj8m1mpv94jC4=
+github.com/argonsecurity/go-environments v0.1.11 h1:cf6TggPBzZaAYTy9azHDmiquk08I3yrqbTuneE7YCUY=
+github.com/argonsecurity/go-environments v0.1.11/go.mod h1:E2Kx7VeOm9p3kUnaWUzHuMCU0NxQnIxnIOGRIgGkJBY=
 github.com/argonsecurity/pipeline-parser v0.2.2 h1:JFeZwiFJ2iYYt2uwqpyYRGDhbdQU0BMnIJtX1OQqCEQ=
 github.com/argonsecurity/pipeline-parser v0.2.2/go.mod h1:MTiBd66r2j++hvQ8vWvqM8h1s/MZ4ghpIWrhto8Vv1M=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
@@ -943,8 +945,11 @@ github.com/google/go-cmp v0.5.8/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeN
 github.com/google/go-containerregistry v0.5.1/go.mod h1:Ct15B4yir3PLOP5jsy0GNeYVaIZs/MK/Jz5any1wFW0=
 github.com/google/go-containerregistry v0.11.0 h1:Xt8x1adcREjFcmDoDK8OdOsjxu90PHkGuwNP8GiHMLM=
 github.com/google/go-containerregistry v0.11.0/go.mod h1:BBaYtsHPHA42uEgAvd/NejvAfPSlz281sJWqupjSxfk=
+github.com/google/go-github/v38 v38.1.0 h1:C6h1FkaITcBFK7gAmq4eFzt6gbhEhk7L5z6R3Uva+po=
+github.com/google/go-github/v38 v38.1.0/go.mod h1:cStvrz/7nFr0FoENgG6GLbp53WaelXucT+BBz/3VKx4=
 github.com/google/go-github/v44 v44.1.0 h1:shWPaufgdhr+Ad4eo/pZv9ORTxFpsxPEPEuuXAKIQGA=
 github.com/google/go-github/v44 v44.1.0/go.mod h1:iWn00mWcP6PRWHhXm0zuFJ8wbEjE5AGO5D5HXYM4zgw=
+github.com/google/go-querystring v1.0.0/go.mod h1:odCYkC5MyYFN7vkCjXpyrEuKhc/BUO6wN/zVPAxq5ck=
 github.com/google/go-querystring v1.1.0 h1:AnCroh3fv4ZBgVIf1Iwtovgjaw/GiKJo8M8yD/fhyJ8=
 github.com/google/go-querystring v1.1.0/go.mod h1:Kcdr2DB4koayq7X8pmAG4sNG59So17icRSOU623lUBU=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
@@ -1372,8 +1377,8 @@ github.com/onsi/gomega v1.10.3/go.mod h1:V9xEwhxec5O8UDM77eCW8vLymOMltsqPVYWrpDs
 github.com/onsi/gomega v1.15.0/go.mod h1:cIuvLEne0aoVhAgh/O6ac0Op8WWw9H6eYCriF+tEHG0=
 github.com/onsi/gomega v1.17.0/go.mod h1:HnhC7FXeEQY45zxNK3PPoIUhzk/80Xly9PcubAlGdZY=
 github.com/onsi/gomega v1.19.0 h1:4ieX6qQjPP/BfC3mpsAtIGGlxTWPeA3Inl/7DtXw1tw=
-github.com/open-policy-agent/opa v0.43.0 h1:UKTpyFUPMs4wYYL1qsXpYQQurBCPoEjFbxaD/4V46gY=
-github.com/open-policy-agent/opa v0.43.0/go.mod h1:xfTsKQEMvy7CxxgsCFoYuzT9jA/8C4JWLignCkN4Dzw=
+github.com/open-policy-agent/opa v0.43.1 h1:GAtUd6aO5lObFP6rRpteXDVffKa4vGUF4I6qVLdhUng=
+github.com/open-policy-agent/opa v0.43.1/go.mod h1:xfTsKQEMvy7CxxgsCFoYuzT9jA/8C4JWLignCkN4Dzw=
 github.com/opencontainers/go-digest v0.0.0-20170106003457-a6d0ee40d420/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQYUd2OVphdqWwCJHrFt2s=
 github.com/opencontainers/go-digest v0.0.0-20180430190053-c9281466c8b2/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQYUd2OVphdqWwCJHrFt2s=
 github.com/opencontainers/go-digest v1.0.0-rc1/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQYUd2OVphdqWwCJHrFt2s=
@@ -1415,6 +1420,7 @@ github.com/opencontainers/selinux v1.10.1/go.mod h1:2i0OySw99QjzBBQByd1Gr9gSjvuh
 github.com/opentracing/opentracing-go v1.1.0/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
 github.com/opentracing/opentracing-go v1.2.0 h1:uEJPy/1a5RIPAJ0Ov+OIO8OxWu77jEv+1B0VhjKrZUs=
 github.com/opentracing/opentracing-go v1.2.0/go.mod h1:GxEUsuufX4nBwe+T+Wl9TAgYrxe9dPLANfrWvHYVTgc=
+github.com/otiai10/copy v1.7.0 h1:hVoPiN+t+7d2nzzwMiDHPSOogsWAStewq3TwU05+clE=
 github.com/owenrumney/go-sarif v1.1.1/go.mod h1:dNDiPlF04ESR/6fHlPyq7gHKmrM0sHUvAGjsoh8ZH0U=
 github.com/owenrumney/go-sarif/v2 v2.1.2 h1:PMDK7tXShJ9zsB7bfvlpADH5NEw1dfA9xwU8Xtdj73U=
 github.com/owenrumney/go-sarif/v2 v2.1.2/go.mod h1:MSqMMx9WqlBSY7pXoOZWgEsVB4FDNfhcaXDA1j6Sr+w=
@@ -1510,6 +1516,9 @@ github.com/rogpeppe/go-internal v1.2.2/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFR
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.8.0 h1:FCbCCtXNOY3UtUuHUYaghJg4y7Fd14rXifAYUAtL9R8=
 github.com/rogpeppe/go-internal v1.8.0/go.mod h1:WmiCO8CzOY8rg0OYDC4/i/2WRWAB6poM+XZ2dLUbcbE=
+github.com/rs/xid v1.3.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
+github.com/rs/zerolog v1.25.0 h1:Rj7XygbUHKUlDPcVdoLyR91fJBsduXj5fRxyqIQj/II=
+github.com/rs/zerolog v1.25.0/go.mod h1:7KHcEGe0QZPOm2IE4Kpb5rTh6n1h2hIgS5OOnu1rUaI=
 github.com/rubenv/sql-migrate v1.1.1 h1:haR5Hn8hbW9/SpAICrXoZqXnywS7Q5WijwkQENPeNWY=
 github.com/rubenv/sql-migrate v1.1.1/go.mod h1:/7TZymwxN8VWumcIxw1jjHEcR1djpdkMHQPT4FWdnbQ=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=

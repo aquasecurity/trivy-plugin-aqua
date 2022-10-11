@@ -4,6 +4,7 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/buildClient"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
+	"github.com/argonsecurity/go-environments/models"
 )
 
 // Upload forwards the results to the configured client
@@ -12,7 +13,8 @@ func Upload(client buildClient.Client,
 	tags map[string]string,
 	avdUrlMap buildClient.ResultIdToUrlMap,
 	pipelines []*buildsecurity.Pipeline,
-	dependencies map[string]*buildsecurity.PackageDependencies) error {
+	dependencies map[string]*buildsecurity.PackageDependencies,
+	envConfig *models.Configuration) error {
 	log.Logger.Debugf("Uploading scan with tags. %v", tags)
-	return client.Upload(results, tags, avdUrlMap, pipelines, dependencies)
+	return client.Upload(results, tags, avdUrlMap, pipelines, dependencies, envConfig)
 }

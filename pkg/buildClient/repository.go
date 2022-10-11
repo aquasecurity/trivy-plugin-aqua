@@ -4,9 +4,10 @@ import (
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/metadata"
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/proto/buildsecurity"
+	"github.com/argonsecurity/go-environments/models"
 )
 
-func (bc *TwirpClient) GetOrCreateRepository() (string, error) {
+func (bc *TwirpClient) UpsertRepository(envConfig *models.Configuration) (string, error) {
 
 	log.Logger.Debug("Getting the repository id for current scan path")
 	if bc.repoId != "" {
@@ -23,35 +24,26 @@ func (bc *TwirpClient) GetOrCreateRepository() (string, error) {
 		return "", err
 	}
 
-	req := &buildsecurity.LookupRepositoryReq{
-		SCMID: scmID,
-	}
-
-	repository, err := bc.client.LookupRepository(ctx, req)
+	var repoId string
+	repoName, err := bc.getRepoName()
 	if err != nil {
 		return "", err
 	}
 
-	var repoId string
-	if repository.GetRepositoryID() != "" {
-		repoId = repository.RepositoryID
-	} else {
-		log.Logger.Debug("Did not find the repository remotely, creating")
-		repoName, err := bc.getRepoName()
-		if err != nil {
-			return "", err
-		}
-		newRepo, err := bc.client.CreateRepository(ctx, &buildsecurity.CreateRepositoryReq{
-			SCMID: scmID,
-			Name:  repoName,
-		})
-		if err != nil {
-			return "", err
-		}
+	topics, _ := getTopics(envConfig)
 
-		log.Logger.Debugf("Created new repository for %s", repoName)
-		repoId = newRepo.RepositoryID
+	newRepo, err := bc.client.UpsertRepository(ctx, &buildsecurity.UpsertRepositoryReq{
+		SCMID:  scmID,
+		Name:   repoName,
+		Topics: topics,
+	})
+
+	if err != nil {
+		return "", err
 	}
+
+	log.Logger.Debugf("Created new repository for %s", repoName)
+	repoId = newRepo.RepositoryID
 
 	bc.repoId = repoId
 	return repoId, nil
