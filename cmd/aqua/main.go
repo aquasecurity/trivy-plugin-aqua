@@ -307,6 +307,16 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 		return fmt.Errorf("could not get environmet configuration: %w", err)
 	}
 
+	repoURL := envConfig.Repository.Url
+	repoSource := envConfig.Repository.Source
+	if viper.GetString("repository-url") != "" && viper.GetString("repository-source") != "" {
+		repoURL = viper.GetString("repository-url")
+		repoSource = enums.Source(viper.GetString("repository-source"))
+	}
+
+	envConfig.Repository.Url = repoURL
+	envConfig.Repository.Source = repoSource
+
 	report, pipelines, err := scanner.Scan(cmd.Context(), options, cmd.Name(), scanPath, envConfig)
 	if err != nil {
 		return err
@@ -344,14 +354,7 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 		return err
 	}
 
-	repoURL := envConfig.Repository.Url
-	repoSource := envConfig.Repository.Source
-	if viper.GetString("repository-url") != "" && viper.GetString("repository-source") != "" {
-		repoURL = viper.GetString("repository-url")
-		repoSource = enums.Source(viper.GetString("repository-source"))
-	}
-
-	processedResults = processor.EnhanceResults(processedResults, repoURL, repoSource, envConfig.Branch, envConfig.CommitSha)
+	processedResults = processor.EnhanceResults(processedResults, envConfig)
 
 	if !viper.GetBool("skip-result-upload") {
 		if len(viper.GetStringSlice("tags")) > 0 {

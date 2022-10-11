@@ -6,7 +6,7 @@ import (
 
 	ftypes "github.com/aquasecurity/trivy/pkg/fanal/types"
 	"github.com/argonsecurity/go-environments"
-	"github.com/argonsecurity/go-environments/enums"
+	"github.com/argonsecurity/go-environments/models"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
@@ -117,27 +117,29 @@ func ProcessResults(reports types.Results,
 	return results, dependencies, avdUrlMap
 }
 
-func EnhanceResults(results []*buildsecurity.Result, repoURL string, repoSource enums.Source, branch string, commit string) []*buildsecurity.Result {
+func EnhanceResults(results []*buildsecurity.Result, envConfig *models.Configuration) []*buildsecurity.Result {
 	enhancedResults := make([]*buildsecurity.Result, len(results))
 	for i, result := range results {
 
 		result.FileLink = environments.GetFileLink(
-			repoSource,
-			repoURL,
+			envConfig.Repository.Source,
+			envConfig.Repository.Url,
 			result.Filename,
-			branch,
-			commit,
+			envConfig.Branch,
+			envConfig.CommitSha,
 		)
 
-		result.FileLineLink = environments.GetFileLineLink(
-			repoSource,
-			repoURL,
-			result.Filename,
-			branch,
-			commit,
-			int(result.StartLine),
-			int(result.EndLine),
-		)
+		if result.StartLine != 0 {
+			result.FileLineLink = environments.GetFileLineLink(
+				envConfig.Repository.Source,
+				envConfig.Repository.Url,
+				result.Filename,
+				envConfig.Branch,
+				envConfig.CommitSha,
+				int(result.StartLine),
+				int(result.EndLine),
+			)
+		}
 		enhancedResults[i] = result
 	}
 	return enhancedResults
