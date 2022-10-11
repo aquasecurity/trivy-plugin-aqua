@@ -96,7 +96,7 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 		}
 
 		if filenameReplaceMap != nil {
-			addLineNumberAndFilenames(&report, filenameReplaceMap, packageJsonFiles)
+			patchLineNumberAndFilenames(&report, filenameReplaceMap, packageJsonFiles)
 		}
 
 	}
@@ -114,7 +114,7 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 	return &report, repositoryPipelines, nil
 }
 
-func addLineNumberAndFilenames(report *trivyTypes.Report, fileMap map[string]string, packageJsonFiles map[string]oss.PackageJson) {
+func patchLineNumberAndFilenames(report *trivyTypes.Report, fileMap map[string]string, packageJsonFiles map[string]oss.PackageJson) {
 	for i := range report.Results {
 		result := &report.Results[i]
 		if file, ok := fileMap[result.Target]; ok {

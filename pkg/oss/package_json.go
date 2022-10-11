@@ -21,7 +21,6 @@ type Dependency struct {
 }
 
 func (pj *PackageJson) UnmarshalJSON(data []byte) error {
-	// Unmarshal JSON into a map[string]interface{}
 	var m map[string]interface{}
 	if err := json.Unmarshal(data, &m); err != nil {
 		return err
