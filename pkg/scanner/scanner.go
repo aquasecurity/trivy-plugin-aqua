@@ -76,7 +76,7 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 			}
 		}
 
-		_ /* packageJsonFiles */, noLockFiles, filenameReplaceMap := oss.DetectPackageJsonFiles(opts.Target)
+		packageJsonFiles, noLockFiles, filenameReplaceMap := oss.DetectPackageJsonFiles(opts.Target)
 
 		if viper.GetBool("package-json") && len(noLockFiles) > 0 {
 			log.Logger.Warn("package.json files without lock files found. Please run install before scanning or upload lock files")
@@ -96,7 +96,7 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 		}
 
 		if filenameReplaceMap != nil {
-			replaceFilenames(&report, filenameReplaceMap)
+			addLineNumberAndFilenames(&report, filenameReplaceMap, packageJsonFiles)
 		}
 
 	}
@@ -114,11 +114,25 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 	return &report, repositoryPipelines, nil
 }
 
-func replaceFilenames(report *trivyTypes.Report, fileMap map[string]string) {
+func addLineNumberAndFilenames(report *trivyTypes.Report, fileMap map[string]string, packageJsonFiles map[string]oss.PackageJson) {
 	for i := range report.Results {
 		result := &report.Results[i]
 		if file, ok := fileMap[result.Target]; ok {
 			result.Target = file
+			if packageJson, ok := packageJsonFiles[file]; ok {
+				for i, vuln := range result.Vulnerabilities {
+					name := vuln.PkgName
+					if dep, ok := packageJson.Dependencies[name]; ok {
+						custom := vuln.Custom
+						if vuln.Custom == nil {
+							custom = make(map[string]interface{})
+						}
+						v, _ := custom.(map[string]interface{})
+						v["lineNumber"] = dep.Line
+						result.Vulnerabilities[i].Custom = v
+					}
+				}
+			}
 		}
 	}
 }

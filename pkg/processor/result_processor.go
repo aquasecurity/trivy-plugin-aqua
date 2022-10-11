@@ -147,6 +147,13 @@ func addVulnerabilitiesResults(rep types.Result,
 
 		var r buildsecurity.Result
 
+		if customFields, ok := vuln.Custom.(map[string]interface{}); ok {
+			if lineNumber, ok := customFields["lineNumber"].(int32); ok {
+				r.StartLine = lineNumber
+				r.EndLine = lineNumber
+			}
+		}
+
 		r.PolicyResults = checkVulnAgainstPolicies(vuln, downloadedPolicies, rep.Target)
 		r.Type = scanner.MatchResultType("VULNERABILITIES")
 		r.Title = vuln.Title
