@@ -89,6 +89,8 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 			}
 		}
 
+		// setting list-all-pkgs to true, for getting all dependencies
+		opts.ListAllPkgs = true
 		// Filesystem scanning
 		if report, err = r.ScanFilesystem(ctx, opts); err != nil {
 			return nil, nil, fmt.Errorf("image scan error: %w", err)
