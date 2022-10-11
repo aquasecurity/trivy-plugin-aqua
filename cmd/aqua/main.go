@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/argonsecurity/go-environments"
+	"github.com/argonsecurity/go-environments/enums"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"golang.org/x/xerrors"
@@ -108,6 +109,18 @@ func initPluginStringFlags() {
 			EnvName:      "TAGS",
 			DefaultValue: "",
 			Description:  "Add this flag for key:val pairs as scan metadata",
+		},
+		{
+			Name:         "repository-url",
+			EnvName:      "OVERRIDE_REPOSITORY_URL",
+			DefaultValue: "",
+			Description:  "Add this flag in case the plugin doesn't run on a supported CI",
+		},
+		{
+			Name:         "repository-source",
+			EnvName:      "OVERRIDE_REPOSITORY_SOURCE",
+			DefaultValue: "",
+			Description:  "Add this flag in case the plugin doesn't run on a supported CI",
 		},
 	}
 }
@@ -330,6 +343,15 @@ func runScan(cmd *cobra.Command, args []string, options flag.Options) error {
 	if err != nil {
 		return err
 	}
+
+	repoURL := envConfig.Repository.Url
+	repoSource := envConfig.Repository.Source
+	if viper.GetString("repository-url") != "" && viper.GetString("repository-source") != "" {
+		repoURL = viper.GetString("repository-url")
+		repoSource = enums.Source(viper.GetString("repository-source"))
+	}
+
+	processedResults = processor.EnhanceResults(processedResults, repoURL, repoSource, envConfig.Branch, envConfig.CommitSha)
 
 	if !viper.GetBool("skip-result-upload") {
 		if len(viper.GetStringSlice("tags")) > 0 {
