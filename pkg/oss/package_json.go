@@ -20,6 +20,10 @@ type Dependency struct {
 	Line    int32
 }
 
+func (d *Dependency) Id() string {
+	return fmt.Sprintf("%s@%s", d.Name, d.Version)
+}
+
 func (pj *PackageJson) UnmarshalJSON(data []byte) error {
 	var m map[string]interface{}
 	if err := json.Unmarshal(data, &m); err != nil {
@@ -35,11 +39,12 @@ func (pj *PackageJson) UnmarshalJSON(data []byte) error {
 				if ver, ok := ver.(string); ok {
 					nameIndex := bytes.Index(data, []byte(fmt.Sprintf(`"%s":`, name)))
 					line := int32(bytes.Count(data[:nameIndex], lineSep))
-					pj.Dependencies[name] = Dependency{
+					dep := Dependency{
 						Name:    name,
 						Version: ver,
 						Line:    lo.Ternary(line == 0, -1, line+1),
 					}
+					pj.Dependencies[dep.Id()] = dep
 				}
 			}
 		}
@@ -50,8 +55,8 @@ func (pj *PackageJson) UnmarshalJSON(data []byte) error {
 
 func (ds Dependencies) MarshalJSON() ([]byte, error) {
 	m := make(map[string]string, len(ds))
-	for k, v := range ds {
-		m[k] = v.Version
+	for _, v := range ds {
+		m[v.Name] = v.Version
 	}
 	return json.Marshal(m)
 }
