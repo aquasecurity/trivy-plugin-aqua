@@ -139,6 +139,12 @@ func initPluginBoolFlags() {
 			DefaultValue: false,
 			Description:  "Add this flag to scan package.json files without lock files",
 		},
+		{
+			Name:         "plugin-list-all-pkgs",
+			EnvName:      "TRIVY_PLUGIN_LIST_ALL_PKGS",
+			DefaultValue: true,
+			Description:  "Add this flag to fetch all pkgs (default: true)",
+		},
 	}
 }
 
