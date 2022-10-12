@@ -130,8 +130,7 @@ func patchLineNumberAndFilenames(report *trivyTypes.Report, fileMap map[string]s
 
 func addResultLineNumber(result *trivyTypes.Result, packageJson *oss.PackageJson) {
 	for i, vuln := range result.Vulnerabilities {
-		pkgId := vuln.PkgID
-		if dep := findVulnerableTopDependency(result, packageJson, pkgId); dep != nil {
+		if dep := findVulnerableTopDependency(result, packageJson, vuln.PkgID, vuln.PkgName); dep != nil {
 			custom := vuln.Custom
 			if vuln.Custom == nil {
 				custom = make(map[string]interface{})
@@ -143,13 +142,13 @@ func addResultLineNumber(result *trivyTypes.Result, packageJson *oss.PackageJson
 	}
 }
 
-func findVulnerableTopDependency(result *trivyTypes.Result, packageJson *oss.PackageJson, pkgId string) *oss.Dependency {
-	if dep, ok := packageJson.Dependencies[pkgId]; ok {
+func findVulnerableTopDependency(result *trivyTypes.Result, packageJson *oss.PackageJson, pkgId, pkgName string) *oss.Dependency {
+	if dep, ok := packageJson.Dependencies[pkgName]; ok {
 		return &dep
 	} else {
 		for _, pkg := range result.Packages {
 			if slices.Contains(pkg.DependsOn, pkgId) {
-				if dep := findVulnerableTopDependency(result, packageJson, pkg.ID); dep != nil {
+				if dep := findVulnerableTopDependency(result, packageJson, pkg.ID, pkg.Name); dep != nil {
 					return dep
 				}
 			}
