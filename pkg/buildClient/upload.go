@@ -17,7 +17,7 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result,
 	avdUrlMap ResultIdToUrlMap,
 	pipelines []*buildsecurity.Pipeline,
 	dependencies map[string]*buildsecurity.PackageDependencies,
-	envconfig *models.Configuration) error {
+	envConfig *models.Configuration) error {
 	client := buildsecurity.NewBuildSecurityProtobufClient(bc.aquaUrl, &http.Client{})
 
 	ctx, err := bc.createContext()
@@ -29,27 +29,25 @@ func (bc *TwirpClient) Upload(results []*buildsecurity.Result,
 	createScanReq := &buildsecurity.CreateScanReq{
 		RepositoryID:                 bc.repoId,
 		Results:                      results,
-		User:                         envconfig.Pusher.Username,
-		Branch:                       envconfig.Branch,
-		Commit:                       envconfig.CommitSha,
-		System:                       string(envconfig.Repository.Source),
+		User:                         envConfig.Pusher.Username,
+		Branch:                       envConfig.Branch,
+		Commit:                       envConfig.CommitSha,
+		System:                       string(envConfig.Repository.Source),
 		Tags:                         tags,
 		TriggeredBy:                  scanner.MatchTriggeredBy(triggeredBy),
-		Run:                          envconfig.Run.BuildNumber,
-		BuildID:                      envconfig.Run.BuildId,
+		Run:                          envConfig.Run.BuildNumber,
+		BuildID:                      envConfig.Run.BuildId,
 		Pipelines:                    pipelines,
 		TargetPackageDependenciesMap: dependencies,
 	}
 
-	_, err = client.CreateScan(ctx, createScanReq)
-	if err != nil {
+	if _, err := client.CreateScan(ctx, createScanReq); err != nil {
 		return fmt.Errorf("failed sending results with error: %w", err)
 	}
 
 	// Send pull request comments
 	if triggeredBy == "PR" && len(results) > 0 {
-		err = prComments(envconfig, results, avdUrlMap)
-		if err != nil {
+		if err := prComments(envConfig, results, avdUrlMap); err != nil {
 			log.Logger.Info("failed send PR comment logging and continue the scan err: ", err)
 		}
 	}
