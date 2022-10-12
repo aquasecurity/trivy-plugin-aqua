@@ -62,7 +62,7 @@ func writeFile(path, content string) error {
 // Create folders with head and base for diff scanning
 func createDiffScanFs(envconfig *models.Configuration) error {
 	// In GitHub we need fetch the remote branch first
-	if envconfig.Repository.Source == enums.Github {
+	if envconfig.Repository.Source == enums.Github || envconfig.Repository.Source == enums.GithubServer {
 		// In GitHub trivy action container we need safe directory to run git fetch
 		_, err := git.GitExec("config", "--global", "--add", "safe.directory", "/github/workspace")
 		if err != nil {

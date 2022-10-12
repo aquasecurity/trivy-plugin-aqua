@@ -210,8 +210,8 @@ github.com/aquasecurity/go-dep-parser v0.0.0-20220912084514-9d42a63ca964 h1:Ilqo
 github.com/aquasecurity/go-dep-parser v0.0.0-20220912084514-9d42a63ca964/go.mod h1:6G1Y5nht5TL9kr1SzmrdE8PrmbNXo9nHx3qFR3qURg0=
 github.com/aquasecurity/go-gem-version v0.0.0-20201115065557-8eed6fe000ce h1:QgBRgJvtEOBtUXilDb1MLi1p1MWoyFDXAu5DEUl5nwM=
 github.com/aquasecurity/go-gem-version v0.0.0-20201115065557-8eed6fe000ce/go.mod h1:HXgVzOPvXhVGLJs4ZKO817idqr/xhwsTcj17CLYY74s=
-github.com/aquasecurity/go-git-pr-commenter v0.8.1 h1:dvd4zifW9qb2lFZagZ/8DXZq+TopDaTK4K6RLhtvR6o=
-github.com/aquasecurity/go-git-pr-commenter v0.8.1/go.mod h1:cHPlBrSN+KFsiZEetv3cckCTpCC01GQ/I5D8UPIEokY=
+github.com/aquasecurity/go-git-pr-commenter v0.8.2 h1:qN0pBQT5foUDdRenXpw2Nuo4rPmfcS4+/EKyqyn+FNo=
+github.com/aquasecurity/go-git-pr-commenter v0.8.2/go.mod h1:AREZCRxsh3zfoYqjKssA/9SYdB/fBZsJheKeSaZYvA0=
 github.com/aquasecurity/go-mock-aws v0.0.0-20220726154943-99847deb62b0 h1:tihCUjLWkF0b1SAjAKcFltUs3SpsqGrLtI+Frye0D10=
 github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798 h1:eveqE9ivrt30CJ7dOajOfBavhZ4zPqHcZe/4tKp0alc=
 github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798/go.mod h1:hxbJZtKlO4P8sZ9nztizR6XLoE33O+BkPmuYQ4ACyz0=
@@ -229,8 +229,8 @@ github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63 h1:hgGD7zqlN
 github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63/go.mod h1:/nULgnDeq/JMPMVwE1dmf4kWlYn++7VrM3O2naj4BHA=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220823151349-b90b48958b91 h1:5dpjVGSSYr1DaZvCvvc5aKCPkqq69Q6bb710v5B6obc=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220823151349-b90b48958b91/go.mod h1:9qMuqnlmsuoRBedtIV84MZJWBRWTuOcj8m1mpv94jC4=
-github.com/argonsecurity/go-environments v0.1.11 h1:cf6TggPBzZaAYTy9azHDmiquk08I3yrqbTuneE7YCUY=
-github.com/argonsecurity/go-environments v0.1.11/go.mod h1:E2Kx7VeOm9p3kUnaWUzHuMCU0NxQnIxnIOGRIgGkJBY=
+github.com/argonsecurity/go-environments v0.1.17 h1:HKoQ/95mnDqtWuuQ7n7c3eXYQNd0EfKPGlV4fODo7mQ=
+github.com/argonsecurity/go-environments v0.1.17/go.mod h1:E2Kx7VeOm9p3kUnaWUzHuMCU0NxQnIxnIOGRIgGkJBY=
 github.com/argonsecurity/pipeline-parser v0.2.2 h1:JFeZwiFJ2iYYt2uwqpyYRGDhbdQU0BMnIJtX1OQqCEQ=
 github.com/argonsecurity/pipeline-parser v0.2.2/go.mod h1:MTiBd66r2j++hvQ8vWvqM8h1s/MZ4ghpIWrhto8Vv1M=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
