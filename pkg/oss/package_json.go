@@ -20,10 +20,6 @@ type Dependency struct {
 	Line    int32
 }
 
-func (d *Dependency) Id() string {
-	return fmt.Sprintf("%s@%s", d.Name, d.Version)
-}
-
 func (pj *PackageJson) UnmarshalJSON(data []byte) error {
 	var m map[string]interface{}
 	if err := json.Unmarshal(data, &m); err != nil {
