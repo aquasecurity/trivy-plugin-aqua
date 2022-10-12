@@ -12,67 +12,55 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
+	"github.com/samber/lo"
 )
 
-const packageJsonFileName = "package.json"
-const packageLockFileName = "package-lock.json"
-const yarnLockFileName = "yarn.lock"
+var skipDirs = []string{"node_modules", ".git"}
 
-func GeneratePackageLockFiles(path string) (string, map[string]string, error) {
-	files := findPackageJsonFiles(path)
+const (
+	packageJsonFileName = "package.json"
+	packageLockFileName = "package-lock.json"
+	yarnLockFileName    = "yarn.lock"
+)
 
+func GeneratePackageLockFiles(path string, noLockFiles map[string]PackageJson) (string, map[string]string, error) {
 	var (
 		err     error
 		tmpDir  string
 		fileDir string
 	)
 
-	tmpDir, err = os.MkdirTemp(path, "")
+	tmpDir, err = os.MkdirTemp(path, "lockfiles-")
 
 	if err != nil {
 		return "", nil, err
 	}
 
-	packageLockToPackageJsonMap := make(map[string]string)
+	newLockToPackageJsonMap := make(map[string]string)
 
-	for _, file := range files {
-		bs, err := os.ReadFile(file)
-
-		if err != nil {
-			log.Logger.Warnf("Error occurred while reading file %s: %s", file, err.Error())
-
-			continue
-		}
-
-		var packageJson PackageJson
-		err = json.Unmarshal(bs, &packageJson)
-		if err != nil {
-			log.Logger.Warnf("Error occurred while unmarshalling file %s: %s", file, err.Error())
-
-			continue
-		}
-
-		fileDir, err = os.MkdirTemp(tmpDir, "")
+	for filePath, file := range noLockFiles {
+		tmpPattern := fmt.Sprintf("%s-*", strings.ReplaceAll(strings.TrimPrefix(filePath, path+"/"), "/", "-"))
+		fileDir, err = os.MkdirTemp(tmpDir, tmpPattern)
 		if err != nil {
 			log.Logger.Warnf("Error occurred while creating temp directory: %s", err.Error())
-
 			continue
 		}
 
-		if lockpath, err := createPackageLockFile(fileDir, packageJson); err != nil {
+		if lockpath, err := createPackageLockFile(fileDir, file); err != nil {
 			log.Logger.Warnf("Error occurred while creating package-lock.json file: %s", err.Error())
 		} else {
-			target, _ := filepath.Rel(path, file)
 			source, _ := filepath.Rel(path, lockpath)
-			packageLockToPackageJsonMap[source] = target
+			newLockToPackageJsonMap[source] = filePath
 		}
 	}
 
-	return tmpDir, packageLockToPackageJsonMap, nil
+	return tmpDir, newLockToPackageJsonMap, nil
 }
 
-func findPackageJsonFiles(dirPath string) []string {
-	files := []string{}
+func DetectPackageJsonFiles(dirPath string) (map[string]PackageJson, map[string]PackageJson, map[string]string) {
+	packageJsonFiles := make(map[string]PackageJson)
+	noLockPackageJsonFiles := make(map[string]PackageJson)
+	lockToPackageJson := map[string]string{}
 
 	//nolint:errcheck
 	filepath.Walk(dirPath, func(path string, f os.FileInfo, err error) error {
@@ -86,7 +74,7 @@ func findPackageJsonFiles(dirPath string) []string {
 
 		f_mode := f.Mode()
 
-		if f.IsDir() && f.Name() == "node_modules" {
+		if f.IsDir() && lo.Contains(skipDirs, f.Name()) {
 			return filepath.SkipDir
 		}
 
@@ -95,30 +83,63 @@ func findPackageJsonFiles(dirPath string) []string {
 		}
 
 		if f.Name() == packageJsonFileName {
-			packageLockPath := filepath.Join(filepath.Dir(path), packageLockFileName)
-			if _, err := os.Stat(packageLockPath); !os.IsNotExist(err) {
-				return nil
+			path = strings.TrimPrefix(path, dirPath+"/")
+
+			packageJsonFiles[path] = readPackageJsonFile(path, dirPath)
+
+			lockPath, foundPkgLock := findLockFile(path, dirPath, packageLockFileName)
+			if foundPkgLock {
+				lockToPackageJson[lockPath] = path
 			}
 
-			yarnLockPath := filepath.Join(filepath.Dir(path), yarnLockFileName)
-			if _, err := os.Stat(yarnLockPath); !os.IsNotExist(err) {
-				return nil
+			lockPath, foundYarnLock := findLockFile(path, dirPath, yarnLockFileName)
+			if foundYarnLock {
+				lockToPackageJson[lockPath] = path
 			}
 
-			files = append(files, path)
+			if !foundPkgLock && !foundYarnLock {
+				noLockPackageJsonFiles[path] = packageJsonFiles[path]
+			}
 		}
-
 		return nil
 	})
 
-	return files
+	return packageJsonFiles, noLockPackageJsonFiles, lockToPackageJson
+}
+
+func readPackageJsonFile(path, dirPath string) PackageJson {
+	var packageJson PackageJson
+
+	bs, err := os.ReadFile(filepath.Join(dirPath, path))
+	if err != nil {
+		log.Logger.Warnf("Error occurred while reading file %s: %s", path, err.Error())
+
+		return packageJson
+	}
+
+	err = json.Unmarshal(bs, &packageJson)
+	if err != nil {
+		log.Logger.Warnf("Error occurred while unmarshalling file %s: %s", path, err.Error())
+
+		return packageJson
+	}
+
+	return packageJson
+}
+
+func findLockFile(path, dirPath, lockFilename string) (string, bool) {
+	lockPath := filepath.Join(filepath.Dir(path), lockFilename)
+	if _, err := os.Stat(filepath.Join(dirPath, lockPath)); !os.IsNotExist(err) {
+		return lockPath, true
+	}
+	return "", false
 }
 
 func createPackageJsonFile(dir string, packageJson PackageJson) error {
 	filePath := filepath.Join(dir, packageJsonFileName)
 
-	for key, version := range packageJson.Dependencies {
-		if strings.HasPrefix(version, "link") {
+	for key, dep := range packageJson.Dependencies {
+		if strings.HasPrefix(dep.Version, "link") {
 			delete(packageJson.Dependencies, key)
 		}
 	}

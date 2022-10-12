@@ -11,6 +11,7 @@ import (
 
 	"github.com/argonsecurity/go-environments/models"
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
 
@@ -75,27 +76,29 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 			}
 		}
 
-		var (
-			fileMap map[string]string = nil
-			dir     string
-		)
+		packageJsonFiles, noLockFiles, filenameReplaceMap := oss.DetectPackageJsonFiles(opts.Target)
 
-		if viper.GetBool("package-json") {
-			dir, fileMap, err = oss.GeneratePackageLockFiles(opts.Target)
+		if viper.GetBool("package-json") && len(noLockFiles) > 0 {
+			log.Logger.Warn("package.json files without lock files found. Please run install before scanning or upload lock files")
+			log.Logger.Warn("Generating lock files for package.json files")
+			dir, newLocksToPackageJson, err := oss.GeneratePackageLockFiles(opts.Target, noLockFiles)
 			if err != nil {
 				log.Logger.Errorf("failed to generate package-lock.json: %s", err)
 			} else {
 				defer os.RemoveAll(dir)
 			}
+			filenameReplaceMap = lo.Assign(filenameReplaceMap, newLocksToPackageJson)
 		}
 
+		// setting list-all-pkgs to plugin-list-all-pkgs (default: true), for getting all dependencies
+		opts.ListAllPkgs = viper.GetBool("plugin-list-all-pkgs")
 		// Filesystem scanning
 		if report, err = r.ScanFilesystem(ctx, opts); err != nil {
 			return nil, nil, fmt.Errorf("image scan error: %w", err)
 		}
 
-		if fileMap != nil {
-			fixPackageJsonPaths(&report, fileMap)
+		if filenameReplaceMap != nil {
+			patchLineNumberAndFilenames(&report, filenameReplaceMap, packageJsonFiles)
 		}
 
 	}
@@ -113,11 +116,25 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 	return &report, repositoryPipelines, nil
 }
 
-func fixPackageJsonPaths(report *trivyTypes.Report, fileMap map[string]string) {
+func patchLineNumberAndFilenames(report *trivyTypes.Report, fileMap map[string]string, packageJsonFiles map[string]oss.PackageJson) {
 	for i := range report.Results {
 		result := &report.Results[i]
 		if file, ok := fileMap[result.Target]; ok {
 			result.Target = file
+			if packageJson, ok := packageJsonFiles[file]; ok {
+				for i, vuln := range result.Vulnerabilities {
+					name := vuln.PkgName
+					if dep, ok := packageJson.Dependencies[name]; ok {
+						custom := vuln.Custom
+						if vuln.Custom == nil {
+							custom = make(map[string]interface{})
+						}
+						v, _ := custom.(map[string]interface{})
+						v["lineNumber"] = dep.Line
+						result.Vulnerabilities[i].Custom = v
+					}
+				}
+			}
 		}
 	}
 }

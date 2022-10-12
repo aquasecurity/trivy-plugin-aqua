@@ -3,6 +3,7 @@ package buildClient
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -84,12 +85,31 @@ func getCommenter(envconfig *models.Configuration) (commenter.Repository, enums.
 	}
 
 	switch source {
-	case enums.Github, enums.GithubServer:
+	case enums.Github:
 		prNumber, err := extractGitHubActionPrNumber()
 		if err != nil {
 			return nil, "", err
 		}
 		r, err := github.NewGithub(os.Getenv("GITHUB_TOKEN"),
+			envconfig.Organization.Name,
+			envconfig.Repository.Name,
+			prNumber)
+		if err != nil {
+			return nil, "", err
+		}
+		c = commenter.Repository(r)
+	case enums.GithubServer:
+		prNumber, err := extractGitHubActionPrNumber()
+		if err != nil {
+			return nil, "", err
+		}
+		parsedUrl, err := url.Parse(envconfig.Repository.CloneUrl)
+		if err != nil {
+			return nil, "", fmt.Errorf("failed to parse clone parsedUrl %s - %s", envconfig.Repository.CloneUrl, err.Error())
+		}
+
+		r, err := github.NewGithubServer(fmt.Sprintf("%s://%s", parsedUrl.Scheme, parsedUrl.Host),
+			os.Getenv("GITHUB_TOKEN"),
 			envconfig.Organization.Name,
 			envconfig.Repository.Name,
 			prNumber)
