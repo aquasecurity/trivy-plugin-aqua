@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
@@ -158,12 +159,13 @@ func createPackageJsonFile(dir string, packageJson PackageJson) error {
 }
 
 func createPackageLockFile(dir string, packageJson PackageJson) (string, error) {
+	filteredPackageJson := filterDependencies(packageJson)
 	packageRegexp := regexp.MustCompile(`https:\/\/registry\.npmjs\.org\/(.*) -`)
 
 	shouldRetry := true
 
 	for shouldRetry {
-		if err := createPackageJsonFile(dir, packageJson); err != nil {
+		if err := createPackageJsonFile(dir, filteredPackageJson); err != nil {
 			return "", err
 		}
 
@@ -193,7 +195,7 @@ func createPackageLockFile(dir string, packageJson PackageJson) (string, error) 
 						matches[1], err.Error())
 				}
 
-				delete(packageJson.Dependencies, unfoundPackage)
+				delete(filteredPackageJson.Dependencies, unfoundPackage)
 
 				packagePrefixRegexp := regexp.MustCompile(`(@[^\/]*)\/.*`)
 
@@ -202,9 +204,9 @@ func createPackageLockFile(dir string, packageJson PackageJson) (string, error) 
 				if len(matches) > 1 {
 					packagePrefix := matches[1]
 
-					for key := range packageJson.Dependencies {
+					for key := range filteredPackageJson.Dependencies {
 						if strings.HasPrefix(key, packagePrefix+"/") {
-							delete(packageJson.Dependencies, key)
+							delete(filteredPackageJson.Dependencies, key)
 						}
 					}
 				}
@@ -214,4 +216,37 @@ func createPackageLockFile(dir string, packageJson PackageJson) (string, error) 
 		}
 	}
 	return filepath.Join(dir, packageLockFileName), nil
+}
+
+func filterDependencies(packageJson PackageJson) PackageJson {
+
+	packageJson.Dependencies = lo.PickBy(packageJson.Dependencies, func(_ string, v Dependency) bool {
+		if isUrlDependency(v.Version) {
+			return false
+		}
+
+		// check package name exists in registry
+		req, _ := http.NewRequest("HEAD", fmt.Sprintf("https://registry.npmjs.org/%s", v.Name), nil)
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			log.Logger.Debugf("Package.json creation: failed to send head request to registry: %w", err)
+			return false
+		}
+
+		if resp.StatusCode >= 400 {
+			log.Logger.Debugf("Package.json creation: Package %s not found in registry", v.Name)
+			return false
+		}
+
+		return true
+	})
+
+	return packageJson
+}
+
+func isUrlDependency(v string) bool {
+	urlRegex := regexp.MustCompile(`(?i)(git|ssh|https?|file|ftp):\/\/`)
+	githubUrlRegex := regexp.MustCompile(`(?i)(^(github:)?[A-Za-z0-9_.-]*\/[A-Za-z0-9_.-]*)`)
+	return urlRegex.MatchString(v) || githubUrlRegex.MatchString(v)
 }
