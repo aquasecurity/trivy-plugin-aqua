@@ -64,7 +64,7 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 	default:
 		if viper.GetString("triggered-by") == "PR" {
 			if err = createDiffScanFs(envConfig); err != nil {
-				return nil, nil, errors.Wrap(err, "failed create diff scan system")
+				return nil, nil, errors.Wrap(err, "failed create diff scan system - 81.2")
 			}
 			opts.Target = aquaPath
 		}
