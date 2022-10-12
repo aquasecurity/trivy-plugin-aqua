@@ -99,17 +99,16 @@ func getCommenter(envconfig *models.Configuration) (commenter.Repository, enums.
 		}
 		c = commenter.Repository(r)
 	case enums.GithubServer:
-		log.Logger.Debugf("im in server")
 		prNumber, err := extractGitHubActionPrNumber()
 		if err != nil {
 			return nil, "", err
 		}
-		u, err := url.Parse(envconfig.Repository.CloneUrl)
+		parsedUrl, err := url.Parse(envconfig.Repository.CloneUrl)
 		if err != nil {
-			//return "", fmt.Errorf("failed to parse url %s - %s", fullUrl, err.Error())
+			return nil, "", fmt.Errorf("failed to parse clone parsedUrl %s - %s", envconfig.Repository.CloneUrl, err.Error())
 		}
 
-		r, err := github.NewGithubServer(fmt.Sprintf("%s://%s", u.Scheme, u.Host),
+		r, err := github.NewGithubServer(fmt.Sprintf("%s://%s", parsedUrl.Scheme, parsedUrl.Host),
 			os.Getenv("GITHUB_TOKEN"),
 			envconfig.Organization.Name,
 			envconfig.Repository.Name,
