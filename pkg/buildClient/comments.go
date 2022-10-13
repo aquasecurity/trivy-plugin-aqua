@@ -53,9 +53,14 @@ func prComments(envconfig *models.Configuration, result []*buildsecurity.Result,
 				}
 			case buildsecurity.Result_TYPE_VULNERABILITIES:
 				if !strings.Contains(r.Filename, "node_modules") {
-					err := c.WriteMultiLineComment(r.Filename, returnVulnfMsg(r, avdUrlMap), commenter.FIRST_AVAILABLE_LINE, commenter.FIRST_AVAILABLE_LINE)
+					msg := returnVulnfMsg(r, avdUrlMap)
+					err := c.WriteMultiLineComment(r.Filename, msg, int(r.StartLine), int(r.EndLine))
 					if err != nil {
-						log.Logger.Infof("failed write vulnerability comment: %w", err)
+						log.Logger.Debugf("failed write vulnerability comment, retrying on first available line...")
+						err := c.WriteMultiLineComment(r.Filename, msg, commenter.FIRST_AVAILABLE_LINE, commenter.FIRST_AVAILABLE_LINE)
+						if err != nil {
+							log.Logger.Infof("failed write vulnerability comment: %w", err)
+						}
 					}
 				}
 
