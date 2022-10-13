@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/samber/lo"
+	"github.com/spf13/viper"
 )
 
 var skipDirs = []string{"node_modules", ".git"}
@@ -158,6 +160,9 @@ func createPackageJsonFile(dir string, packageJson PackageJson) error {
 }
 
 func createPackageLockFile(dir string, packageJson PackageJson) (string, error) {
+	if viper.GetString("triggered-by") == "OFFLINE" {
+		packageJson = filterDependencies(packageJson)
+	}
 	packageRegexp := regexp.MustCompile(`https:\/\/registry\.npmjs\.org\/(.*) -`)
 
 	shouldRetry := true
@@ -214,4 +219,36 @@ func createPackageLockFile(dir string, packageJson PackageJson) (string, error) 
 		}
 	}
 	return filepath.Join(dir, packageLockFileName), nil
+}
+
+func filterDependencies(packageJson PackageJson) PackageJson {
+	packageJson.Dependencies = lo.PickBy(packageJson.Dependencies, func(_ string, v Dependency) bool {
+		if isUrlDependency(v.Version) {
+			return false
+		}
+
+		// check package name exists in registry
+		req, _ := http.NewRequest("HEAD", fmt.Sprintf("https://registry.npmjs.org/%s", v.Name), nil)
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			log.Logger.Debugf("Package.json creation: failed to send head request to registry: %w", err)
+			return false
+		}
+
+		if resp.StatusCode >= 400 {
+			log.Logger.Debugf("Package.json creation: Package %s not found in registry", v.Name)
+			return false
+		}
+
+		return true
+	})
+
+	return packageJson
+}
+
+func isUrlDependency(v string) bool {
+	urlRegex := regexp.MustCompile(`(?i)(git|ssh|https?|file|ftp):\/\/`)
+	githubUrlRegex := regexp.MustCompile(`(?i)(^(github:)?[A-Za-z0-9_.-]*\/[A-Za-z0-9_.-]*)`)
+	return urlRegex.MatchString(v) || githubUrlRegex.MatchString(v)
 }

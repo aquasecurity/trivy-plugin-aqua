@@ -64,7 +64,7 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 	default:
 		if viper.GetString("triggered-by") == "PR" {
 			if err = createDiffScanFs(envConfig); err != nil {
-				return nil, nil, errors.Wrap(err, "failed create diff scan system")
+				return nil, nil, errors.Wrap(err, "failed create diff scan system - 81.2")
 			}
 			opts.Target = aquaPath
 		}
@@ -122,21 +122,39 @@ func patchLineNumberAndFilenames(report *trivyTypes.Report, fileMap map[string]s
 		if file, ok := fileMap[result.Target]; ok {
 			result.Target = file
 			if packageJson, ok := packageJsonFiles[file]; ok {
-				for i, vuln := range result.Vulnerabilities {
-					name := vuln.PkgName
-					if dep, ok := packageJson.Dependencies[name]; ok {
-						custom := vuln.Custom
-						if vuln.Custom == nil {
-							custom = make(map[string]interface{})
-						}
-						v, _ := custom.(map[string]interface{})
-						v["lineNumber"] = dep.Line
-						result.Vulnerabilities[i].Custom = v
-					}
+				addResultLineNumber(result, &packageJson)
+			}
+		}
+	}
+}
+
+func addResultLineNumber(result *trivyTypes.Result, packageJson *oss.PackageJson) {
+	for i, vuln := range result.Vulnerabilities {
+		if dep := findVulnerableTopDependency(result, packageJson, vuln.PkgID, vuln.PkgName); dep != nil {
+			custom := vuln.Custom
+			if vuln.Custom == nil {
+				custom = make(map[string]interface{})
+			}
+			v, _ := custom.(map[string]interface{})
+			v["lineNumber"] = dep.Line
+			result.Vulnerabilities[i].Custom = v
+		}
+	}
+}
+
+func findVulnerableTopDependency(result *trivyTypes.Result, packageJson *oss.PackageJson, pkgId, pkgName string) *oss.Dependency {
+	if dep, ok := packageJson.Dependencies[pkgName]; ok {
+		return &dep
+	} else {
+		for _, pkg := range result.Packages {
+			if slices.Contains(pkg.DependsOn, pkgId) {
+				if dep := findVulnerableTopDependency(result, packageJson, pkg.ID, pkg.Name); dep != nil {
+					return dep
 				}
 			}
 		}
 	}
+	return nil
 }
 
 func MatchResultSeverity(severity string) buildsecurity.SeverityEnum {
