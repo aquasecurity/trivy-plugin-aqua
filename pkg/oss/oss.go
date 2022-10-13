@@ -14,6 +14,7 @@ import (
 
 	"github.com/aquasecurity/trivy-plugin-aqua/pkg/log"
 	"github.com/samber/lo"
+	"github.com/spf13/viper"
 )
 
 var skipDirs = []string{"node_modules", ".git"}
@@ -159,13 +160,15 @@ func createPackageJsonFile(dir string, packageJson PackageJson) error {
 }
 
 func createPackageLockFile(dir string, packageJson PackageJson) (string, error) {
-	filteredPackageJson := filterDependencies(packageJson)
+	if viper.GetString("triggered-by") == "OFFLINE" {
+		packageJson = filterDependencies(packageJson)
+	}
 	packageRegexp := regexp.MustCompile(`https:\/\/registry\.npmjs\.org\/(.*) -`)
 
 	shouldRetry := true
 
 	for shouldRetry {
-		if err := createPackageJsonFile(dir, filteredPackageJson); err != nil {
+		if err := createPackageJsonFile(dir, packageJson); err != nil {
 			return "", err
 		}
 
@@ -195,7 +198,7 @@ func createPackageLockFile(dir string, packageJson PackageJson) (string, error) 
 						matches[1], err.Error())
 				}
 
-				delete(filteredPackageJson.Dependencies, unfoundPackage)
+				delete(packageJson.Dependencies, unfoundPackage)
 
 				packagePrefixRegexp := regexp.MustCompile(`(@[^\/]*)\/.*`)
 
@@ -204,9 +207,9 @@ func createPackageLockFile(dir string, packageJson PackageJson) (string, error) 
 				if len(matches) > 1 {
 					packagePrefix := matches[1]
 
-					for key := range filteredPackageJson.Dependencies {
+					for key := range packageJson.Dependencies {
 						if strings.HasPrefix(key, packagePrefix+"/") {
-							delete(filteredPackageJson.Dependencies, key)
+							delete(packageJson.Dependencies, key)
 						}
 					}
 				}
@@ -219,7 +222,6 @@ func createPackageLockFile(dir string, packageJson PackageJson) (string, error) 
 }
 
 func filterDependencies(packageJson PackageJson) PackageJson {
-
 	packageJson.Dependencies = lo.PickBy(packageJson.Dependencies, func(_ string, v Dependency) bool {
 		if isUrlDependency(v.Version) {
 			return false
