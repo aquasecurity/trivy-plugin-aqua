@@ -134,6 +134,8 @@ func EnhanceResults(results []*buildsecurity.Result, envConfig *models.Configura
 			envConfig.CommitSha,
 		)
 
+		log.Logger.Infof("file link is %s", result.FileLink)
+
 		if result.StartLine != 0 {
 			result.FileLineLink = environments.GetFileLineLink(
 				envConfig.Repository.Source,
