@@ -119,6 +119,11 @@ func ProcessResults(reports types.Results,
 
 func EnhanceResults(results []*buildsecurity.Result, envConfig *models.Configuration) []*buildsecurity.Result {
 	enhancedResults := make([]*buildsecurity.Result, len(results))
+	log.Logger.Infof("source is %s", envconfig.Repository.Source)
+	log.Logger.Infof("url is %s", envConfig.Repository.Url)
+	log.Logger.Infof("branch is %s", envConfig.Branch)
+	log.Logger.Infof("commit is %s", envConfig.CommitSha)
+
 	for i, result := range results {
 
 		result.FileLink = environments.GetFileLink(
