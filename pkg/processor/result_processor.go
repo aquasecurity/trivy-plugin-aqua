@@ -181,6 +181,11 @@ func addVulnerabilitiesResults(rep types.Result,
 				r.StartLine = lineNumber
 				r.EndLine = lineNumber
 			}
+			if path, ok := customFields["depPath"].(string); ok {
+				if path != vuln.PkgName {
+					vuln.Description = fmt.Sprintf("%s\n(This package is used under: %s)", vuln.Description, path)
+				}
+			}
 		}
 
 		r.PolicyResults = checkVulnAgainstPolicies(vuln, downloadedPolicies, rep.Target)

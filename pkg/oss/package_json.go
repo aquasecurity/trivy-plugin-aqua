@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/aquasecurity/go-git-pr-commenter/pkg/commenter"
 	"github.com/samber/lo"
 )
 
@@ -18,6 +19,7 @@ type Dependency struct {
 	Name    string
 	Version string
 	Line    int32
+	Path    string
 }
 
 func (pj *PackageJson) UnmarshalJSON(data []byte) error {
@@ -38,7 +40,7 @@ func (pj *PackageJson) UnmarshalJSON(data []byte) error {
 					pj.Dependencies[name] = Dependency{
 						Name:    name,
 						Version: ver,
-						Line:    lo.Ternary(line == 0, -1, line+1),
+						Line:    lo.Ternary(line == 0, int32(commenter.FIRST_AVAILABLE_LINE), line+1),
 					}
 				}
 			}
