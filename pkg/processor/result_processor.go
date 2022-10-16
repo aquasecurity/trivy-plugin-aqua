@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	ftypes "github.com/aquasecurity/trivy/pkg/fanal/types"
+	"github.com/argonsecurity/go-environments"
+	"github.com/argonsecurity/go-environments/models"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
@@ -113,6 +115,33 @@ func ProcessResults(reports types.Results,
 	}
 
 	return results, dependencies, avdUrlMap
+}
+
+func EnhanceResults(results []*buildsecurity.Result, envConfig *models.Configuration) []*buildsecurity.Result {
+	enhancedResults := make([]*buildsecurity.Result, len(results))
+	for i, result := range results {
+		result.FileLink = environments.GetFileLink(
+			envConfig.Repository.Source,
+			envConfig.Repository.Url,
+			result.Filename,
+			envConfig.Branch,
+			envConfig.CommitSha,
+		)
+
+		if result.StartLine != 0 {
+			result.FileLineLink = environments.GetFileLineLink(
+				envConfig.Repository.Source,
+				envConfig.Repository.Url,
+				result.Filename,
+				envConfig.Branch,
+				envConfig.CommitSha,
+				int(result.StartLine),
+				int(result.EndLine),
+			)
+		}
+		enhancedResults[i] = result
+	}
+	return enhancedResults
 }
 
 func DistinguishPolicies(

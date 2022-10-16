@@ -80,6 +80,8 @@ There are some special case env vars;
 | OVERRIDE_BUILDSYSTEM | Use this environment variable to explicitly specify the build system                   |
 | OVERRIDE_SCMID       | Use this environment variable to explicitly specify the scm id                         |
 | IGNORE_PANIC         | Use this environment variable to return exit code 0 on cli panic                       |
+| OVERRIDE_REPOSITORY_URL  | Use this environment variable to explicitly specify the repository link used by Trivy (For result's web link)       |
+| OVERRIDE_REPOSITORY_SOURCE  | Use this environment variable to explicitly specify the repository source used by Trivy       |
 
 # Scanners
 
