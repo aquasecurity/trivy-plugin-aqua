@@ -119,9 +119,7 @@ func ProcessResults(reports types.Results,
 
 func EnhanceResults(results []*buildsecurity.Result, envConfig *models.Configuration) []*buildsecurity.Result {
 	enhancedResults := make([]*buildsecurity.Result, len(results))
-	
 	for i, result := range results {
-
 		result.FileLink = environments.GetFileLink(
 			envConfig.Repository.Source,
 			envConfig.Repository.Url,
