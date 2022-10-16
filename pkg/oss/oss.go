@@ -69,7 +69,7 @@ func DetectPackageJsonFiles(dirPath string) (map[string]PackageJson, map[string]
 		f, err = os.Stat(path)
 
 		if err != nil {
-			log.Logger.Warnf("Error occurred while scanning path %s: %s", path, err)
+			log.Logger.Warnf("Error occurred while scanning path %s: %w", path, err)
 
 			return nil
 		}

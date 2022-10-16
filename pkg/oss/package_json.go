@@ -19,6 +19,7 @@ type Dependency struct {
 	Name    string
 	Version string
 	Line    int32
+	Path    string
 }
 
 func (pj *PackageJson) UnmarshalJSON(data []byte) error {
