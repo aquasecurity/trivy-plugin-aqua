@@ -145,13 +145,13 @@ func addResultLineNumber(result *trivyTypes.Result, packageJson *oss.PackageJson
 
 func findVulnerableTopDependency(result *trivyTypes.Result, packageJson *oss.PackageJson, pkgId, pkgName string) *oss.Dependency {
 	if dep, ok := packageJson.Dependencies[pkgName]; ok {
-		deps := append(strings.Split(dep.Path, "<"), pkgName)
-		dep.Path = strings.Join(deps, "<")
+		dep.Path = pkgName
 		return &dep
 	} else {
 		for _, pkg := range result.Packages {
 			if slices.Contains(pkg.DependsOn, pkgId) {
 				if dep := findVulnerableTopDependency(result, packageJson, pkg.ID, pkg.Name); dep != nil {
+					dep.Path = dep.Path + "->" + pkgName
 					return dep
 				}
 			}
