@@ -229,8 +229,8 @@ github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63 h1:hgGD7zqlN
 github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63/go.mod h1:/nULgnDeq/JMPMVwE1dmf4kWlYn++7VrM3O2naj4BHA=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220823151349-b90b48958b91 h1:5dpjVGSSYr1DaZvCvvc5aKCPkqq69Q6bb710v5B6obc=
 github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20220823151349-b90b48958b91/go.mod h1:9qMuqnlmsuoRBedtIV84MZJWBRWTuOcj8m1mpv94jC4=
-github.com/argonsecurity/go-environments v0.1.25 h1:yg5XYOCUnSZZtBIe+O9SPZ9oTZ3bSiZdCP6NEVUikjM=
-github.com/argonsecurity/go-environments v0.1.25/go.mod h1:E2Kx7VeOm9p3kUnaWUzHuMCU0NxQnIxnIOGRIgGkJBY=
+github.com/argonsecurity/go-environments v0.1.27 h1:aX6bffv0wT+UHp+CEWDTmPlu7Fkndi3HqXr99ZReb1c=
+github.com/argonsecurity/go-environments v0.1.27/go.mod h1:E2Kx7VeOm9p3kUnaWUzHuMCU0NxQnIxnIOGRIgGkJBY=
 github.com/argonsecurity/pipeline-parser v0.2.2 h1:JFeZwiFJ2iYYt2uwqpyYRGDhbdQU0BMnIJtX1OQqCEQ=
 github.com/argonsecurity/pipeline-parser v0.2.2/go.mod h1:MTiBd66r2j++hvQ8vWvqM8h1s/MZ4ghpIWrhto8Vv1M=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
