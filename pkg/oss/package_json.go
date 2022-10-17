@@ -36,7 +36,10 @@ func (pj *PackageJson) UnmarshalJSON(data []byte) error {
 			for name, ver := range deps {
 				if ver, ok := ver.(string); ok {
 					nameIndex := bytes.Index(data, []byte(fmt.Sprintf(`"%s":`, name)))
-					line := int32(bytes.Count(data[:nameIndex], lineSep))
+					line := int32(0)
+					if nameIndex != -1 {
+						line = int32(bytes.Count(data[:nameIndex], lineSep))
+					}
 					pj.Dependencies[name] = Dependency{
 						Name:    name,
 						Version: ver,
