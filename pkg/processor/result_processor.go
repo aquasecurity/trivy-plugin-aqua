@@ -198,7 +198,9 @@ func addVulnerabilitiesResults(rep types.Result,
 		r.PkgName = vuln.PkgName
 		r.InstalledVersion = vuln.InstalledVersion
 		r.FixedVersion = vuln.FixedVersion
-		r.DataSource = vuln.DataSource.Name
+		if vuln.DataSource != nil {
+			r.DataSource = vuln.DataSource.Name
+		}
 		if vuln.PublishedDate != nil {
 			r.PublishedDate = vuln.PublishedDate.Unix()
 		}
