@@ -63,6 +63,7 @@ func GetFullBranchName(branchName, remoteFallback string) string {
 		}
 	}
 
+	log.Logger.Debugf("Using branch full name: %s", branch)
 	return branch
 }
 
