@@ -29,7 +29,7 @@ func GetBaseRef(envconfig *models.Configuration) (r string) {
 func GetFullBranchName(branchName, remoteFallback string) string {
 	branchPattern := fmt.Sprintf("*/%s", branchName)
 	branch := fmt.Sprintf("%s/%s", remoteFallback, branchName)
-	out, err := git.GitExec("branch", "-a", "--list", branchPattern, "--format=%(refname:lstrip=-2)", "--sort=-refname")
+	out, err := git.GitExec("branch", "-a", "--list", branchPattern, "--format=%(refname)", "--sort=-refname")
 	if err != nil {
 		log.Logger.Info("err is not nil")
 		if strings.Contains(err.Error(), "error: unknown option `format") { // git version < 2.7.0
@@ -41,7 +41,7 @@ func GetFullBranchName(branchName, remoteFallback string) string {
 			}
 			if out != "" {
 				branchs := lo.Reverse(lo.FilterMap(strings.Split(out, "\n"), func(b string, _ int) (string, bool) {
-					trimmed := strings.TrimPrefix(strings.TrimSpace(b), "remotes/")
+					trimmed := trimBranchName(b)
 					if trimmed == "" {
 						return "", false
 					}
@@ -59,9 +59,16 @@ func GetFullBranchName(branchName, remoteFallback string) string {
 	if out != "" {
 		branchs := strings.Split(out, "\n")
 		if len(branchs) > 0 {
-			branch = strings.TrimPrefix(strings.TrimSpace(branchs[0]), "remotes/")
+			branch = trimBranchName(branchs[0])
 		}
 	}
 
+	log.Logger.Debugf("Using branch full name: %s", branch)
 	return branch
+}
+
+func trimBranchName(branch string) string {
+	branch = strings.TrimSpace(branch)
+	branch = strings.TrimPrefix(strings.TrimSpace(branch), "refs/")
+	return strings.TrimPrefix(strings.TrimSpace(branch), "remotes/")
 }
