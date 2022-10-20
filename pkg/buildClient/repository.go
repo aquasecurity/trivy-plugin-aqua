@@ -36,6 +36,7 @@ func (bc *TwirpClient) UpsertRepository(envConfig *models.Configuration) (string
 		SCMID:  scmID,
 		Name:   repoName,
 		Topics: topics,
+		Source: string(envConfig.Repository.Source),
 	})
 
 	if err != nil {
