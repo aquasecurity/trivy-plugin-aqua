@@ -22,6 +22,7 @@ message UpsertRepositoryReq {
   string SCMID = 1;
   string Name = 2;
   repeated string Topics = 3;
+  string Source = 4;
 }
 
 message UpsertRepositoryResp {
