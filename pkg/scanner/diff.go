@@ -65,7 +65,8 @@ func createDiffScanFs(envconfig *models.Configuration) error {
 	log.Logger.Infof("source is %s", envconfig.Repository.Source)
 	if (envconfig.Repository.Source == enums.Github ||
 		envconfig.Repository.Source == enums.GithubServer) &&
-		strings.ToLower(envconfig.Builder) != string(enums.Jenkins) {
+		strings.ToLower(envconfig.Builder) != string(enums.Jenkins) &&
+		strings.ToLower(envconfig.Builder) != string(enums.CircleCi) {
 		// In GitHub trivy action container we need safe directory to run git fetch
 		log.Logger.Info("setting safe dir")
 		_, err := git.GitExec("config", "--global", "--add", "safe.directory", "/github/workspace")
