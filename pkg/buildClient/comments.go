@@ -91,7 +91,7 @@ func getCommenter(envconfig *models.Configuration) (commenter.Repository, enums.
 
 	switch source {
 	case enums.Github:
-		prNumber, err := extractGitHubActionPrNumber()
+		prNumber, err := extractGitHubPrNumber(envconfig.Builder, envconfig.PullRequest.Id)
 		if err != nil {
 			return nil, "", err
 		}
@@ -104,7 +104,7 @@ func getCommenter(envconfig *models.Configuration) (commenter.Repository, enums.
 		}
 		c = commenter.Repository(r)
 	case enums.GithubServer:
-		prNumber, err := extractGitHubActionPrNumber()
+		prNumber, err := extractGitHubPrNumber(envconfig.Builder, envconfig.PullRequest.Id)
 		if err != nil {
 			return nil, "", err
 		}
@@ -207,8 +207,17 @@ func returnVulnfMsg(r *buildsecurity.Result, avdUrlMap ResultIdToUrlMap) string 
 	return commentWithoutAvdUrl
 }
 
-// extractGitHubActionPrNumber take the pull request number from the GitHub action run
-func extractGitHubActionPrNumber() (int, error) {
+// extractGitHubPrNumber take the pull request number from the GitHub action run
+func extractGitHubPrNumber(builder string, prId string) (int, error) {
+	if strings.ToLower(builder) == string(enums.CircleCi) {
+		convertedPrNumber, err := strconv.Atoi(prId)
+		if err != nil {
+			return 0, err
+		}
+		return convertedPrNumber, nil
+
+	}
+
 	githubEventFile := os.Getenv("GITHUB_EVENT_PATH")
 	file, err := os.ReadFile(githubEventFile)
 	if err != nil {
