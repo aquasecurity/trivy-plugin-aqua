@@ -17,10 +17,7 @@ import (
 )
 
 func getParsedGitHubPipelines(rootDir string) ([]*buildsecurity.Pipeline, []string, error) {
-	gitHubWorkflows, err := getGitHubPipelines(rootDir)
-	if err != nil {
-		return nil, nil, err
-	}
+	gitHubWorkflows := getGitHubPipelines(rootDir)
 
 	parsedGithubPipelines := lo.FilterMap(gitHubWorkflows, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseGitHubWorkflow(rootDir, path)
@@ -34,10 +31,8 @@ func getParsedGitHubPipelines(rootDir string) ([]*buildsecurity.Pipeline, []stri
 }
 
 func getParsedGitLabPipelines(rootDir string) ([]*buildsecurity.Pipeline, []string, error) {
-	gitLabPipelines, err := getGitLabPipelines(rootDir)
-	if err != nil {
-		return nil, nil, err
-	}
+	gitLabPipelines := getGitLabPipelines(rootDir)
+
 	parsedGitLabPipelines := lo.FilterMap(gitLabPipelines, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseGitLabPipelineFile(rootDir, path)
 		if err != nil {
@@ -49,10 +44,7 @@ func getParsedGitLabPipelines(rootDir string) ([]*buildsecurity.Pipeline, []stri
 }
 
 func getParsedAzurePipelines(rootDir string) ([]*buildsecurity.Pipeline, []string, error) {
-	azurePipelines, err := getAzurePipelines(rootDir)
-	if err != nil {
-		return nil, nil, err
-	}
+	azurePipelines := getAzurePipelines(rootDir)
 
 	parsedAzurePipelines := lo.FilterMap(azurePipelines, func(path string, _ int) (*buildsecurity.Pipeline, bool) {
 		pipeline, err := parseAzurePipelineFile(rootDir, path)
@@ -172,7 +164,7 @@ func scanPipelines(ctx context.Context, repositoryPipelines []*buildsecurity.Pip
 
 	scanResults, err := pipelineScanner.ScanFS(context.WithValue(ctx, "sourcesMap", sourcesMap), memFs, ".")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed scan pipelines")
+		return nil, errors.Wrap(err, "failed to scan pipelines")
 	}
 	results := misconfsToResults(resultsToMisconf("pipeline", pipelineScanner.Name(), scanResults))
 	return results, nil

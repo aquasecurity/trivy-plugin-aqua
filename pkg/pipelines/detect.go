@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/argonsecurity/go-environments/logger"
 )
 
 const (
@@ -25,7 +27,7 @@ func isYamlFile(path string, info os.FileInfo) bool {
 	return !info.IsDir() && hasSuffixes(path, ".yml", ".yaml")
 }
 
-func getGitHubPipelines(rootDir string) ([]string, error) {
+func getGitHubPipelines(rootDir string) []string {
 	var pipelines []string
 	if err := filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
@@ -37,13 +39,14 @@ func getGitHubPipelines(rootDir string) ([]string, error) {
 		}
 		return nil
 	}); err != nil {
-		return nil, err
+		logger.Errorf(err, "Failed to walk the path: %s", err)
+		return nil
 	}
 
-	return pipelines, nil
+	return pipelines
 }
 
-func getGitLabPipelines(rootDir string) ([]string, error) {
+func getGitLabPipelines(rootDir string) []string {
 	var pipelines []string
 	if err := filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
@@ -55,13 +58,14 @@ func getGitLabPipelines(rootDir string) ([]string, error) {
 		}
 		return nil
 	}); err != nil {
-		return nil, err
+		logger.Errorf(err, "Failed to walk the path: %s", err)
+		return nil
 	}
 
-	return pipelines, nil
+	return pipelines
 }
 
-func getAzurePipelines(rootDir string) ([]string, error) {
+func getAzurePipelines(rootDir string) []string {
 	var pipelines []string
 	if err := filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
@@ -76,8 +80,9 @@ func getAzurePipelines(rootDir string) ([]string, error) {
 
 		return nil
 	}); err != nil {
-		return nil, err
+		logger.Errorf(err, "Failed to walk the path: %s", err)
+		return nil
 	}
 
-	return pipelines, nil
+	return pipelines
 }
