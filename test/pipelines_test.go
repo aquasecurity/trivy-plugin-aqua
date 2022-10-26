@@ -173,9 +173,11 @@ func TestPipelines(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "non-existent-dir",
-			dir:     "non-existent-dir",
-			wantErr: true,
+			name: "non-existent-dir",
+			dir:  "non-existent-dir",
+			want: pipelineTestResult{
+				pipelines: []*buildsecurity.Pipeline{},
+			},
 		},
 		{
 			name: "git-error",
