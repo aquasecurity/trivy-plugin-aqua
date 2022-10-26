@@ -120,7 +120,7 @@ func getPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 	pipelines := []*buildsecurity.Pipeline{}
 	githubPipelines, githubPaths, err := getParsedGitHubPipelines(rootDir)
 	if err != nil {
-		logger.Errorf(err, "Failed to get GitHub pipelines")
+		_ = logger.Errorf(err, "Failed to get GitHub pipelines") // errcheck: no need for the return value
 	}
 
 	pipelines = append(pipelines, githubPipelines...)
@@ -132,7 +132,7 @@ func getPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 
 	azurePipelines, azurePaths, err := getParsedAzurePipelines(rootDir)
 	if err != nil {
-		logger.Errorf(err, "Failed to get Azure pipelines")
+		_ = logger.Errorf(err, "Failed to get Azure pipelines") // errcheck: no need for the return value
 	}
 
 	pipelines = append(pipelines, azurePipelines...)
@@ -144,7 +144,7 @@ func getPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 
 	gitlabPipelines, gitlabPaths, err := getParsedGitLabPipelines(rootDir)
 	if err != nil {
-		logger.Errorf(err, "Failed to get GitLab pipelines")
+		_ = logger.Errorf(err, "Failed to get GitLab pipelines") // errcheck: no need for the return value
 	}
 
 	pipelines = append(pipelines, gitlabPipelines...)
