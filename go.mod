@@ -9,7 +9,7 @@ require (
 	github.com/aquasecurity/trivy v0.32.1-0.20220922071137-e01253d54d65
 	github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63
 	github.com/argonsecurity/go-environments v0.1.27
-	github.com/argonsecurity/pipeline-parser v0.2.2
+	github.com/argonsecurity/pipeline-parser v0.2.3
 	github.com/google/go-github/v38 v38.1.0
 	github.com/liamg/memoryfs v1.4.3
 	github.com/mitchellh/mapstructure v1.5.0
