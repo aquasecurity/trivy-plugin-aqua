@@ -90,7 +90,6 @@ func NewScanner(opts ...options.ScannerOption) *Scanner {
 
 func (s *Scanner) ScanFS(ctx context.Context, fs fs.FS, path string) (scan.Results, error) {
 	files, err := s.parser.ParseFS(ctx, fs, path)
-
 	if err != nil {
 		return nil, err
 	}

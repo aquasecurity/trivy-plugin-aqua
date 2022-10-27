@@ -12,6 +12,7 @@ import (
 	trivyTypes "github.com/aquasecurity/trivy/pkg/types"
 	"github.com/pkg/errors"
 
+	"github.com/argonsecurity/go-environments/logger"
 	ppConsts "github.com/argonsecurity/pipeline-parser/pkg/consts"
 	"github.com/samber/lo"
 )
@@ -119,7 +120,7 @@ func getPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 	pipelines := []*buildsecurity.Pipeline{}
 	githubPipelines, githubPaths, err := getParsedGitHubPipelines(rootDir)
 	if err != nil {
-		return nil, nil, err
+		_ = logger.Errorf(err, "Failed to get GitHub pipelines") // errcheck: no need for the return value
 	}
 
 	pipelines = append(pipelines, githubPipelines...)
@@ -131,7 +132,7 @@ func getPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 
 	azurePipelines, azurePaths, err := getParsedAzurePipelines(rootDir)
 	if err != nil {
-		return nil, nil, err
+		_ = logger.Errorf(err, "Failed to get Azure pipelines") // errcheck: no need for the return value
 	}
 
 	pipelines = append(pipelines, azurePipelines...)
@@ -143,7 +144,7 @@ func getPipelines(rootDir string) ([]*buildsecurity.Pipeline, []types.File, erro
 
 	gitlabPipelines, gitlabPaths, err := getParsedGitLabPipelines(rootDir)
 	if err != nil {
-		return nil, nil, err
+		_ = logger.Errorf(err, "Failed to get GitLab pipelines") // errcheck: no need for the return value
 	}
 
 	pipelines = append(pipelines, gitlabPipelines...)
