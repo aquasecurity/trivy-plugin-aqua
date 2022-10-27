@@ -5,10 +5,10 @@ go 1.18
 require (
 	github.com/aquasecurity/defsec v0.75.3
 	github.com/aquasecurity/go-dep-parser v0.0.0-20220912084514-9d42a63ca964
-	github.com/aquasecurity/go-git-pr-commenter v0.8.5
+	github.com/aquasecurity/go-git-pr-commenter v0.8.7
 	github.com/aquasecurity/trivy v0.32.1-0.20220922071137-e01253d54d65
 	github.com/aquasecurity/trivy-db v0.0.0-20220627104749-930461748b63
-	github.com/argonsecurity/go-environments v0.1.27
+	github.com/argonsecurity/go-environments v0.1.29
 	github.com/argonsecurity/pipeline-parser v0.2.3
 	github.com/google/go-github/v38 v38.1.0
 	github.com/liamg/memoryfs v1.4.3
@@ -22,8 +22,8 @@ require (
 	github.com/twitchtv/twirp v8.1.2+incompatible
 	go.uber.org/zap v1.23.0
 	golang.org/x/exp v0.0.0-20220823124025-807a23277127
-	golang.org/x/oauth2 v0.0.0-20220718184931-c8730f7fcb92
-	golang.org/x/text v0.3.7
+	golang.org/x/oauth2 v0.1.0
+	golang.org/x/text v0.4.0
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f
 	google.golang.org/protobuf v1.28.1
 )
@@ -167,7 +167,7 @@ require (
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
 	github.com/go-git/go-git/v5 v5.4.2 // indirect
-	github.com/go-gorp/gorp/v3 v3.0.2 // indirect
+	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-openapi/analysis v0.21.4 // indirect
 	github.com/go-openapi/errors v0.20.3 // indirect
@@ -238,13 +238,13 @@ require (
 	github.com/liamg/jfather v0.0.7 // indirect
 	github.com/liamg/loading v0.0.4 // indirect
 	github.com/liamg/tml v0.6.0 // indirect
-	github.com/lib/pq v1.10.6 // indirect
+	github.com/lib/pq v1.10.7 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/masahiro331/go-mvn-version v0.0.0-20210429150710-d3157d602a08 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
-	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/microsoft/go-rustaudit v0.0.0-20220808201409-204dfee52032 // indirect
@@ -328,10 +328,10 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
+	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
-	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
+	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/term v0.1.0 // indirect
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	gonum.org/v1/gonum v0.7.0 // indirect

@@ -18,8 +18,11 @@ const (
 
 	azureCi = "BUILD_BUILDID"
 	azurePr = "SYSTEM_PULLREQUEST_PULLREQUESTID"
+
+	circleciCi = "CI"
+	circleciPr = "CIRCLE_PULL_REQUEST"
 )
 
-var ciEnvs = []string{githubCi, bitbucketCi, gitlabCi, jenkinsCi, azureCi, override}
+var ciEnvs = []string{githubCi, bitbucketCi, gitlabCi, jenkinsCi, azureCi, circleciCi, override}
 
-var prEnvs = []string{githubPr, bitbucketPr, gitlabPr, jenkinsPr, azurePr, jenkinsPrBitbucket}
+var prEnvs = []string{githubPr, bitbucketPr, gitlabPr, jenkinsPr, azurePr, jenkinsPrBitbucket, circleciPr}
