@@ -69,11 +69,9 @@ func Scan(ctx context.Context, opts flag.Options, cmdName, path string, envConfi
 			opts.Target = aquaPath
 		}
 
-		if viper.GetBool("pipelines") {
-			repositoryPipelines, pipelinesScanResults, err = pipelines.ExecutePipelineScanning(opts.Target)
-			if err != nil {
-				log.Logger.Errorf("failed execute pipeline scanning: %v", err)
-			}
+		repositoryPipelines, pipelinesScanResults, err = pipelines.ExecutePipelineScanning(opts.Target)
+		if err != nil {
+			log.Logger.Errorf("failed execute pipeline scanning: %v", err)
 		}
 
 		packageJsonFiles, noLockFiles, filenameReplaceMap := oss.DetectPackageJsonFiles(opts.Target)
