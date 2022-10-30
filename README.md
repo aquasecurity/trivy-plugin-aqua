@@ -89,7 +89,8 @@ Certain scanners have additional behaviors
 
 ### Pipelines
 
-The pipelines scanner uses [Pipeline Parser](https://github.com/argonsecurity/pipeline-parser) to parse the pipelines, and therefore, supports only the platforms that are supported by the package.
+The pipelines scanner is enabled by providing either `--pipelines` flag or `PIPELINES=1` environment variable.
+It uses [Pipeline Parser](https://github.com/argonsecurity/pipeline-parser) to parse the pipelines, and therefore, supports only the platforms that are supported by the package.
 
 The results of the scanner are:
 

@@ -141,6 +141,12 @@ func initPluginBoolFlags() {
 			Description:  "Add this flag if you want skip policies exit code",
 		},
 		{
+			Name:         "pipelines",
+			EnvName:      "PIPELINES",
+			DefaultValue: false,
+			Description:  "Add this flag to fetch and scan pipelines",
+		},
+		{
 			Name:         "package-json",
 			EnvName:      "PACKAGE_JSON",
 			DefaultValue: false,
