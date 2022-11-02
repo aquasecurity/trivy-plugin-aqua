@@ -1,0 +1,16 @@
+name: testing for PR
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    name: testing PR build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Run tests
+        run: make test
