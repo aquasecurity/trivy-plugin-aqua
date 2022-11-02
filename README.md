@@ -96,11 +96,3 @@ The results of the scanner are:
 
 - parsed version of the pipeline files
 - pipeline misconfigurations
-
-# Deployment of a new version
-
-To deploy a new version, create a new tag from master
-
-```bash
-make update-plugin
-```
