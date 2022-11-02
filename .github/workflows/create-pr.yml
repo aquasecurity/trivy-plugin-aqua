@@ -1,6 +1,7 @@
 name: Act on release created
 
 on:
+  workflow_dispatch:
   release:
     types: [created]
 
