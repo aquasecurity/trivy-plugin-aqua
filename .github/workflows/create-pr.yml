@@ -10,8 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PR_CREATION_TOKEN }}
       - name: Update plugin Links
         run: |
           sed  -e "s/PLACEHOLDERVERSION/${{github.ref_name}}/g" .github/plugin_template.yaml > plugin.yaml
