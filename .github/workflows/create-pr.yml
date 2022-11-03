@@ -12,8 +12,10 @@ jobs:
       - uses: actions/checkout@v3
       - name: Update plugin Links
         run: |
+          git config user.email 'naor.talmor@aquasec.com'
           sed  -e "s/PLACEHOLDERVERSION/${{github.ref_name}}/g" .github/plugin_template.yaml > plugin.yaml
-
+          git add plugin.yaml
+          git commit -am "Modify plugin_template"
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v4
@@ -23,8 +25,6 @@ jobs:
           title: "Update Plugin Artifacts Links for ${{github.ref_name}}"
           delete-branch: true
           base: master
-          add-paths: |
-            plugin.yaml
       - name: Send Slack message (Workflow)
         id: slack
         uses: slackapi/slack-github-action@v1.21.0
