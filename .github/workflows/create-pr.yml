@@ -13,6 +13,7 @@ jobs:
       - name: Update plugin Links
         run: |
           git config user.email 'naor.talmor@aquasec.com'
+          git config user.name "Naor Talmor"
           sed  -e "s/PLACEHOLDERVERSION/${{github.ref_name}}/g" .github/plugin_template.yaml > plugin.yaml
           git add plugin.yaml
           git commit -am "Modify plugin_template"
