@@ -15,6 +15,7 @@ jobs:
         run: |
           sed  -e "s/PLACEHOLDERVERSION/${{github.ref_name}}/g" .github/plugin_template.yaml > plugin.yaml
       - name: Create Pull Request
+        if: "!github.event.release.prerelease"
         id: cpr
         uses: peter-evans/create-pull-request@v4
         with:
@@ -31,7 +32,8 @@ jobs:
         with:
           payload: |
             {
-              "link": "${{ steps.cpr.outputs.pull-request-url }}"
+              "link": "${{ steps.cpr.outputs.pull-request-url }}",
+              "release": "${{ github.ref_name }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.CODE_TEAM_SLACK_WEBHOOK }}
