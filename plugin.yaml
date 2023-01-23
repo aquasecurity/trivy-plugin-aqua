@@ -1,6 +1,6 @@
 name: "aqua"
 repository: github.com/aquasecurity/trivy-plugin-aqua
-version: "v0.113.0d"
+version: "v0.113.0ad"
 usage: trivy aqua <srcPath> 
 description: A Trivy plugin that sends results to Aqua.
 platforms:
