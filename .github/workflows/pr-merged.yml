@@ -12,5 +12,9 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-    - run: |
-        echo PR was merged: ${{github.event.pull_request}}
+    - name: Check out target branch
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.base.ref }}
+    - name: Print content of plugin.yaml
+      run: cat plugin.yaml
