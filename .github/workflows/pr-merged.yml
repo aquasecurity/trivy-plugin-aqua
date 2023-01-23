@@ -1,5 +1,7 @@
 on:
   pull_request:
+    branches: 
+      - tag-docker-on-merge
     types:
       - closed
 
