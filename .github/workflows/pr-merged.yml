@@ -23,5 +23,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Extract version
       run: "echo \"prev_version=$(grep 'version: ' plugin.yaml | cut -d '\"' -f2)\" >> $GITHUB_ENV"
+    - name: Echo prev
+      run: "echo ${{ env.prev_version }}"
     - name: Change version to latest
       run: docker tag aquasec/aqua-scanner:${{ env.prev_version }} aquasec/aqua-scanner:latest
