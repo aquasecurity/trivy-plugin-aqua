@@ -8,11 +8,11 @@ on:
       - plugin.yaml
 
 jobs:
-  if_merged:
+  DockerTag:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-    - name: Check out target branch
+    - name: Checkout target branch
       uses: actions/checkout@v2
       with:
         ref: ${{ github.event.pull_request.base.ref }}
@@ -23,7 +23,8 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Extract version
       run: "echo \"prev_version=$(grep 'version: ' plugin.yaml | cut -d '\"' -f2)\" >> $GITHUB_ENV"
-    - name: Echo prev
-      run: "echo ${{ env.prev_version }}"
-    - name: Change version to latest
-      run: docker tag aquasec/aqua-scanner:${{ env.prev_version }} aquasec/aqua-scanner:latest
+    - name: Change image versions to latest
+      run: |
+        docker tag aquasec/aqua-scanner:${{ env.prev_version }} aquasec/aqua-scanner:latest
+        docker tag aquasec/aqua-scanner:${{ env.prev_version }}-amd64 aquasec/aqua-scanner:latest-amd64
+        docker tag aquasec/aqua-scanner:${{ env.prev_version }}-arm64 aquasec/aqua-scanner:latest-arm64
