@@ -25,6 +25,6 @@ jobs:
       run: "echo \"new_version=$(grep 'version: ' plugin.yaml | cut -d '\"' -f2)\" >> $GITHUB_ENV"
     - name: Change image versions to latest
       run: |
-        docker tag aquasec/aqua-scanner:${{ env.new_version }} aquasec/aqua-scanner:latest
-        docker tag aquasec/aqua-scanner:${{ env.new_version }}-amd64 aquasec/aqua-scanner:latest-amd64
-        docker tag aquasec/aqua-scanner:${{ env.new_version }}-arm64 aquasec/aqua-scanner:latest-arm64
+        docker tag docker.io/aquasec/aqua-scanner:${{ env.new_version }} aquasec/aqua-scanner:latest
+        docker tag docker.io/aquasec/aqua-scanner:${{ env.new_version }}-amd64 aquasec/aqua-scanner:latest-amd64
+        docker tag docker.io/aquasec/aqua-scanner:${{ env.new_version }}-arm64 aquasec/aqua-scanner:latest-arm64
