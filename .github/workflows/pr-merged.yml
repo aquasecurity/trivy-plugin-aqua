@@ -2,7 +2,7 @@ name: update docker images
 on:
   pull_request:
     branches: 
-      - tag-docker-on-merge
+      - master
     types:
       - closed
     paths:
