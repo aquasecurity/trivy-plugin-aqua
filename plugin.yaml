@@ -1,6 +1,6 @@
 name: "aqua"
 repository: github.com/aquasecurity/trivy-plugin-aqua
-version: "v0.114.0"
+version: "v0.114.0-test-docker-17"
 usage: trivy aqua <srcPath>
 description: A Trivy plugin that sends results to Aqua.
 platforms:
