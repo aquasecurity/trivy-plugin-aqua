@@ -3,7 +3,6 @@ on:
   pull_request:
     branches: 
       - master
-      - tag-docker-on-merge
     types:
       - closed
     paths:
