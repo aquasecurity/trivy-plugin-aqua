@@ -1,26 +1,26 @@
 name: "aqua"
 repository: github.com/aquasecurity/trivy-plugin-aqua
-version: "v0.115.10"
+version: "v0.115.11"
 usage: trivy aqua <srcPath>
 description: A Trivy plugin that sends results to Aqua.
 platforms:
   - selector: # optional
       os: linux
       arch: amd64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.115.10/linux_amd64_v0.115.10.tar.gz
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.115.11/linux_amd64_v0.115.11.tar.gz
     bin: ./aqua
   - selector:
       os: linux
       arch: arm64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.115.10/linux_arm64_v0.115.10.tar.gz
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.115.11/linux_arm64_v0.115.11.tar.gz
     bin: ./aqua
   - selector:
       os: darwin
       arch: amd64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.115.10/darwin_amd64_v0.115.10.tar.gz
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.115.11/darwin_amd64_v0.115.11.tar.gz
     bin: ./aqua
   - selector:
       os: darwin
       arch: arm64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.115.10/darwin_arm64_v0.115.10.tar.gz
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.115.11/darwin_arm64_v0.115.11.tar.gz
     bin: ./aqua
