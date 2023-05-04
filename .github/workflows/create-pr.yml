@@ -19,7 +19,7 @@ jobs:
         uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.PR_CREATION_TOKEN }}
-          branch: "update-plugin-links-${{github.ref_name}}"
+          branch: "${{github.ref_name}}"
           title: "Update Plugin Artifacts Links for ${{github.ref_name}}"
           delete-branch: true
           base: master
