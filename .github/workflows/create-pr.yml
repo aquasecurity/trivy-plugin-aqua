@@ -16,13 +16,13 @@ jobs:
           sed  -e "s/PLACEHOLDERVERSION/${{github.ref_name}}/g" .github/plugin_template.yaml > plugin.yaml
       - name: Create Pull Request
         id: cpr
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.PR_CREATION_TOKEN }}
           branch: "${{github.ref_name}}"
           title: "Update Plugin Artifacts Links for ${{github.ref_name}}"
-          delete-branch: false
-          base: master
+          delete-branch: false          
+          base: ${{ github.head_ref }}
           add-paths: |
             plugin.yaml
       - name: Send Slack message (Workflow)
