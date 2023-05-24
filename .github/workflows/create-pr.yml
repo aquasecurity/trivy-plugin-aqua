@@ -20,8 +20,7 @@ jobs:
         with:
           token: ${{ secrets.PR_CREATION_TOKEN }}
           branch: "update-plugin-links-${{github.ref_name}}"
-          title: "Update Plugin Artifacts Links for ${{github.ref_name}}"
-          delete-branch: false       
+          title: "Update Plugin Artifacts Links for ${{github.ref_name}}"     
           base: master
           add-paths: |
             plugin.yaml
