@@ -53,7 +53,7 @@ Trivy will attempt to resolve the following details from the available environme
 - committing user
 - build system
 
-There are some env vars for overrding this data;
+There are some env vars for overriding this data;
 
 | Variable             | Purpose                                                                                |
 | :------------------- | :------------------------------------------------------------------------------------- |
