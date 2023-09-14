@@ -127,9 +127,17 @@ docker run -it aquasec/aqua-scanner trivy fs --scanners config,vuln,secret .
 
 
 ```bash
-podman pull aquasec/aqua-scanner
-
-podman run -it --rm --security-opt seccomp=unconfined aquasec/aqua-scanner trivy fs --scanners config,vuln,secret .
+podman run --rm \
+                -e AQUA_KEY=${AQUA_KEY} \
+                -e AQUA_SECRET=${AQUA_SECRET} \
+                -e TRIVY_RUN_AS_PLUGIN='aqua' \
+                -e SAST='true' \
+                -e INPUT_WORKING_DIRECTORY='/scanning' \
+                -e GITHUB_TOKEN=${GITHUB_TOKEN} \
+                -e GITHUB_USER=${GITHUB_APP} \
+                -v ${WORKSPACE}:/scanning \
+                docker.io/aquasec/aqua-scanner \
+                git config --global --add safe.directory /scanning && trivy fs --scanners='config,vuln,secret' .
 
 ```
 
