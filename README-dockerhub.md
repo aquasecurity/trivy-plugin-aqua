@@ -133,14 +133,13 @@ podman run --rm \
                 -e TRIVY_RUN_AS_PLUGIN='aqua' \
                 -e SAST='true' \
                 -e INPUT_WORKING_DIRECTORY='/scanning' \
-                -e GITHUB_TOKEN=${GITHUB_TOKEN} \
-                -e GITHUB_USER=${GITHUB_APP} \
                 -v ${WORKSPACE}:/scanning \
                 docker.io/aquasec/aqua-scanner \
                 git config --global --add safe.directory /scanning && trivy fs --scanners='config,vuln,secret' .
 
 ```
 
+When working within CI environment, it's important to include the Source Code Management (SCM) tokens for pull requests. You can find additional guidance and details on this matter within our platform for your reference about each SCM.
 
 ## Compatibility
 The plugin is designed for Docker environments and is compatible with Linux containers. 
