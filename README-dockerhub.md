@@ -66,6 +66,10 @@ There are some env vars for overriding this data;
 | IGNORE_PANIC         | Use this environment variable to return exit code 0 on cli panic                       |
 | OVERRIDE_REPOSITORY_URL  | Use this environment variable to explicitly specify the repository link used by Trivy (For result's web link)       |
 | OVERRIDE_REPOSITORY_SOURCE  | Use this environment variable to explicitly specify the repository source used by Trivy       |
+| HTTP_PROXY/HTTPS_PROXY | Use these environment variable for proxy configuration |
+| CA-CRET  |  Use this environment variable to set path to CA certificate |
+| XDG_DATA_HOME |   use this environment variable to designate the base directory for storing user-specific data |
+| XDG_CACHE_HOME |   use this environment variable for setting the cache directory |
 
 
 ## Command Line Arguments
@@ -75,8 +79,8 @@ There are some env vars for overriding this data;
 | `--debug`        | Get more detailed output as Trivy runs.    |                                               |
 | `--severities`   | The Severities that you are interested in. | `--severities CRITICAL,HIGH,UNKNOWN`          |
 | `--pipelines`    | Scan repository pipeline files.            | `--pipelines` / `PIPELINES=1 trivy ...`       |
-| `--sast`    | To enable SAST scanning.            | `--sast` `       |
-| `--reachability`    | To enable reachability scanning.            | `--reachability` `       |
+| `--sast`    | To enable SAST scanning.            | `--sast`        |
+| `--reachability`    | To enable reachability scanning.            | `--reachability`        |
 | `--package-json` | Scan package.json files without lock files | `--package-json` / `PACKAGE_JSON=1 trivy ...` |
 | `--dotnet-proj`  | Scan dotnet proj files without lock files  | `--dotnet-proj` / `DOTNET_PROJ=1 trivy ...`   |
 
