@@ -151,7 +151,7 @@ We provide a dedicated limited tag, for running the aqua-scanner on a limited us
 
 ## Running limited tag on Azure DevOps pipeline
 
-To use this tag effectively in Azure DevOps Pipelines, follow the steps below ([Azure documentation](This README provides guidance on how to use the Docker Hub limited User Tag in Azure DevOps Pipelines to run containers with reduced privileges.)), consider the following Azure DevOps pipeline example (with the -u 0 option):
+To use this tag effectively in Azure DevOps Pipelines, follow the steps below ([Azure documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/container-phases?view=azure-devops&tabs=yaml#linux-based-containers)), consider the following Azure DevOps pipeline example (with the -u 0 option):
 
 ```yaml
 trigger:
