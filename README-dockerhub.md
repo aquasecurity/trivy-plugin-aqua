@@ -145,6 +145,35 @@ podman run --rm \
 
 When working within CI environment, it's important to include the Source Code Management (SCM) tokens for pull requests. You can find additional guidance and details on this matter within our platform for your reference about each SCM.
 
+# aqua-scanner nonroot Tag
+
+We provide a dedicated nonroot tag, for running the aqua-scanner on a nonroot user.
+
+## Running nonroot tag on Azure DevOps pipeline
+
+To use this tag effectively in Azure DevOps Pipelines, follow the steps below ([Azure documentation](This README provides guidance on how to use the Docker Hub nonroot User Tag in Azure DevOps Pipelines to run containers with reduced privileges.)). 
+
+## Add user 0 option to the container options
+```shell
+trigger:
+  - main
+
+container:
+  image: aquasec/aqua-scanner:nonroot
+  options: -u 0
+  env:
+    AQUA_KEY: $(AQUA_KEY)
+    AQUA_SECRET: $(AQUA_SECRET)
+    AZURE_TOKEN: $(AZURE_TOKEN)
+    TRIVY_RUN_AS_PLUGIN: aqua
+steps:
+- checkout: self
+  fetchDepth: 0
+- script: |
+    trivy fs --scanners config,vuln,secret .
+  displayName: Aqua scanner
+```
+
 ## Compatibility
 The plugin is designed for Docker environments and is compatible with Linux containers. 
 
