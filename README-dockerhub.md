@@ -145,13 +145,13 @@ podman run --rm \
 
 When working within CI environment, it's important to include the Source Code Management (SCM) tokens for pull requests. You can find additional guidance and details on this matter within our platform for your reference about each SCM.
 
-# aqua-scanner nonroot Tag
+# aqua-scanner limited Tag
 
-We provide a dedicated nonroot tag, for running the aqua-scanner on a nonroot user.
+We provide a dedicated limited tag, for running the aqua-scanner on a limited user.
 
-## Running nonroot tag on Azure DevOps pipeline
+## Running limited tag on Azure DevOps pipeline
 
-To use this tag effectively in Azure DevOps Pipelines, follow the steps below ([Azure documentation](This README provides guidance on how to use the Docker Hub nonroot User Tag in Azure DevOps Pipelines to run containers with reduced privileges.)). 
+To use this tag effectively in Azure DevOps Pipelines, follow the steps below ([Azure documentation](This README provides guidance on how to use the Docker Hub limited User Tag in Azure DevOps Pipelines to run containers with reduced privileges.)). 
 
 ## Add user 0 option to the container options
 ```shell
@@ -159,7 +159,7 @@ trigger:
   - main
 
 container:
-  image: aquasec/aqua-scanner:nonroot
+  image: aquasec/aqua-scanner:limited
   options: -u 0
   env:
     AQUA_KEY: $(AQUA_KEY)
