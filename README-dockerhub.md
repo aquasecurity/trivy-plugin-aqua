@@ -78,7 +78,7 @@ There are some env vars for overriding this data;
 | ---------------- | ------------------------------------------ | --------------------------------------------- |
 | `--debug`        | Get more detailed output as Trivy runs.    |                                               |
 | `--severities`   | The Severities that you are interested in. | `--severities CRITICAL,HIGH,UNKNOWN`          |
-| `--pipelines`    | Scan repository pipeline files.            | `--pipelines` / `PIPELINES=1 trivy ...`       |
+| `--skip-pipelines`    | Skip scan repository pipeline files.              | `--skip-pipelines`       |
 | `--sast`    | To enable SAST scanning.            | `--sast`        |
 | `--reachability`    | To enable reachability scanning.            | `--reachability`        |
 | `--package-json` | Scan package.json files without lock files | `--package-json` / `PACKAGE_JSON=1 trivy ...` |
