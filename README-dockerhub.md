@@ -145,6 +145,34 @@ podman run --rm \
 
 When working within CI environment, it's important to include the Source Code Management (SCM) tokens for pull requests. You can find additional guidance and details on this matter within our platform for your reference about each SCM.
 
+# aqua-scanner limited Tag
+
+We provide a dedicated limited tag, for running the aqua-scanner on a limited user.
+
+## Running limited tag on Azure DevOps pipeline
+
+To use this tag effectively in Azure DevOps Pipelines, follow the steps below ([Azure documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/container-phases?view=azure-devops&tabs=yaml#linux-based-containers)), consider the following Azure DevOps pipeline example (with the -u 0 option):
+
+```yaml
+trigger:
+  - main
+
+container:
+  image: aquasec/aqua-scanner:limited
+  options: -u 0
+  env:
+    AQUA_KEY: $(AQUA_KEY)
+    AQUA_SECRET: $(AQUA_SECRET)
+    AZURE_TOKEN: $(AZURE_TOKEN)
+    TRIVY_RUN_AS_PLUGIN: aqua
+steps:
+- checkout: self
+  fetchDepth: 0
+- script: |
+    trivy fs --scanners config,vuln,secret .
+  displayName: Aqua scanner
+```
+
 ## Compatibility
 The plugin is designed for Docker environments and is compatible with Linux containers. 
 
