@@ -12,16 +12,16 @@ The **Aqua Security Trivy Plugin** is a premium offering designed to enhance the
 
 - **SAST Scanning**: Analyze your source code for security vulnerabilities, including code patterns that could lead to potential exploits.
 
-- **Reachability Check**: Ensure your code interacts only with approved and trusted endpoints, reducing potential attack vectors.
+- **Reachability Check**: This analysis provides more granular information to understand whether an existing vulnerability is reachable to the packages in your code repository. If a vulnerability is reachable, you may prioritize fixing it.
 
-- **Customizable Security Policies**: Tailor security policies to your organization's needs, including severity thresholds and compliance requirements. Please contact Aqua Security for policies details.
+- **Customizable Security Policies**: Tailor security policies to your organization's needs, including severity thresholds and compliance requirements. For more information, please see the Aqua official documentation.
 
 - **Detailed Reporting**: Receive comprehensive security reports, complete with actionable remediation recommendations.
 
-- **CI/CD Pipeline Integration**: Seamlessly incorporate the GitHub Action into your CI/CD pipelines to ensure stringent security checks throughout your software development lifecycle.
+- **CI/CD Pipeline Integration**: Seamlessly incorporate into your CI/CD pipelines to ensure stringent security checks throughout your software development lifecycle.
 
 ## Get Started
-To begin leveraging the Aqua Security Trivy Integration GitHub Action to protect your code repositories, reach out to our sales or support team to learn more about the benefits and access.
+To begin leveraging the Aqua Security Trivy Integration to protect your code repositories, reach out to our sales or support team to learn more about the benefits and access.
 
 
 ## Environment Variables
@@ -40,7 +40,7 @@ The only explicitly required environment variables are
 
 | Variable    | Purpose                                                       |
 |:------------|:--------------------------------------------------------------|
-| CSPM_URL    | URL to generate Aqua Platform token (default: us-east-1 CSPM) |
+| CSPM_URL    | Aqua CSPM URL (default: us-east-1 CSPM) |
 | AQUA_URL    | Aqua platform URL (default: us-east-1 Aqua platform)          |
 
 
@@ -76,7 +76,7 @@ There are some env vars for overriding this data;
 
 | Argument         | Purpose                                    | Example Usage                                 |
 | ---------------- | ------------------------------------------ | --------------------------------------------- |
-| `--debug`        | Get more detailed output as Trivy runs.    |                                               |
+| `--debug`        | Get more detailed output as Trivy runs.    |                                               | `--debug`
 | `--severities`   | The Severities that you are interested in. | `--severities CRITICAL,HIGH,UNKNOWN`          |
 | `--skip-pipelines`    | Skip scan repository pipeline files.              | `--skip-pipelines`       |
 | `--sast`    | To enable SAST scanning.            | `--sast`        |
@@ -147,7 +147,7 @@ When working within CI environment, it's important to include the Source Code Ma
 
 # aqua-scanner limited Tag
 
-We provide a dedicated limited tag, for running the aqua-scanner on a limited user.
+We provide a dedicated limited tag, for running the aqua-scanner on a non-root user.
 
 ## Running limited tag on Azure DevOps pipeline
 
