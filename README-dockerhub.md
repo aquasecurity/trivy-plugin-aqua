@@ -76,7 +76,7 @@ There are some env vars for overriding this data;
 
 | Argument         | Purpose                                    | Example Usage                                 |
 | ---------------- | ------------------------------------------ | --------------------------------------------- |
-| `--debug`        | Get more detailed output as Trivy runs.    |                                               | `--debug`
+| `--debug`        | Get more detailed output as Trivy runs.    | `--debug`                                              | 
 | `--severities`   | The Severities that you are interested in. | `--severities CRITICAL,HIGH,UNKNOWN`          |
 | `--skip-pipelines`    | Skip scan repository pipeline files.              | `--skip-pipelines`       |
 | `--sast`    | To enable SAST scanning.            | `--sast`        |
