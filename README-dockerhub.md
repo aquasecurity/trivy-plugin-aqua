@@ -72,7 +72,7 @@ There are some env vars for overriding this data;
 | XDG_CACHE_HOME |   use this environment variable for setting the cache directory |
 | ENABLE_TRIVY_STDOUT |   use this environment variable with true value for full desplay of your scan results in your environment |
 | SAST_LOGS |   use this environment variable with true value for writing sast logs to file |
-| SAST_LOGS_DIR |   yse this environment variable to explicitly specify the location where the log file should be written |
+| SAST_LOGS_DIR |   use this environment variable to explicitly specify the location where the log file should be written |
 
 
 
