@@ -70,6 +70,10 @@ There are some env vars for overriding this data;
 | CA-CRET  |  Use this environment variable to set path to CA certificate |
 | XDG_DATA_HOME |   use this environment variable to designate the base directory for storing user-specific data |
 | XDG_CACHE_HOME |   use this environment variable for setting the cache directory |
+| ENABLE_TRIVY_STDOUT |   use this environment variable with true value for full desplay of your scan results in your environment |
+| SAST_LOGS |   use this environment variable with true value for writing sast logs to file |
+| SAST_LOGS_DIR |   use this environment variable to explicitly specify the location where the log file should be written |
+
 
 
 ## Command Line Arguments
@@ -124,6 +128,7 @@ jobs:
 ### Usage for running manually using docker command
 
 ```bash
+EXPORT AQUA_KEY=${AQUA_KEY} AQUA_SECRET=${AQUA_SECRET}
 docker run -it aquasec/aqua-scanner trivy fs --scanners config,vuln,secret .
 ```
 
