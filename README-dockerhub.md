@@ -52,23 +52,23 @@ Trivy will attempt to resolve the following details from the available environme
 
 There are some environments variables for overriding default values and behaviors;
 
-| Variable                   | Purpose                                                                                                                                                                      |
-| :------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| OVERRIDE_REPOSITORY        | Use this environment variable to explicitly specify the repository name used by Trivy                                                                                        |
-| FALLBACK_REPOSITORY        | Use this environment variable as a backup if no other repository env vars can be found                                                                                       |
-| OVERRIDE_BRANCH            | Use this environment variable to explicitly specify the branch used by Trivy                                                                                                 |
-| FALLBACK_BRANCH            | Use this environment variable as a backup if no other branch env vars can be found                                                                                           |
-| OVERRIDE_BUILDSYSTEM       | Use this environment variable to explicitly specify the build system                                                                                                         |
-| IGNORE_PANIC               | Use this environment variable to return exit code 0 on cli panic error                                                                                                       |
-| OVERRIDE_REPOSITORY_URL    | Use this environment variable to explicitly specify the repository link used by Trivy (For result's web link)                                                                |
-| OVERRIDE_REPOSITORY_SOURCE | Use this environment variable to explicitly specify the repository source used by Trivy                                                                                      |
-| HTTP_PROXY/HTTPS_PROXY     | Use these environment variable for proxy configuration                                                                                                                       |
-| XDG_DATA_HOME              | use this environment variable to designate the base directory for storing user-specific data                                                                                 |
-| XDG_CACHE_HOME             | use this environment variable for setting the cache directory                                                                                                                |
-| SAST_LOGS                  | use this boolean environment variable with true value for writing sast logs to a file (The file name is: ${REPOSITORY_NAME}-sast-logs.txt under the SAST_LOGS_DIR directory) |
-| SAST_LOGS_DIR              | use this environment variable to explicitly specify the location where the log file should be written (Default is /tmp/.trivy/plugins/aqua)                                  |
-| TRIVY_QUIET                | Disable trivy output report in log                                                                                                                                           |
-| AQUA_ASSURANCE_EXPORT      | The path to export policies results (JSON)                                                                                                                                   |
+| Variable                   | Purpose                                                                                                                                                              |
+| :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OVERRIDE_REPOSITORY        | Use this environment variable to explicitly specify the repository name used by Trivy                                                                                |
+| FALLBACK_REPOSITORY        | Use this environment variable as a backup if no other repository env vars can be found                                                                               |
+| OVERRIDE_BRANCH            | Use this environment variable to explicitly specify the branch used by Trivy                                                                                         |
+| FALLBACK_BRANCH            | Use this environment variable as a backup if no other branch env vars can be found                                                                                   |
+| OVERRIDE_BUILDSYSTEM       | Use this environment variable to explicitly specify the build system                                                                                                 |
+| IGNORE_PANIC               | Use this environment variable to return exit code 0 on cli panic error                                                                                               |
+| OVERRIDE_REPOSITORY_URL    | Use this environment variable to explicitly specify the repository link used by Trivy (For result's web link)                                                        |
+| OVERRIDE_REPOSITORY_SOURCE | Use this environment variable to explicitly specify the repository source used by Trivy                                                                              |
+| HTTP_PROXY/HTTPS_PROXY     | Use these environment variable for proxy configuration                                                                                                               |
+| XDG_DATA_HOME              | use this environment variable to designate the base directory for storing user-specific data                                                                         |
+| XDG_CACHE_HOME             | use this environment variable for setting the cache directory                                                                                                        |
+| SAST_LOGS                  | use this environment variable with true value for writing sast logs to a file (The file name is: ${REPOSITORY_NAME}-sast-logs.txt under the SAST_LOGS_DIR directory) |
+| SAST_LOGS_DIR              | use this environment variable to explicitly specify the location where the log file should be written (Default is /tmp/.trivy/plugins/aqua)                          |
+| TRIVY_QUIET                | Disable trivy output report in log                                                                                                                                   |
+| AQUA_ASSURANCE_EXPORT      | The path to export policies results (JSON)                                                                                                                           |
 
 ## Command Line Arguments
 
