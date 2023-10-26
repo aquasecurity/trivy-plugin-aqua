@@ -6,7 +6,7 @@ The **Aqua Security Trivy Plugin** is a premium offering designed to enhance the
 
 ## Features
 
-- **Enhanced Security Scans**: Aqua Security customers benefit from advanced features including Better Secret Scanning, SAST (Static application security testing), and Reachability Checks.
+- **Enhanced Security Scans**: Aqua Security customers benefit from advanced features including Enhenced Secret Scanning engine, SAST (Static application security testing), Reachability Checks, and more.
 
 - **Better Secret Scanning**: Detect sensitive information such as API keys and passwords within your codebase and configuration files to prevent potential leaks.
 
@@ -50,38 +50,40 @@ Trivy will attempt to resolve the following details from the available environme
 - committing user
 - build system
 
-There are some env vars for overriding this data;
+There are some environments variables for overriding default values and behaviors;
 
-| Variable                   | Purpose                                                                                                       |
-| :------------------------- | :------------------------------------------------------------------------------------------------------------ |
-| OVERRIDE_REPOSITORY        | Use this environment variable to explicitly specify the repository used by Trivy                              |
-| FALLBACK_REPOSITORY        | Use this environment variable as a backup if no other repository env vars can be found                        |
-| OVERRIDE_BRANCH            | Use this environment variable to explicitly specify the branch used by Trivy                                  |
-| FALLBACK_BRANCH            | Use this environment variable as a backup if no other branch env vars can be found                            |
-| OVERRIDE_BUILDSYSTEM       | Use this environment variable to explicitly specify the build system                                          |
-| OVERRIDE_SCMID             | Use this environment variable to explicitly specify the scm id                                                |
-| IGNORE_PANIC               | Use this environment variable to return exit code 0 on cli panic                                              |
-| OVERRIDE_REPOSITORY_URL    | Use this environment variable to explicitly specify the repository link used by Trivy (For result's web link) |
-| OVERRIDE_REPOSITORY_SOURCE | Use this environment variable to explicitly specify the repository source used by Trivy                       |
-| HTTP_PROXY/HTTPS_PROXY     | Use these environment variable for proxy configuration                                                        |
-| CA-CRET                    | Use this environment variable to set path to CA certificate                                                   |
-| XDG_DATA_HOME              | use this environment variable to designate the base directory for storing user-specific data                  |
-| XDG_CACHE_HOME             | use this environment variable for setting the cache directory                                                 |
-| ENABLE_TRIVY_STDOUT        | use this environment variable with true value for full desplay of your scan results in your environment       |
-| SAST_LOGS                  | use this environment variable with true value for writing sast logs to file                                   |
-| SAST_LOGS_DIR              | use this environment variable to explicitly specify the location where the log file should be written         |
+| Variable                   | Purpose                                                                                                                                                              |
+| :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OVERRIDE_REPOSITORY        | Use this environment variable to explicitly specify the repository name used by Trivy                                                                                |
+| FALLBACK_REPOSITORY        | Use this environment variable as a backup if no other repository env vars can be found                                                                               |
+| OVERRIDE_BRANCH            | Use this environment variable to explicitly specify the branch used by Trivy                                                                                         |
+| FALLBACK_BRANCH            | Use this environment variable as a backup if no other branch env vars can be found                                                                                   |
+| OVERRIDE_BUILDSYSTEM       | Use this environment variable to explicitly specify the build system                                                                                                 |
+| IGNORE_PANIC               | Use this environment variable to return exit code 0 on cli panic error                                                                                               |
+| OVERRIDE_REPOSITORY_URL    | Use this environment variable to explicitly specify the repository link used by Trivy (For result's web link)                                                        |
+| OVERRIDE_REPOSITORY_SOURCE | Use this environment variable to explicitly specify the repository source used by Trivy                                                                              |
+| HTTP_PROXY/HTTPS_PROXY     | Use these environment variable for proxy configuration                                                                                                               |
+| XDG_DATA_HOME              | use this environment variable to designate the base directory for storing user-specific data                                                                         |
+| XDG_CACHE_HOME             | use this environment variable for setting the cache directory                                                                                                        |
+| SAST_LOGS                  | use this environment variable with true value for writing sast logs to a file (The file name is: ${REPOSITORY_NAME}-sast-logs.txt under the SAST_LOGS_DIR directory) |
+| SAST_LOGS_DIR              | use this environment variable to explicitly specify the location where the log file should be written (Default is /tmp/.trivy/plugins/aqua)                          |
+| TRIVY_QUIET                | Disable trivy output report in log                                                                                                                                   |
+| AQUA_ASSURANCE_EXPORT      | The path to export policies results (JSON)                                                                                                                           |
 
 ## Command Line Arguments
 
-| Argument           | Purpose                                    | Example Usage                                 |
-| ------------------ | ------------------------------------------ | --------------------------------------------- |
-| `--debug`          | Get more detailed output as Trivy runs.    | `--debug`                                     |
-| `--severities`     | The Severities that you are interested in. | `--severities CRITICAL,HIGH,UNKNOWN`          |
-| `--skip-pipelines` | Skip scan repository pipeline files.       | `--skip-pipelines`                            |
-| `--sast`           | To enable SAST scanning.                   | `--sast`                                      |
-| `--reachability`   | To enable reachability scanning.           | `--reachability`                              |
-| `--package-json`   | Scan package.json files without lock files | `--package-json` / `PACKAGE_JSON=1 trivy ...` |
-| `--dotnet-proj`    | Scan dotnet proj files without lock files  | `--dotnet-proj` / `DOTNET_PROJ=1 trivy ...`   |
+| Argument                  | Environment variable        | Purpose                                                      | Example Usage                                                                |
+| ------------------------- | --------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| `--debug`                 | DEBUG                       | Get more detailed output as Trivy runs.                      | `--debug` / DEBUG=true                                                       |
+| `--severities`            | TRIVY_SEVERITY              | The Severities that you are interested in.                   | `--severities CRITICAL,HIGH,UNKNOWN` / TRIVY_SEVERITY= CRITICAL,HIGH,UNKNOWN |
+| `--skip-pipelines`        | SKIP_PIPELINES              | Skip scan repository pipeline files.                         | `--skip-pipelines` / SKIP_PIPELINES=true                                     |
+| `--sast`                  | SAST                        | To enable SAST scanning.                                     | `--sast` / SAST=true                                                         |
+| `--reachability`          | REACHABILITY                | To enable reachability scanning.                             | `--reachability` / REACHABILITY=true                                         |
+| `--package-json`          | PACKAGE_JSON                | Scan package.json files without lock files                   | `--package-json` / `PACKAGE_JSON=true`                                       |
+| `--dotnet-proj`           | DOTNET_PROJ                 | Scan dotnet proj files without lock files                    | `--dotnet-proj` / `DOTNET_PROJ=true`                                         |
+| `--skip-policies`         | TRIVY_SKIP_POLICIES         | Skip policies checks                                         | `--skip-policies` / `TRIVY_SKIP_POLICIES=true`                               |
+| `--skip-result-upload`    | TRIVY_SKIP_RESULT_UPLOAD    | Disable uploading scan results to aqua platform              | `--skip-result-upload` / `TRIVY_SKIP_RESULT_UPLOAD=true`                     |
+| `--skip-policy-exit-code` | TRIVY_SKIP_POLICY_EXIT_CODE | Prevent non-zero exit code if an assurance policy has failed | `--skip-policy-exit-code` / `TRIVY_SKIP_POLICY_EXIT_CODE=true`               |
 
 ## GitHub Action Integration Example
 
@@ -113,14 +115,13 @@ jobs:
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
           GITHUB_TOKEN: ${{ github.token }}
           TRIVY_RUN_AS_PLUGIN: "aqua"
-          # For proxy configuration add env vars: HTTP_PROXY/HTTPS_PROXY, CA-CRET (path to CA certificate)
+          # Use here any other environment variable
 ```
 
 ### Usage for running manually using docker command
 
 ```bash
-EXPORT AQUA_KEY=${AQUA_KEY} AQUA_SECRET=${AQUA_SECRET}
-docker run -it aquasec/aqua-scanner trivy fs --scanners config,vuln,secret .
+AQUA_KEY=${AQUA_KEY} AQUA_SECRET=${AQUA_SECRET} TRIVY_RUN_AS_PLUGIN=aqua docker run -it -e AQUA_KEY -e AQUA_SECRET -e INPUT_WORKING_DIRECTORY=/scanning -v "${YOUR_WORKSPACE}":"/scanning" aquasec/aqua-scanner trivy fs --scanners config,vuln,secret .
 ```
 
 ## Usage with Podman
