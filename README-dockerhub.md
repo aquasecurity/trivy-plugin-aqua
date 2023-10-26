@@ -121,7 +121,7 @@ jobs:
 ### Usage for running manually using docker command
 
 ```bash
-AQUA_KEY=${AQUA_KEY} AQUA_SECRET=${AQUA_SECRET} TRIVY_RUN_AS_PLUGIN=aqua docker run -it -e AQUA_KEY -e AQUA_SECRET -e INPUT_WORKING_DIRECTORY=/scanning -v "${YOUR_WORKSPACE}":"/scanning" aquasec/aqua-scanner trivy fs --scanners config,vuln,secret .
+AQUA_KEY=${AQUA_KEY} AQUA_SECRET=${AQUA_SECRET} TRIVY_RUN_AS_PLUGIN=aqua docker run -e AQUA_KEY -e AQUA_SECRET -e TRIVY_RUN_AS_PLUGIN -e INPUT_WORKING_DIRECTORY=/scanning -v "${YOUR_WORKSPACE}":"/scanning" aquasec/aqua-scanner trivy fs --scanners config,vuln,secret .
 ```
 
 ## Usage with Podman
