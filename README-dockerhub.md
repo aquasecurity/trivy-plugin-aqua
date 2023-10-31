@@ -6,7 +6,7 @@ The **Aqua Security Trivy Plugin** is a premium offering designed to enhance the
 
 ## Features
 
-- **Enhanced Security Scans**: Aqua Security customers benefit from advanced features including Better Secret Scanning, SAST (Static application security testing), and Reachability Checks.
+- **Enhanced Security Scans**: Aqua Security customers benefit from advanced features including Enhenced Secret Scanning engine, SAST (Static application security testing), Reachability Checks, and more.
 
 - **Better Secret Scanning**: Detect sensitive information such as API keys and passwords within your codebase and configuration files to prevent potential leaks.
 
@@ -50,7 +50,7 @@ Trivy will attempt to resolve the following details from the available environme
 - committing user
 - build system
 
-There are some env vars for overriding this data;
+There are some environments variables for overriding default values and behaviors;
 
 | Variable                   | Purpose                                                                                                       |
 | :------------------------- | :------------------------------------------------------------------------------------------------------------ |
@@ -119,7 +119,7 @@ jobs:
 ### Usage for running manually using docker command
 
 ```bash
-docker run -it aquasec/aqua-scanner trivy fs --scanners config,vuln,secret .
+AQUA_KEY=${AQUA_KEY} AQUA_SECRET=${AQUA_SECRET} TRIVY_RUN_AS_PLUGIN=aqua docker run -it -e AQUA_KEY -e AQUA_SECRET -e TRIVY_RUN_AS_PLUGIN -e INPUT_WORKING_DIRECTORY=/scanning -v "${YOUR_WORKSPACE}":"/scanning" aquasec/aqua-scanner trivy fs --scanners config,vuln,secret .
 ```
 
 ## Usage with Podman
@@ -139,20 +139,23 @@ podman run --rm \
 
 When working within CI environment, it's important to include the Source Code Management (SCM) tokens for pull requests. You can find additional guidance and details on this matter within our platform for your reference about each SCM.
 
-# aqua-scanner limited Tag
+# aqua-scanner limited Tag (Beta)
 
-We provide a dedicated limited tag, for running the aqua-scanner on a non-root user.
+We now provide a dedicated limited permission tag, for running the aqua-scanner on a non-root user.
+
+Tag name: `latest-limited`
+Support for: linux/amd64, linux/arm64
 
 ## Running limited tag on Azure DevOps pipeline
 
-To use this tag effectively in Azure DevOps Pipelines, follow the steps below ([Azure documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/container-phases?view=azure-devops&tabs=yaml#linux-based-containers)), consider the following Azure DevOps pipeline example (with the -u 0 option):
+To use the limited tag effectively on Azure DevOps Pipelines, follow the steps below ([Azure documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/container-phases?view=azure-devops&tabs=yaml#linux-based-containers)), consider the following Azure DevOps pipeline example (with the -u 0 option):
 
 ```yaml
 trigger:
   - main
 
 container:
-  image: aquasec/aqua-scanner:limited
+  image: aquasec/aqua-scanner:latest-limited
   options: -u 0
   env:
     AQUA_KEY: $(AQUA_KEY)
