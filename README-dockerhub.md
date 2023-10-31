@@ -69,7 +69,9 @@ There are some environments variables for overriding default values and behavior
 | SAST_LOGS_DIR              | use this environment variable to explicitly specify the location where the log file should be written (Default is /tmp/.trivy/plugins/aqua)                          |
 | TRIVY_QUIET                | Disable trivy output report in log                                                                                                                                   |
 | AQUA_ASSURANCE_EXPORT      | The path to export policies results (JSON)                                                                                                                           |
-
+| OVERRIDE_AUTHOR            | Use this environment variable to override the author of the scan (commit pusher by default)                   |
+| OVERRIDE_RUN_ID            | Use this environment variable to override the run id (default to SCM run build number)                        |
+| OVERRIDE_BUILD_ID          | Use this environment variable to override the job/build id (default to SCM build id)                          |
 ## Command Line Arguments
 
 | Argument                  | Environment variable        | Purpose                                                      | Example Usage                                                                |
