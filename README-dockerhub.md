@@ -82,7 +82,8 @@ There are some environments variables for overriding default values and behavior
 | `--sast`                  | SAST                        | To enable SAST scanning.                                     | `--sast` / SAST=true                                                         |
 | `--reachability`          | REACHABILITY                | To enable reachability scanning.                             | `--reachability` / REACHABILITY=true                                         |
 | `--package-json`          | PACKAGE_JSON                | Scan package.json files without lock files                   | `--package-json` / `PACKAGE_JSON=true`                                       |
-| `--dotnet-proj`           | DOTNET_PROJ                 | Scan dotnet proj files without lock files                    | `--dotnet-proj` / `DOTNET_PROJ=true`                                         |
+| `--dotnet-proj`           | DOTNET_PROJ                 | Scan dotnet proj files without lock files                    | `--dotnet-proj` / `DOTNET_PROJ=true`   
+| `--gradle`                | GRADLE                      | Scan gradle build files without lock files                   | `--gradle` / `GRADLE=true`                                        |
 | `--skip-policies`         | TRIVY_SKIP_POLICIES         | Skip policies checks                                         | `--skip-policies` / `TRIVY_SKIP_POLICIES=true`                               |
 | `--skip-result-upload`    | TRIVY_SKIP_RESULT_UPLOAD    | Disable uploading scan results to aqua platform              | `--skip-result-upload` / `TRIVY_SKIP_RESULT_UPLOAD=true`                     |
 | `--skip-policy-exit-code` | TRIVY_SKIP_POLICY_EXIT_CODE | Prevent non-zero exit code if an assurance policy has failed | `--skip-policy-exit-code` / `TRIVY_SKIP_POLICY_EXIT_CODE=true`               |
