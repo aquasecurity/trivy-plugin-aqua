@@ -88,6 +88,7 @@ There are some environments variables for overriding default values and behavior
 | `--skip-result-upload`    | TRIVY_SKIP_RESULT_UPLOAD    | Disable uploading scan results to aqua platform              | `--skip-result-upload` / `TRIVY_SKIP_RESULT_UPLOAD=true`                     |
 | `--skip-policy-exit-code` | TRIVY_SKIP_POLICY_EXIT_CODE | Prevent non-zero exit code if an assurance policy has failed | `--skip-policy-exit-code` / `TRIVY_SKIP_POLICY_EXIT_CODE=true`               |
 
+
 ## GitHub Action Integration Example
 
 To demonstrate the seamless integration of the Aqua Security Trivy Plugin into your development workflow, which can run triggered by push (full scan) or triggered by creating a pull request (scan the Git diff's), consider the following GitHub Actions example:
@@ -178,6 +179,7 @@ steps:
 ## Compatibility
 
 The plugin is designed for Docker environments and is compatible with Linux containers.
+The gradle non lock supported from gradle 7.0.0, support groovy and kotlin dsl.
 
 ## License
 
