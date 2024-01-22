@@ -145,7 +145,7 @@ podman run --rm \
 
 When working within CI environment, it's important to include the Source Code Management (SCM) tokens for pull requests. You can find additional guidance and details on this matter within our platform for your reference about each SCM.
 
-# aqua-scanner limited Tag (Beta)
+# Usage of the Aqua scanner image
 
 The "aqua-scanner" image will be used from the docker hub aquasec repository. This image will be used to scan code repositories associated with the CI build system having Admin-level privileges. If you want to scan code repositories associated with the CI build system having non-root user privileges, use the Aqua scanner image with the tag latest-limited, i.e. aquasec/aqua-scanner:latest-limited. This image is compatible with the "AMD64" and "ARM64" Linux platforms.
 
