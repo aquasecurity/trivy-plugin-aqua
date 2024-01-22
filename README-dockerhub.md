@@ -145,16 +145,11 @@ podman run --rm \
 
 When working within CI environment, it's important to include the Source Code Management (SCM) tokens for pull requests. You can find additional guidance and details on this matter within our platform for your reference about each SCM.
 
-# aqua-scanner limited Tag (Beta)
+# Usage of the Aqua scanner image
 
-We now provide a dedicated limited permission tag, for running the aqua-scanner on a non-root user.
+The "aqua-scanner" image will be used from the docker hub aquasec repository. This image will be used to scan code repositories associated with the CI build system having Admin-level privileges. If you want to scan code repositories associated with the CI build system having non-root user privileges, use the Aqua scanner image with the tag latest-limited, i.e. aquasec/aqua-scanner:latest-limited. This image is compatible with the "AMD64" and "ARM64" Linux platforms.
 
-Tag name: `latest-limited`
-Support for: linux/amd64, linux/arm64
-
-## Running limited tag on Azure DevOps pipeline
-
-To use the limited tag effectively on Azure DevOps Pipelines, follow the steps below ([Azure documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/container-phases?view=azure-devops&tabs=yaml#linux-based-containers)), consider the following Azure DevOps pipeline example (with the -u 0 option):
+You can add the following example code block to Azure pipeline script with the "Push" option using aqua-scanner:latest-limited. When adding this code block to Azure pipeline script only, ensure to include options: -u 0. If you want to use aqua-scanner with limited tag and add code block from the Aqua UI to any other repository hosting platform pipeline script, replace aqua-scanner with aqua-scanner:latest-limited.
 
 ```yaml
 trigger:
