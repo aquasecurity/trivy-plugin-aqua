@@ -87,7 +87,7 @@ There are some environments variables for overriding default values and behavior
 | `--skip-policies`         | TRIVY_SKIP_POLICIES         | Skip policies checks                                         | `--skip-policies` / `TRIVY_SKIP_POLICIES=true`                               |
 | `--skip-result-upload`    | TRIVY_SKIP_RESULT_UPLOAD    | Disable uploading scan results to aqua platform              | `--skip-result-upload` / `TRIVY_SKIP_RESULT_UPLOAD=true`                     |
 | `--skip-policy-exit-code` | TRIVY_SKIP_POLICY_EXIT_CODE | Prevent non-zero exit code if an assurance policy has failed | `--skip-policy-exit-code` / `TRIVY_SKIP_POLICY_EXIT_CODE=true`               |
-
+| `--file-patterns`         | TRIVY_FILE_PATTERNS         | This option takes regexp patterns to look for your files. For example, it may be useful when your file name of Dockerfile doesn't match the default patterns | `--file-patterns="dockerfile:.*.docker"` / `TRIVY_FILE_PATTERNS="dockerfile:.*.docker"` <br/>The prefixes are listed [here](https://github.com/aquasecurity/trivy/blob/6ccc0a554b07b05fd049f882a1825a0e1e0aabe1/pkg/fanal/analyzer/const.go)
 
 ## GitHub Action Integration Example
 
