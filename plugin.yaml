@@ -22,7 +22,7 @@ platforms:
   - selector:
       os: darwin
       arch: arm64
-    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.160.6/darwin_arm64_v0.160.8.tar.gz
+    uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.160.8/darwin_arm64_v0.160.8.tar.gz
     bin: ./aqua
   - selector:
       os: windows
