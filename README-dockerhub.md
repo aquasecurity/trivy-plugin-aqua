@@ -72,6 +72,13 @@ There are some environments variables for overriding default values and behavior
 | OVERRIDE_AUTHOR            | Use this environment variable to override the author of the scan (commit pusher by default)                   |
 | OVERRIDE_RUN_ID            | Use this environment variable to override the run id (default to SCM run build number)                        |
 | OVERRIDE_BUILD_ID          | Use this environment variable to override the job/build id (default to SCM build id)                          |
+| OVERRIDE_TARGET_BRANCH          | Use this environment variable to override the target branch for PR scanning (default to SCM target branch)                          |
+| OVERRIDE_SOURCE_BRANCH          | Use this environment variable to override the source branch for PR scanning (default to SCM source branch)      
+| OVERRIDE_COMMIT          | Use this environment variable to override the commit to enrich SCM links
+| OVERRIDE_REPOSITORY_NAME          | Use this environment variable to override the repository name (default to SCM repository name)     
+| OVERRIDE_REPOSITORY_ID          | Use this environment variable to override the repository id (default to SCM repository id)    
+| OVERRIDE_PROJECT_NAME          | Use this environment variable to override the project name (default to SCM project name - important in Azure)
+| OVERRIDE_PULL_REQUEST_ID          | Use this environment variable to override the pull request for PR scanning - comments (default to SCM target pull request id)  
 ## Command Line Arguments
 
 | Argument                  | Environment variable        | Purpose                                                      | Example Usage                                                                |
