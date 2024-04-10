@@ -12,7 +12,6 @@ platforms:
   - selector:
       os: linux
       arch: arm64
-
     uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.164.0/linux_arm64_v0.164.0.tar.gz
     bin: ./aqua
   - selector:
