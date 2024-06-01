@@ -2,6 +2,7 @@ name: "aqua"
 repository: github.com/aquasecurity/trivy-plugin-aqua
 version: "v0.170.0"
 maintainer: aquasecurity
+usage: trivy aqua <srcPath> # deprecated: for backward compatibility
 summary: Send results to Aqua Security
 description: A plugin for integration with Aqua Security SaaS platform
 platforms:
