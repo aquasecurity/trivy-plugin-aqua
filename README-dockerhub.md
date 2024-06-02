@@ -120,7 +120,7 @@ jobs:
       - name: Run Aqua scanner
         uses: docker://aquasec/aqua-scanner
         with:
-          args: trivy fs --scanners config,vuln,secret .
+          args: trivy fs --scanners misconfig,vuln,secret .
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
@@ -132,7 +132,7 @@ jobs:
 ### Usage for running manually using docker command
 
 ```bash
-AQUA_KEY=${AQUA_KEY} AQUA_SECRET=${AQUA_SECRET} TRIVY_RUN_AS_PLUGIN=aqua docker run -it -e AQUA_KEY -e AQUA_SECRET -e TRIVY_RUN_AS_PLUGIN -e INPUT_WORKING_DIRECTORY=/scanning -v "${YOUR_WORKSPACE}":"/scanning" aquasec/aqua-scanner trivy fs --scanners config,vuln,secret .
+AQUA_KEY=${AQUA_KEY} AQUA_SECRET=${AQUA_SECRET} TRIVY_RUN_AS_PLUGIN=aqua docker run -it -e AQUA_KEY -e AQUA_SECRET -e TRIVY_RUN_AS_PLUGIN -e INPUT_WORKING_DIRECTORY=/scanning -v "${YOUR_WORKSPACE}":"/scanning" aquasec/aqua-scanner trivy fs --scanners misconfig,vuln,secret .
 ```
 
 ## Usage with Podman
@@ -146,7 +146,7 @@ podman run --rm \
                 -e INPUT_WORKING_DIRECTORY='/scanning' \
                 -v ${WORKSPACE}:/scanning \
                 docker.io/aquasec/aqua-scanner \
-                git config --global --add safe.directory /scanning && trivy fs --scanners='config,vuln,secret' .
+                git config --global --add safe.directory /scanning && trivy fs --scanners='misconfig,vuln,secret' .
 
 ```
 
@@ -174,7 +174,7 @@ steps:
   - checkout: self
     fetchDepth: 0
   - script: |
-      trivy fs --scanners config,vuln,secret .
+      trivy fs --scanners misconfig,vuln,secret .
     displayName: Aqua scanner
 ```
 
