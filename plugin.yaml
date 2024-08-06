@@ -1,7 +1,6 @@
 name: "aqua"
 repository: github.com/aquasecurity/trivy-plugin-aqua
 version: "v0.178.3"
-version: "v0.178.2"
 maintainer: aquasecurity
 summary: Send results to Aqua Security
 description: A plugin for integration with Aqua Security SaaS platform
