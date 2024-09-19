@@ -10,7 +10,7 @@ on:
       - README-dockerhub.md
 
 jobs:
-  Update-images:
+  update-latest-version:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
@@ -54,19 +54,7 @@ jobs:
           password: ${{ secrets.ARGON_DOCKERHUB_TOKEN }}
           repository: aquasec/aqua-scanner
           readme-filepath: ./README-dockerhub.md
-
-  update-tag:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout target branch
-        uses: actions/checkout@v2
-      - name: Extract latest version
-        id: version
+      - name: Update tag to latest
         run: |
-          latest_version=$(grep 'version: ' plugin.yaml | cut -d '"' -f2)
-          echo "latest_version=$latest_version" >> $GITHUB_OUTPUT
-      - name: Update tag
-        run: |
-          git tag -f -a ${{ steps.version.outputs.latest_version }} -m "Update version ${{ steps.version.outputs.latest_version }} to the latest commit"
-          git push -f origin refs/tags/${{ steps.version.outputs.latest_version }}
+          git tag -f -a ${{ env.new_version }} -m "Update version ${{ env.new_version }} to the latest commit"
+          git push -f origin refs/tags/${{ env.new_version }}
