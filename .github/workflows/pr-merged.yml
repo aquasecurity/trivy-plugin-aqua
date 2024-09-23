@@ -56,5 +56,7 @@ jobs:
           readme-filepath: ./README-dockerhub.md
       - name: Update tag to latest
         run: |
+          git config --global user.name "Aqua Security"
+          git config --global user.email "user@aquasec.com"
           git tag -f -a ${{ env.new_version }} -m "Update version ${{ env.new_version }} to the latest commit"
           git push -f origin refs/tags/${{ env.new_version }}
