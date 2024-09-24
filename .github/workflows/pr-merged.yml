@@ -55,10 +55,8 @@ jobs:
           repository: aquasec/aqua-scanner
           readme-filepath: ./README-dockerhub.md
       - name: Update tag to latest
-        run: |
-          git config --global url.https://${{ secrets.UPDATE_TAG_GH_TOKEN }}@github.com/.insteadOf https://github.com/
-          git config --global user.email "user@aquasec.com"
-          git config --global user.name "Aqua Security"
-          git tag -f -a ${{ env.new_version }} -m "Update version ${{ env.new_version }} to the latest commit"
-          git push -f origin refs/tags/${{ env.new_version }}
-          git config --global url.https://github.com/.insteadOf https://${{ secrets.UPDATE_TAG_GH_TOKEN }}@github.com/
+        uses: richardsimko/update-tag@v1
+        with:
+          tag_name: ${{ env.new_version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.UPDATE_TAG_GH_TOKEN }}
