@@ -138,7 +138,7 @@ AQUA_KEY=${AQUA_KEY} AQUA_SECRET=${AQUA_SECRET} TRIVY_RUN_AS_PLUGIN=aqua docker 
 ## Usage with Podman
 
 ```bash
-podman run --rm \
+podman run --rm \ 
                 -e AQUA_KEY=${AQUA_KEY} \
                 -e AQUA_SECRET=${AQUA_SECRET} \
                 -e TRIVY_RUN_AS_PLUGIN='aqua' \
