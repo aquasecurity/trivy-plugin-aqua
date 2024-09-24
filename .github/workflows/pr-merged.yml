@@ -55,7 +55,7 @@ jobs:
           repository: aquasec/aqua-scanner
           readme-filepath: ./README-dockerhub.md
       - name: Update tag to latest
-        uses: richardsimko/update-tag@v1
+        uses: richardsimko/update-tag@e173a8ef8f54ab526a91dad6139a25efed62424c # v1.0.11
         with:
           tag_name: ${{ env.new_version }}
         env:
