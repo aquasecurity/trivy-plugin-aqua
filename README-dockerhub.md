@@ -118,7 +118,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Aqua scanner
-        uses: docker://aquasec/aqua-scanner
+        uses: docker://aquasec/aqua-scanner 
         with:
           args: trivy fs --scanners misconfig,vuln,secret .
         env:
