@@ -160,7 +160,7 @@ You can add the following example code block to Azure pipeline script with the "
 
 ```yaml
 trigger:
-  - main 
+  - main  
 
 container:
   image: aquasec/aqua-scanner:latest-limited
