@@ -28,5 +28,6 @@ platforms:
   - selector:
       os: windows
       arch: amd64
+
     uri: https://github.com/aquasecurity/trivy-plugin-aqua/releases/download/v0.185.3/windows_amd64_v0.185.3.tar.gz
     bin: ./aqua
