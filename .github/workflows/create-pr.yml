@@ -23,6 +23,5 @@ jobs:
         with:
           branch: "update-plugin-links-${{github.ref_name}}"
           title: "Update Plugin Artifacts Links for ${{github.ref_name}}"     
-          base: heads/master
           add-paths: |
             plugin.yaml
