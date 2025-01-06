@@ -22,6 +22,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           branch: "update-plugin-links-${{github.ref_name}}"
+          base: main
           title: "Update Plugin Artifacts Links for ${{github.ref_name}}"     
           add-paths: |
             plugin.yaml
