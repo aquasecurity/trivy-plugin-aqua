@@ -48,7 +48,7 @@ jobs:
           docker manifest create aquasec/aqua-scanner:latest-limited aquasec/aqua-scanner:latest-amd64-limited aquasec/aqua-scanner:latest-arm64-limited
           docker manifest push aquasec/aqua-scanner:latest-limited
       - name: DockerHub description update
-        uses: peter-evans/dockerhub-description@v3
+        uses: peter-evans/dockerhub-description@dc67fad7001ef9e8e3c124cb7a64e16d0a63d864 # 3.4.2
         with:
           username: ${{ secrets.ARGON_DOCKERHUB_USER }}
           password: ${{ secrets.ARGON_DOCKERHUB_TOKEN }}
