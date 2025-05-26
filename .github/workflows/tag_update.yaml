@@ -1,0 +1,25 @@
+name: tag update
+
+on:
+  workflow_dispatch:
+    inputs:
+      new_version:
+        description: "new_version"
+        type: string
+        default: "0.200.1"
+        required: true
+  
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Update tag to latest
+        uses: richardsimko/update-tag@e173a8ef8f54ab526a91dad6139a25efed62424c # v1.0.11
+        with:
+          tag_name: ${{ inputs.increase-version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.UPDATE_TAG_GH_TOKEN_FIXED }}
