@@ -11,30 +11,76 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Login to docker.io registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.ARGON_DOCKERHUB_USER }}
           password: ${{ secrets.ARGON_DOCKERHUB_TOKEN }}
+      - name: login to Aqua Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}
+          username: ${{ secrets.AQUASEC_ACR_USERNAME }}
+          password: ${{ secrets.AQUASEC_ACR_PASSWORD }}
       - name: Change image versions to latest
         run: |
+          # amd
           docker pull aquasec/aqua-scanner:${{ inputs.version }}-amd64
           docker tag aquasec/aqua-scanner:${{ inputs.version }}-amd64 aquasec/aqua-scanner:latest-amd64
           docker push aquasec/aqua-scanner:latest-amd64
+          # Handle transfer to aqua reg
+          docker tag aquasec/aqua-scanner:${{ inputs.version }}-amd64 ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-amd64
+          docker push ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-amd64
+          docker tag aquasec/aqua-scanner:${{ inputs.version }}-amd64 ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-amd64
+          docker push ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-amd64
 
+          # arm
           docker pull aquasec/aqua-scanner:${{ inputs.version }}-arm64
           docker tag aquasec/aqua-scanner:${{ inputs.version }}-arm64 aquasec/aqua-scanner:latest-arm64
           docker push aquasec/aqua-scanner:latest-arm64
+          # Handle transfer to aqua reg
+          docker tag aquasec/aqua-scanner:${{ inputs.version }}-arm64 ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-arm64
+          docker push ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-arm64
+          docker tag aquasec/aqua-scanner:${{ inputs.version }}-arm64 ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-arm64
+          docker push ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-arm64
 
+          # amd limited
           docker pull aquasec/aqua-scanner:${{ inputs.version }}-amd64-limited
           docker tag aquasec/aqua-scanner:${{ inputs.version }}-amd64-limited aquasec/aqua-scanner:latest-amd64-limited
           docker push aquasec/aqua-scanner:latest-amd64-limited
+          # Handle transfer to aqua reg
+          docker tag aquasec/aqua-scanner:${{ inputs.version }}-amd64-limited ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-amd64-limited
+          docker push ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-amd64-limited
+          docker tag aquasec/aqua-scanner:${{ inputs.version }}-amd64-limited ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-amd64-limited
+          docker push ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-amd64-limited
 
+          # arm limited
           docker pull aquasec/aqua-scanner:${{ inputs.version }}-arm64-limited
           docker tag aquasec/aqua-scanner:${{ inputs.version }}-arm64-limited aquasec/aqua-scanner:latest-arm64-limited
           docker push aquasec/aqua-scanner:latest-arm64-limited
-          
+          # Handle transfer to aqua reg
+          docker tag aquasec/aqua-scanner:${{ inputs.version }}-arm64-limited ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-arm64-limited
+          docker push ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-arm64-limited
+          docker tag aquasec/aqua-scanner:${{ inputs.version }}-arm64-limited ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-arm64-limited
+          docker push ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-arm64-limited
+
+          # Multiarch For Version (Aqua reg)
+          docker manifest create ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }} ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-amd64 ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-arm64
+          docker manifest push ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}
+
+          # Multiarch For Version Limited (Aqua reg)
+          docker manifest create ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-limited ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-amd64-limited ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-arm64-limited
+          docker manifest push ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:${{ inputs.version }}-limited
+
+          # Multiarch Latest
           docker manifest create aquasec/aqua-scanner:latest aquasec/aqua-scanner:latest-amd64 aquasec/aqua-scanner:latest-arm64
           docker manifest push aquasec/aqua-scanner:latest
+          # Handle transfer to aqua reg
+          docker manifest create ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-amd64 ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-arm64
+          docker manifest push ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest
 
+          # Multiarch Latest Limited
           docker manifest create aquasec/aqua-scanner:latest-limited aquasec/aqua-scanner:latest-amd64-limited aquasec/aqua-scanner:latest-arm64-limited
           docker manifest push aquasec/aqua-scanner:latest-limited
+          # Handle transfer to aqua reg
+          docker manifest create ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-limited ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-amd64-limited ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-arm64-limited
+          docker manifest push ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}/aqua-scanner:latest-limited
