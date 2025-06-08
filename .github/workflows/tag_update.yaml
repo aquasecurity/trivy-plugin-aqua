@@ -21,4 +21,4 @@ jobs:
         with:
           tag_name: ${{ inputs.new_version }}
         env:
-          GITHUB_TOKEN: ${{ secrets.UPDATE_TAG_GH_TOKEN_FIXED }}
+          GITHUB_TOKEN: ${{ secrets.UPDATE_TAG_GH_TOKEN }}
