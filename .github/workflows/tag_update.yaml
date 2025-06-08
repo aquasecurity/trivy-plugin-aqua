@@ -19,6 +19,6 @@ jobs:
       - name: Update tag to latest
         uses: richardsimko/update-tag@e173a8ef8f54ab526a91dad6139a25efed62424c # v1.0.11
         with:
-          tag_name: ${{ inputs.increase-version }}
+          tag_name: ${{ inputs.new_version }}
         env:
-          GITHUB_TOKEN: ${{ secrets.UPDATE_TAG_GH_TOKEN_FIXED }}
+          GITHUB_TOKEN: ${{ secrets.UPDATE_TAG_GH_TOKEN }}
