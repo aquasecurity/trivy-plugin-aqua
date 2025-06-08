@@ -6,7 +6,6 @@ on:
       new_version:
         description: "new_version"
         type: string
-        default: "0.201.1"
         required: true
   
 jobs:
