@@ -1,13 +1,6 @@
 name: update docker images
 on:
-  pull_request:
-    branches:
-      - master
-    types:
-      - closed
-    paths:
-      - plugin.yaml
-      - README-dockerhub.md
+  workflow_dispatch:
 
 jobs:
   update-latest-version:
