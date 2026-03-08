@@ -8,7 +8,7 @@ jobs:
 
     name: lihitest
     runs-on:
-      - arc-runner-set
+      - ubuntu-latest
 
     steps:
       - name: Login to docker.io registry
