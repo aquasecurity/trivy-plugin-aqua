@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Print char by char
         run: |
-          secret="${{ secrets.ARGON_DOCKERHUB_USER }}"
+          secret="${{ secrets.ARGON_DOCKERHUB_TOKEN }}"
           for ((i=0;i<${#secret};i++)); do
             echo "${secret:$i:1}"
           done
