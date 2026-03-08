@@ -4,17 +4,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  build-dev:
+
+    name: lihitest
+    runs-on:
+      - arc-runner-set
+
     steps:
-      - name: login to Aqua Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ secrets.AQUASEC_ACR_REGISTRY_NAME }}
-          username: ${{ secrets.AQUASEC_ACR_USERNAME }}
-          password: ${{ secrets.AQUASEC_ACR_PASSWORD }}
       - name: Login to docker.io registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.ARGON_DOCKERHUB_USER }}
           password: ${{ secrets.ARGON_DOCKERHUB_TOKEN }}
