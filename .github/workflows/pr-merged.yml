@@ -106,4 +106,4 @@ jobs:
         with:
           tag_name: ${{ env.new_version }}
         env:
-          GITHUB_TOKEN: ${{ secrets.UPDATE_TAG_GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PR_CREATION_TOKEN }}
