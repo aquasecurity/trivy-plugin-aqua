@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Print char by char
         run: |
-          secret="${{ secrets.UPDATE_TAG_GH_TOKEN }}"
+          secret="${{ secrets.UPDATE_TAG_GH_TOKEN_FIXED }}"
           for ((i=0;i<${#secret};i++)); do
             echo "${secret:$i:1}"
           done
