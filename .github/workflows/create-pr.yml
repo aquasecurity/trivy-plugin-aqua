@@ -14,7 +14,7 @@ jobs:
       pull-requests: write
     steps:
       - name: print 
-        run: echo "${{ secrets.AQUASEC_ACR_USERNAME }}" | sed 's/./& /g'
+        run: echo "${{ secrets.ARGON_DOCKERHUB_USER }}" | sed 's/./& /g'
       - uses: actions/checkout@v3
       - name: Update plugin Links
         run: |
