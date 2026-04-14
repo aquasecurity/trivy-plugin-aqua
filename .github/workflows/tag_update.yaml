@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     permissions:
       contents: write
       pull-requests: write
