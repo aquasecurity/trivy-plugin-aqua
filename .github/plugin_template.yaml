@@ -1,8 +1,9 @@
 name: "aqua"
 repository: github.com/aquasecurity/trivy-plugin-aqua
 version: "PLACEHOLDERVERSION"
-usage: trivy aqua <srcPath>
-description: A Trivy plugin that sends results to Aqua.
+maintainer: aquasecurity
+summary: Send results to Aqua Security
+description: A plugin for integration with Aqua Security SaaS platform
 platforms:
   - selector: # optional
       os: linux
