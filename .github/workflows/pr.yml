@@ -20,3 +20,47 @@ jobs:
           else
             echo 'Artifacts links are valid'
           fi
+
+  validate_aqua_pr_bot_auth:
+    name: validate aqua-pr-bot token
+    runs-on: arc-runner-set
+    steps:
+      - name: Generate aqua-pr-bot App token
+        id: pr_bot_token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.AQUA_PR_BOT_APP_ID }}
+          private-key: ${{ secrets.AQUA_PR_BOT_PRIVATE_KEY }}
+          owner: aquasecurity
+          repositories: trivy-plugin-aqua
+
+      - name: Validate PR bot API access (read-only)
+        env:
+          GH_TOKEN: ${{ steps.pr_bot_token.outputs.token }}
+        run: |
+          curl -sf -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/aquasecurity/trivy-plugin-aqua | jq -r .full_name
+          curl -sf -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/aquasecurity/trivy-plugin-aqua/pulls?per_page=1" | jq length
+
+  validate_aqua_release_publisher_auth:
+    name: validate aqua-release-publisher token
+    runs-on: arc-runner-set
+    steps:
+      - name: Generate aqua-release-publisher App token
+        id: release_token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.AQUA_RELEASE_PUBLISHER_APP_ID }}
+          private-key: ${{ secrets.AQUA_RELEASE_PUBLISHER_PRIVATE_KEY }}
+          owner: aquasecurity
+          repositories: trivy-plugin-aqua
+
+      - name: Validate release publisher API access (read-only)
+        env:
+          GH_TOKEN: ${{ steps.release_token.outputs.token }}
+        run: |
+          curl -sf -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/aquasecurity/trivy-plugin-aqua | jq -r .full_name
+          curl -sf -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/aquasecurity/trivy-plugin-aqua/releases?per_page=1" | jq length
