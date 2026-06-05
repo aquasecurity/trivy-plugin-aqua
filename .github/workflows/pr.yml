@@ -20,3 +20,43 @@ jobs:
           else
             echo 'Artifacts links are valid'
           fi
+
+  validate_aqua_pr_bot_auth:
+    name: validate aqua-pr-bot token
+    runs-on: arc-runner-set
+    steps:
+      - name: Generate aqua-pr-bot App token
+        id: pr_bot_token
+        uses: aquasecurity/.github-private/.github/actions/github-app-auth@github-app-migration
+        with:
+          app-id: ${{ secrets.AQUA_PR_BOT_APP_ID }}
+          private-key: ${{ secrets.AQUA_PR_BOT_PRIVATE_KEY }}
+          owner: aquasecurity
+          repositories: trivy-plugin-aqua
+
+      - name: Validate PR bot API access (read-only)
+        env:
+          GH_TOKEN: ${{ steps.pr_bot_token.outputs.token }}
+        run: |
+          gh api repos/aquasecurity/trivy-plugin-aqua --jq .full_name
+          gh api repos/aquasecurity/trivy-plugin-aqua/pulls --jq 'length' || true
+
+  validate_aqua_release_publisher_auth:
+    name: validate aqua-release-publisher token
+    runs-on: arc-runner-set
+    steps:
+      - name: Generate aqua-release-publisher App token
+        id: release_token
+        uses: aquasecurity/.github-private/.github/actions/github-app-auth@github-app-migration
+        with:
+          app-id: ${{ secrets.AQUA_RELEASE_PUBLISHER_APP_ID }}
+          private-key: ${{ secrets.AQUA_RELEASE_PUBLISHER_PRIVATE_KEY }}
+          owner: aquasecurity
+          repositories: trivy-plugin-aqua
+
+      - name: Validate release publisher API access (read-only)
+        env:
+          GH_TOKEN: ${{ steps.release_token.outputs.token }}
+        run: |
+          gh api repos/aquasecurity/trivy-plugin-aqua --jq .full_name
+          gh api repos/aquasecurity/trivy-plugin-aqua/releases --jq 'length' || true
