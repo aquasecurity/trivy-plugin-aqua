@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: Generate aqua-pr-bot App token
         id: pr_bot_token
-        uses: aquasecurity/.github-private/.github/actions/github-app-auth@github-app-migration
+        uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.AQUA_PR_BOT_APP_ID }}
           private-key: ${{ secrets.AQUA_PR_BOT_PRIVATE_KEY }}
@@ -47,7 +47,7 @@ jobs:
     steps:
       - name: Generate aqua-release-publisher App token
         id: release_token
-        uses: aquasecurity/.github-private/.github/actions/github-app-auth@github-app-migration
+        uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.AQUA_RELEASE_PUBLISHER_APP_ID }}
           private-key: ${{ secrets.AQUA_RELEASE_PUBLISHER_PRIVATE_KEY }}
