@@ -16,9 +16,18 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - name: Generate aqua-pr-bot App token
+        id: pr_bot_token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.AQUA_PR_BOT_APP_ID }}
+          private-key: ${{ secrets.AQUA_PR_BOT_PRIVATE_KEY }}
+          owner: aquasecurity
+          repositories: trivy-plugin-aqua
+
       - name: Update tag to latest
         uses: richardsimko/update-tag@e173a8ef8f54ab526a91dad6139a25efed62424c # v1.0.11
         with:
           tag_name: ${{ inputs.new_version }}
         env:
-          GITHUB_TOKEN: ${{ secrets.PR_CREATION_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.pr_bot_token.outputs.token }}
